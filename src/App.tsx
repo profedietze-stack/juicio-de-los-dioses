@@ -1,4 +1,5 @@
 import { GameProvider, useGame } from './state/GameContext';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { MenuScreen } from './components/screens/MenuScreen';
 import { IntroScreen } from './components/screens/IntroScreen';
 import { EventScreen } from './components/screens/EventScreen';
@@ -37,23 +38,25 @@ function AutosaveToast() {
 
 export default function App() {
   return (
-    <GameProvider>
-      <div id="app">
-        <div id="header">
-          <div className="h-sym">⚖</div>
-          <div>
-            <div className="h-title">El Juicio de los Dioses</div>
-            <div className="h-sub">Un juego de filosofía para decidir el destino de la humanidad</div>
+    <ErrorBoundary>
+      <GameProvider>
+        <div id="app">
+          <div id="header">
+            <div className="h-sym">⚖</div>
+            <div>
+              <div className="h-title">El Juicio de los Dioses</div>
+              <div className="h-sub">Un juego de filosofía para decidir el destino de la humanidad</div>
+            </div>
           </div>
+          <div id="main">
+            <Screens />
+          </div>
+          <div id="footer">
+            <FooterButtons />
+          </div>
+          <AutosaveToast />
         </div>
-        <div id="main">
-          <Screens />
-        </div>
-        <div id="footer">
-          <FooterButtons />
-        </div>
-        <AutosaveToast />
-      </div>
-    </GameProvider>
+      </GameProvider>
+    </ErrorBoundary>
   );
 }
