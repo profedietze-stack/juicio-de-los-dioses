@@ -1,0 +1,8 @@
+import type { Ending } from '../types';
+
+export const endings: Record<'extinction' | 'purgatory' | 'enlightenment' | 'deification', Ending> = {
+  extinction:{icon:'💀',title:'EXTINCIÓN TOTAL',narrative:'Los dioses contemplan vuestra especie con disgusto. Habéis sido pesados en la balanza cósmica y hallados deficientes. La humanidad es declarada un error biológico, un experimento fallido del universo. Vuestro linaje se extingue en silencio. De las cenizas, nuevas formas de vida florecerán, ignorantes de lo que alguna vez fuisteis.'},
+  purgatory:{icon:'⛓️',title:'PURGATORIO ETERNO',narrative:'Los dioses pronuncian su sentencia: la humanidad ha fracasado en el autodominio. Se os arrebata el libre albedrío. Viviréis felices, pero como bestias civilizadas, guiados por algoritmos benévolos que nunca os preguntarán si estáis de acuerdo. Libertad por paz. Una elección que los dioses consideran, quizás, misericordiosa.'},
+  enlightenment:{icon:'🌅',title:'ASCENSIÓN ILUSTRADA',narrative:'Los dioses sonríen con cautela. Habéis cometido errores, pero con intención. Vuestras contradicciones revelan una especie que aún lucha por comprender lo que es justo. Se os concede una oportunidad más. La humanidad recibirá guía ética eterna. No sois inmortales aún; pero quien sabe, con el tiempo, quizás lo seáis.'},
+  deification:{icon:'⚡',title:'DEIFICACIÓN HUMANA',narrative:'Los dioses se inclinan. Habéis trascendido vuestra naturaleza. A través de dilemas imposibles, habéis forjado una brújula moral que ni el cosmos había anticipado. La humanidad es declarada digna de unirse a nosotros en los cielos. Ya no seréis gobernados. Seréis dioses.'}
+};
