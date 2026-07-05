@@ -51,16 +51,25 @@ function reducer(state: GameState, action: Action): GameState {
       if (!saved) return { ...state, screen: 'intro' };
       const idMap = new Map(eventPool.map(e => [e.id, e]));
       const sessionEvents = saved.eventIds.map(id => idMap.get(id)).filter((e): e is Dilemma => Boolean(e));
-      if (!sessionEvents.length) return { ...state, screen: 'intro' };
+      // If any saved dilema id no longer exists in the current pool (e.g. a
+      // content update removed one), `current` and `decisions` were indexed
+      // against a session shape that no longer matches — discard the whole
+      // save rather than risk misaligning the two.
+      const isConsistent = sessionEvents.length === saved.eventIds.length
+        && saved.current >= 0 && saved.current < sessionEvents.length;
+      if (!isConsistent) {
+        clearSavedGame();
+        return { ...state, screen: 'intro' };
+      }
       return {
         ...initialState,
         screen: 'event',
         sessionEvents,
-        current: saved.current || 0,
-        balance: saved.balance ?? 50,
-        decisions: saved.decisions || [],
-        unlocked: saved.unlocked || [],
-        startTime: Date.now() - (saved.elapsed || 0) * 1000,
+        current: saved.current,
+        balance: saved.balance,
+        decisions: saved.decisions,
+        unlocked: saved.unlocked,
+        startTime: Date.now() - saved.elapsed * 1000,
       };
     }
 
