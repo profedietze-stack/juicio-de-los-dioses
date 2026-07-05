@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useReducer, useRef, type Dispatch, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useReducer, useRef, useState, type Dispatch, type ReactNode } from 'react';
 import type { GameState, Dilemma, DilemmaOption } from '../types';
 import { eventPool } from '../data/dilemmas';
 import { buildNewSession, recordSeenDilemas } from '../engine/poolBuilder';
@@ -65,21 +65,28 @@ function reducer(state: GameState, action: Action): GameState {
     }
 
     case 'CHOOSE': {
+      // Note: `current` deliberately does NOT advance here. The original
+      // keeps showing the just-answered dilemma underneath the feedback
+      // panel and only calls loadEvent() again (which reads the advanced
+      // index) once the player clicks "Continuar". Advancing `current`
+      // immediately would make EventScreen re-render with the *next*
+      // dilemma's title/quote/description while the feedback panel still
+      // describes the previous choice.
       const balance = Math.max(0, Math.min(100, state.balance + action.option.impact));
       return {
         ...state,
         balance,
         decisions: [...state.decisions, action.option],
-        current: state.current + 1,
         feedback: action.option,
       };
     }
 
     case 'ADVANCE_FROM_FEEDBACK': {
-      if (state.current >= state.sessionEvents.length) {
-        return { ...state, screen: 'result', feedback: null };
+      const nextCurrent = state.current + 1;
+      if (nextCurrent >= state.sessionEvents.length) {
+        return { ...state, current: nextCurrent, screen: 'result', feedback: null };
       }
-      return { ...state, feedback: null };
+      return { ...state, current: nextCurrent, feedback: null };
     }
 
     case 'TICK_TIMER':
@@ -96,11 +103,13 @@ function reducer(state: GameState, action: Action): GameState {
   }
 }
 
-const GameContext = createContext<{ state: GameState; dispatch: Dispatch<Action> } | null>(null);
+const GameContext = createContext<{ state: GameState; dispatch: Dispatch<Action>; toastVisible: boolean } | null>(null);
 
 export function GameProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(reducer, initialState);
   const finishedRef = useRef(false);
+  const [toastVisible, setToastVisible] = useState(false);
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Timer tick while an event is in progress.
   useEffect(() => {
@@ -122,6 +131,9 @@ export function GameProvider({ children }: { children: ReactNode }) {
       unlocked: state.unlocked,
       eventIds: state.sessionEvents.map(e => e.id),
     });
+    setToastVisible(true);
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    toastTimerRef.current = setTimeout(() => setToastVisible(false), 2400);
   }, [state.screen, state.current]);
 
   // On reaching the result screen: compute the ending, persist history +
@@ -160,7 +172,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     if (state.screen === 'event' && state.current === 0) finishedRef.current = false;
   }, [state.screen, state.current, state.sessionEvents]);
 
-  return <GameContext.Provider value={{ state, dispatch }}>{children}</GameContext.Provider>;
+  return <GameContext.Provider value={{ state, dispatch, toastVisible }}>{children}</GameContext.Provider>;
 }
 
 export function useGame() {
