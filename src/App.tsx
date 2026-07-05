@@ -31,8 +31,8 @@ function FooterButtons() {
 }
 
 function AutosaveToast() {
-  const { toastVisible } = useGame();
-  return <Toast show={toastVisible} />;
+  const { toast } = useGame();
+  return <Toast show={toast.visible} text={toast.text} />;
 }
 
 export default function App() {

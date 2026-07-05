@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { GameProvider, useGame } from './GameContext';
 import { autosave, hasSavedGame } from '../engine/persistence';
@@ -76,5 +76,31 @@ describe('CONTINUE_GAME resilience', () => {
     fireEvent.click(screen.getByText('continue'));
 
     expect(screen.getByTestId('screen').textContent).toBe('event');
+  });
+});
+
+describe('storage-unavailable warning', () => {
+  beforeEach(() => localStorage.clear());
+
+  it('shows a toast once on mount when localStorage is unavailable', () => {
+    const spy = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => { throw new Error('quota'); });
+
+    function ToastReader() {
+      const { toast } = useGame();
+      return <div data-testid="toast">{toast.visible ? toast.text : ''}</div>;
+    }
+    render(<GameProvider><ToastReader /></GameProvider>);
+
+    expect(screen.getByTestId('toast').textContent).toBe('No se podrá guardar tu progreso en este navegador.');
+    spy.mockRestore();
+  });
+
+  it('does not show the warning when localStorage works normally', () => {
+    function ToastReader() {
+      const { toast } = useGame();
+      return <div data-testid="toast">{toast.visible ? toast.text : ''}</div>;
+    }
+    render(<GameProvider><ToastReader /></GameProvider>);
+    expect(screen.getByTestId('toast').textContent).toBe('');
   });
 });

@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useReducer, useRef, useState, typ
 import type { GameState, Dilemma, DilemmaOption } from '../types';
 import { eventPool } from '../data/dilemmas';
 import { buildNewSession, recordSeenDilemas } from '../engine/poolBuilder';
-import { autosave, clearSavedGame, loadSavedGame, hasSavedGame, saveHistory, saveSnapshot, saveUnlockedAchievements } from '../engine/persistence';
+import { autosave, clearSavedGame, loadSavedGame, hasSavedGame, saveHistory, saveSnapshot, saveUnlockedAchievements, isStorageAvailable } from '../engine/persistence';
 import { checkAchievements } from '../engine/achievements';
 import { computeResults } from '../engine/results';
 import { PHILO_DATA } from '../data/philosophies';
@@ -112,13 +112,27 @@ function reducer(state: GameState, action: Action): GameState {
   }
 }
 
-const GameContext = createContext<{ state: GameState; dispatch: Dispatch<Action>; toastVisible: boolean } | null>(null);
+const GameContext = createContext<{ state: GameState; dispatch: Dispatch<Action>; toast: { visible: boolean; text: string } } | null>(null);
 
 export function GameProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(reducer, initialState);
   const finishedRef = useRef(false);
-  const [toastVisible, setToastVisible] = useState(false);
+  const [toast, setToast] = useState<{ visible: boolean; text: string }>({ visible: false, text: 'Partida guardada' });
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  function showToast(text: string, duration: number) {
+    setToast({ visible: true, text });
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    toastTimerRef.current = setTimeout(() => setToast(t => ({ ...t, visible: false })), duration);
+  }
+
+  // One-time check: if localStorage can't actually be written to (private
+  // browsing, full quota), tell the player their progress won't persist.
+  useEffect(() => {
+    if (!isStorageAvailable()) {
+      showToast('No se podrá guardar tu progreso en este navegador.', 5000);
+    }
+  }, []);
 
   // Timer tick while an event is in progress.
   useEffect(() => {
@@ -140,9 +154,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       unlocked: state.unlocked,
       eventIds: state.sessionEvents.map(e => e.id),
     });
-    setToastVisible(true);
-    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
-    toastTimerRef.current = setTimeout(() => setToastVisible(false), 2400);
+    showToast('Partida guardada', 2400);
   }, [state.screen, state.current]);
 
   // On reaching the result screen: compute the ending, persist history +
@@ -181,7 +193,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     if (state.screen === 'event' && state.current === 0) finishedRef.current = false;
   }, [state.screen, state.current, state.sessionEvents]);
 
-  return <GameContext.Provider value={{ state, dispatch, toastVisible }}>{children}</GameContext.Provider>;
+  return <GameContext.Provider value={{ state, dispatch, toast }}>{children}</GameContext.Provider>;
 }
 
 export function useGame() {
