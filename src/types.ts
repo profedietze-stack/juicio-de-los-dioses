@@ -45,22 +45,58 @@ export interface EventTheme {
 }
 
 export interface HistoryRecord {
+  score: number;
+  time: number;
+  ending: string;
+  endingKey: string;
+  dominant: PhilosophyKey;
+  pcts: Partial<Record<PhilosophyKey, number>>;
+  counts: Partial<Record<PhilosophyKey, number>>;
+  diversity: number;
+  date: string;
+  dateISO: string;
+}
+
+export interface ResultSnapshot {
+  id: string;
   date: string;
   score: number;
-  timeSeconds: number;
-  totalEvents: number;
-  philosophyCounts: Partial<Record<PhilosophyKey, number>>;
+  time: number;
+  ending: string;
+  endingIcon: string;
+  dominant: PhilosophyKey;
+  domLabel: string;
+  sec: PhilosophyKey;
+  secLabel: string;
+  thr: PhilosophyKey;
+  thrLabel: string;
+  pcts: Partial<Record<PhilosophyKey, number>>;
+  ranked: PhilosophyKey[];
+  diversity: number;
+  narrative: string;
+  decisions: number;
 }
 
 export type Screen = 'menu' | 'intro' | 'event' | 'result' | 'achievements' | 'info';
+
+export interface AutosaveData {
+  current: number;
+  balance: number;
+  startTime: number;
+  elapsed: number;
+  decisions: DilemmaOption[];
+  unlocked: string[];
+  eventIds: number[];
+}
 
 export interface GameState {
   screen: Screen;
   sessionEvents: Dilemma[];
   current: number;
-  balance: number;
-  choicesLog: { dilemmaId: number; philosophy: PhilosophyKey; impact: number }[];
-  startedAt: number | null;
+  balance: number; // 0..100, neutral = 50
+  decisions: DilemmaOption[];
+  startTime: number | null;
   timerSeconds: number;
-  feedback: { option: DilemmaOption } | null;
+  unlocked: string[];
+  feedback: DilemmaOption | null;
 }
