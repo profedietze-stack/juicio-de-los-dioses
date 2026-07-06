@@ -2,12 +2,42 @@ import type { AutosaveData, DilemmaOption, HistoryRecord, PhilosophyKey, ResultS
 import { ALL_PHILO_KEYS } from './results';
 import { achievements } from '../data/achievements';
 
-function lsArr<T>(key: string): T[] {
-  try { const v = JSON.parse(localStorage.getItem(key) || 'null'); return Array.isArray(v) ? v : []; }
-  catch { return []; }
-}
 function lsSet(key: string, val: unknown) {
   try { localStorage.setItem(key, JSON.stringify(val)); } catch { /* storage unavailable */ }
+}
+
+// ── SCHEMA VERSIONING ───────────────────────────────────
+// Every key stores { version, data } instead of the raw value. If the stored
+// version doesn't match what this build expects, the data is treated as
+// absent (same fallback as corrupted data) rather than guessed at — there is
+// no migrate() step yet because no format change has ever shipped. When one
+// does, add the concrete migration for that key at that point.
+function readVersioned<T>(key: string, expectedVersion: number, isValid: (v: unknown) => v is T): T | null {
+  let parsed: unknown;
+  try { parsed = JSON.parse(localStorage.getItem(key) || 'null'); }
+  catch { return null; }
+  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return null;
+  const wrapper = parsed as Record<string, unknown>;
+  if (wrapper.version !== expectedVersion) return null;
+  return isValid(wrapper.data) ? wrapper.data : null;
+}
+
+function writeVersioned(key: string, version: number, data: unknown) {
+  lsSet(key, { version, data });
+}
+
+const SAVE_VERSION = 1;
+const HISTORY_VERSION = 1;
+const SEEN_VERSION = 1;
+const ACHIEVEMENTS_VERSION = 1;
+const SNAPSHOTS_VERSION = 1;
+
+function isUnknownArray(v: unknown): v is unknown[] {
+  return Array.isArray(v);
+}
+
+function isPlainRecord(v: unknown): v is Record<string, unknown> {
+  return !!v && typeof v === 'object' && !Array.isArray(v);
 }
 
 // ── VALIDATION GUARDS ───────────────────────────────────
@@ -80,13 +110,13 @@ export function saveHistory(record: HistoryRecord) {
   const h = getHistory();
   h.unshift(record);
   if (h.length > 20) h.length = 20; // keep up to 20 games for stats
-  lsSet('gameHistory', h);
+  writeVersioned('gameHistory', HISTORY_VERSION, h);
 }
 
 export function getHistory(): HistoryRecord[] {
-  const raw = lsArr<unknown>('gameHistory');
+  const raw = readVersioned('gameHistory', HISTORY_VERSION, isUnknownArray) ?? [];
   const clean = raw.filter(isValidHistoryRecord);
-  if (clean.length !== raw.length) lsSet('gameHistory', clean);
+  if (clean.length !== raw.length) writeVersioned('gameHistory', HISTORY_VERSION, clean);
   return clean;
 }
 
@@ -94,14 +124,12 @@ export function getHistory(): HistoryRecord[] {
 const SAVE_KEY = 'gameInProgress';
 
 export function autosave(data: AutosaveData) {
-  lsSet(SAVE_KEY, data);
+  writeVersioned(SAVE_KEY, SAVE_VERSION, data);
 }
 
 export function loadSavedGame(): AutosaveData | null {
-  let d: unknown;
-  try { d = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null'); }
-  catch { clearSavedGame(); return null; }
-  if (!isValidAutosaveData(d)) { clearSavedGame(); return null; }
+  const d = readVersioned(SAVE_KEY, SAVE_VERSION, isValidAutosaveData);
+  if (!d) { clearSavedGame(); return null; }
   return d;
 }
 
@@ -124,13 +152,10 @@ export function clearProgress() {
 const SEEN_KEY = 'dilemaSeen';
 
 export function getSeenMap(): Record<number, number> {
-  let v: unknown;
-  try { v = JSON.parse(localStorage.getItem(SEEN_KEY) || 'null'); }
-  catch { return {}; }
-  if (!v || typeof v !== 'object' || Array.isArray(v)) return {};
+  const v = readVersioned(SEEN_KEY, SEEN_VERSION, isPlainRecord) ?? {};
   const clean: Record<number, number> = {};
   let changed = false;
-  for (const [k, val] of Object.entries(v as Record<string, unknown>)) {
+  for (const [k, val] of Object.entries(v)) {
     if (typeof val === 'number' && Number.isFinite(Number(k))) clean[Number(k)] = val;
     else changed = true;
   }
@@ -139,7 +164,7 @@ export function getSeenMap(): Record<number, number> {
 }
 
 export function saveSeenMap(map: Record<number, number>) {
-  lsSet(SEEN_KEY, map);
+  writeVersioned(SEEN_KEY, SEEN_VERSION, map);
 }
 
 export function getTotalGamesPlayed(): number {
@@ -148,16 +173,16 @@ export function getTotalGamesPlayed(): number {
 
 // ── ACHIEVEMENTS (unlocked ids, cumulative across all games) ────
 export function getUnlockedAchievements(): string[] {
-  const raw = lsArr<unknown>('achievements');
+  const raw = readVersioned('achievements', ACHIEVEMENTS_VERSION, isUnknownArray) ?? [];
   const validIds = new Set(achievements.map(a => a.id));
   const clean = raw.filter((id): id is string => typeof id === 'string' && validIds.has(id));
-  if (clean.length !== raw.length) lsSet('achievements', clean);
+  if (clean.length !== raw.length) writeVersioned('achievements', ACHIEVEMENTS_VERSION, clean);
   return clean;
 }
 
 export function saveUnlockedAchievements(ids: string[]) {
   const prev = getUnlockedAchievements();
-  lsSet('achievements', [...new Set([...prev, ...ids])]);
+  writeVersioned('achievements', ACHIEVEMENTS_VERSION, [...new Set([...prev, ...ids])]);
 }
 
 // ── SAVED SNAPSHOTS (philosophical reports) ──────────────
@@ -165,13 +190,13 @@ export function saveSnapshot(data: ResultSnapshot) {
   const snaps = loadSavedResults();
   snaps.unshift(data);
   if (snaps.length > 5) snaps.length = 5;
-  lsSet('savedSnapshots', snaps);
+  writeVersioned('savedSnapshots', SNAPSHOTS_VERSION, snaps);
 }
 
 export function loadSavedResults(): ResultSnapshot[] {
-  const raw = lsArr<unknown>('savedSnapshots');
+  const raw = readVersioned('savedSnapshots', SNAPSHOTS_VERSION, isUnknownArray) ?? [];
   const clean = raw.filter(isValidSnapshot);
-  if (clean.length !== raw.length) lsSet('savedSnapshots', clean);
+  if (clean.length !== raw.length) writeVersioned('savedSnapshots', SNAPSHOTS_VERSION, clean);
   return clean;
 }
 

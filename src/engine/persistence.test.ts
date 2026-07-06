@@ -97,7 +97,7 @@ describe('snapshots', () => {
 
 describe('corrupted data resilience', () => {
   it('loadSavedGame returns null and clears the key when the saved shape is invalid', () => {
-    localStorage.setItem('gameInProgress', JSON.stringify({ current: 'not-a-number', eventIds: [1] }));
+    localStorage.setItem('gameInProgress', JSON.stringify({ version: 1, data: { current: 'not-a-number', eventIds: [1] } }));
     expect(loadSavedGame()).toBeNull();
     expect(localStorage.getItem('gameInProgress')).toBeNull();
   });
@@ -109,11 +109,10 @@ describe('corrupted data resilience', () => {
   });
 
   it('getHistory filters out invalid records and self-heals the stored array', () => {
-    localStorage.setItem('gameHistory', JSON.stringify([
-      record({ score: 10 }),
-      { score: 'bad' },
-      record({ score: 20 }),
-    ]));
+    localStorage.setItem('gameHistory', JSON.stringify({
+      version: 1,
+      data: [record({ score: 10 }), { score: 'bad' }, record({ score: 20 })],
+    }));
     const h = getHistory();
     expect(h).toHaveLength(2);
     expect(h.map(r => r.score)).toEqual([10, 20]);
@@ -121,22 +120,22 @@ describe('corrupted data resilience', () => {
   });
 
   it('loadSavedResults filters out invalid snapshots and self-heals', () => {
-    localStorage.setItem('savedSnapshots', JSON.stringify([
-      { id: 'bad' },
-      snapshot({ id: 'good' }),
-    ]));
+    localStorage.setItem('savedSnapshots', JSON.stringify({
+      version: 1,
+      data: [{ id: 'bad' }, snapshot({ id: 'good' })],
+    }));
     const s = loadSavedResults();
     expect(s).toHaveLength(1);
     expect(s[0].id).toBe('good');
   });
 
   it('getSeenMap drops non-numeric entries', () => {
-    localStorage.setItem('dilemaSeen', JSON.stringify({ 1: 3, 2: 'oops', 3: 5 }));
+    localStorage.setItem('dilemaSeen', JSON.stringify({ version: 1, data: { 1: 3, 2: 'oops', 3: 5 } }));
     expect(getSeenMap()).toEqual({ 1: 3, 3: 5 });
   });
 
   it('getUnlockedAchievements drops ids that are not real achievements', () => {
-    localStorage.setItem('achievements', JSON.stringify(['defensor', 'not-a-real-id', 'rapido']));
+    localStorage.setItem('achievements', JSON.stringify({ version: 1, data: ['defensor', 'not-a-real-id', 'rapido'] }));
     expect(getUnlockedAchievements().sort()).toEqual(['defensor', 'rapido']);
   });
 });
@@ -150,5 +149,44 @@ describe('isStorageAvailable', () => {
     const spy = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => { throw new Error('quota exceeded'); });
     expect(isStorageAvailable()).toBe(false);
     spy.mockRestore();
+  });
+});
+
+describe('schema versioning', () => {
+  it('treats pre-versioning raw data (no wrapper) as absent for every key', () => {
+    localStorage.setItem('gameInProgress', JSON.stringify(autosaveData()));
+    expect(loadSavedGame()).toBeNull();
+
+    localStorage.setItem('gameHistory', JSON.stringify([record()]));
+    expect(getHistory()).toEqual([]);
+
+    localStorage.setItem('dilemaSeen', JSON.stringify({ 1: 3 }));
+    expect(getSeenMap()).toEqual({});
+
+    localStorage.setItem('achievements', JSON.stringify(['defensor']));
+    expect(getUnlockedAchievements()).toEqual([]);
+
+    localStorage.setItem('savedSnapshots', JSON.stringify([snapshot()]));
+    expect(loadSavedResults()).toEqual([]);
+  });
+
+  it('treats a mismatched version number as absent instead of migrating', () => {
+    localStorage.setItem('gameInProgress', JSON.stringify({ version: 0, data: autosaveData() }));
+    expect(loadSavedGame()).toBeNull();
+
+    localStorage.setItem('gameHistory', JSON.stringify({ version: 2, data: [record()] }));
+    expect(getHistory()).toEqual([]);
+  });
+
+  it('round-trips through save functions using the versioned wrapper', () => {
+    autosave(autosaveData());
+    const rawSave = JSON.parse(localStorage.getItem('gameInProgress')!);
+    expect(rawSave.version).toBe(1);
+    expect(rawSave.data.current).toBe(1);
+
+    saveHistory(record());
+    const rawHistory = JSON.parse(localStorage.getItem('gameHistory')!);
+    expect(rawHistory.version).toBe(1);
+    expect(Array.isArray(rawHistory.data)).toBe(true);
   });
 });

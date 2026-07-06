@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { buildWeightedPool, buildNewSession, recordSeenDilemas } from './poolBuilder';
+import { getSeenMap } from './persistence';
 import { eventPool } from '../data/dilemmas';
 
 beforeEach(() => localStorage.clear());
@@ -35,7 +36,7 @@ describe('recordSeenDilemas', () => {
   it('increments seen counts for each played dilemma except the finale', () => {
     const session = buildNewSession();
     recordSeenDilemas(session);
-    const map = JSON.parse(localStorage.getItem('dilemaSeen') || '{}');
+    const map = getSeenMap();
     for (const d of session.slice(0, 39)) expect(map[d.id]).toBeDefined();
     expect(map[60]).toBeUndefined();
   });
