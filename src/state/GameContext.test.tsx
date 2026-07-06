@@ -79,6 +79,43 @@ describe('CONTINUE_GAME resilience', () => {
   });
 });
 
+describe('GO_TO_INTRO / short session length', () => {
+  beforeEach(() => localStorage.clear());
+
+  function LengthHarness() {
+    const { state, dispatch } = useGame();
+    return (
+      <>
+        <button onClick={() => dispatch({ type: 'GO_TO_INTRO', length: 14 })}>go-short</button>
+        <button onClick={() => dispatch({ type: 'BEGIN_GAME' })}>begin</button>
+        <div data-testid="screen">{state.screen}</div>
+        <div data-testid="pending-length">{state.pendingLength}</div>
+        <div data-testid="session-length">{state.sessionEvents.length}</div>
+      </>
+    );
+  }
+
+  it('GO_TO_INTRO stores the chosen length and navigates to Intro', () => {
+    render(<GameProvider><LengthHarness /></GameProvider>);
+    fireEvent.click(screen.getByText('go-short'));
+    expect(screen.getByTestId('screen').textContent).toBe('intro');
+    expect(screen.getByTestId('pending-length').textContent).toBe('14');
+  });
+
+  it('BEGIN_GAME after GO_TO_INTRO builds a session matching the chosen length', () => {
+    render(<GameProvider><LengthHarness /></GameProvider>);
+    fireEvent.click(screen.getByText('go-short'));
+    fireEvent.click(screen.getByText('begin'));
+    expect(screen.getByTestId('session-length').textContent).toBe('15');
+  });
+
+  it('BEGIN_GAME without going through GO_TO_INTRO uses the full 40-dilemma length', () => {
+    render(<GameProvider><LengthHarness /></GameProvider>);
+    fireEvent.click(screen.getByText('begin'));
+    expect(screen.getByTestId('session-length').textContent).toBe('40');
+  });
+});
+
 describe('storage-unavailable warning', () => {
   beforeEach(() => localStorage.clear());
 

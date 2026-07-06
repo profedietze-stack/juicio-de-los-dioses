@@ -18,7 +18,7 @@ describe('buildWeightedPool', () => {
 });
 
 describe('buildNewSession', () => {
-  it('builds 40 events: 39 regular + the finale last', () => {
+  it('builds 40 events by default: 39 regular + the finale last', () => {
     const session = buildNewSession();
     expect(session).toHaveLength(40);
     expect(session[39].id).toBe(60);
@@ -29,6 +29,13 @@ describe('buildNewSession', () => {
     const validIds = new Set(eventPool.map(d => d.id));
     const session = buildNewSession();
     for (const d of session) expect(validIds.has(d.id)).toBe(true);
+  });
+
+  it('builds a shorter session when given a smaller count, still ending in the finale', () => {
+    const session = buildNewSession(14);
+    expect(session).toHaveLength(15);
+    expect(session[14].id).toBe(60);
+    expect(session.slice(0, 14).every(d => d.id !== 60)).toBe(true);
   });
 });
 

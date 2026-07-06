@@ -2,7 +2,8 @@ import { useGame } from '../../state/GameContext';
 import { Button } from '../ui/Button';
 
 export function IntroScreen() {
-  const { dispatch } = useGame();
+  const { state, dispatch } = useGame();
+  const total = state.pendingLength + 1;
 
   return (
     <div className="screen intro-screen active" id="screen-intro">
@@ -13,7 +14,7 @@ export function IntroScreen() {
 
         <div className="intro-role">
           <div className="intro-role-label">Tu misión</div>
-          <div className="intro-role-text">Los dioses han convocado un juicio sobre la humanidad. Tú eres el árbitro: deberás pronunciar veredicto en cuarenta dilemas morales que ningún sistema ético puede resolver con certeza absoluta. Cada decisión empuja a la humanidad hacia la salvación o la perdición. Al final, los dioses pronunciarán su sentencia.</div>
+          <div className="intro-role-text">Los dioses han convocado un juicio sobre la humanidad. Tú eres el árbitro: deberás pronunciar veredicto en {total} dilemas morales que ningún sistema ético puede resolver con certeza absoluta. Cada decisión empuja a la humanidad hacia la salvación o la perdición. Al final, los dioses pronunciarán su sentencia.</div>
         </div>
 
         <div className="intro-rules">

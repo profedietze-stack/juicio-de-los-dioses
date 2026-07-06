@@ -99,4 +99,5 @@ export interface GameState {
   timerSeconds: number;
   unlocked: string[];
   feedback: DilemmaOption | null;
+  pendingLength: number; // number of non-finale dilemmas to draw on the next BEGIN_GAME
 }

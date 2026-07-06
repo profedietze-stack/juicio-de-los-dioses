@@ -36,11 +36,15 @@ export function recordSeenDilemas(sessionEvents: Dilemma[]) {
   saveSeenMap(seen);
 }
 
-// "Comenzar el Juicio" — always starts a fresh session: 39 highest-priority
-// dilemmas (shuffled) plus the finale appended last.
-export function buildNewSession(): Dilemma[] {
+export const FULL_SESSION_LENGTH = 39;
+export const SHORT_SESSION_LENGTH = 14;
+
+// "Comenzar el Juicio" — always starts a fresh session: `count` highest-
+// priority dilemmas (shuffled) plus the finale appended last. Defaults to
+// the full 39-dilemma session; the short mode passes SHORT_SESSION_LENGTH.
+export function buildNewSession(count: number = FULL_SESSION_LENGTH): Dilemma[] {
   const weighted = buildWeightedPool(FINALE_ID);
-  const pool39 = weighted.slice(0, 39);
-  const shuffled = [...pool39].sort(() => Math.random() - 0.5);
+  const pool = weighted.slice(0, count);
+  const shuffled = [...pool].sort(() => Math.random() - 0.5);
   return [...shuffled, finale];
 }

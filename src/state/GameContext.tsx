@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useReducer, useRef, useState, type Dispatch, type ReactNode } from 'react';
 import type { GameState, Dilemma, DilemmaOption } from '../types';
 import { eventPool } from '../data/dilemmas';
-import { buildNewSession, recordSeenDilemas } from '../engine/poolBuilder';
+import { buildNewSession, recordSeenDilemas, FULL_SESSION_LENGTH } from '../engine/poolBuilder';
 import { autosave, clearSavedGame, loadSavedGame, hasSavedGame, saveHistory, saveSnapshot, saveUnlockedAchievements, isStorageAvailable } from '../engine/persistence';
 import { checkAchievements } from '../engine/achievements';
 import { computeResults } from '../engine/results';
@@ -9,6 +9,7 @@ import { PHILO_DATA } from '../data/philosophies';
 
 type Action =
   | { type: 'GO_TO_SCREEN'; screen: GameState['screen'] }
+  | { type: 'GO_TO_INTRO'; length: number }
   | { type: 'BEGIN_GAME' }
   | { type: 'CONTINUE_GAME' }
   | { type: 'CHOOSE'; option: DilemmaOption }
@@ -27,6 +28,7 @@ const initialState: GameState = {
   timerSeconds: 0,
   unlocked: [],
   feedback: null,
+  pendingLength: FULL_SESSION_LENGTH,
 };
 
 function reducer(state: GameState, action: Action): GameState {
@@ -34,9 +36,12 @@ function reducer(state: GameState, action: Action): GameState {
     case 'GO_TO_SCREEN':
       return { ...state, screen: action.screen };
 
+    case 'GO_TO_INTRO':
+      return { ...state, screen: 'intro', pendingLength: action.length };
+
     case 'BEGIN_GAME': {
       // "Comenzar el Juicio" — always starts fresh (clearSavedGame happens as a side effect).
-      const sessionEvents = buildNewSession();
+      const sessionEvents = buildNewSession(state.pendingLength);
       return {
         ...initialState,
         screen: 'event',

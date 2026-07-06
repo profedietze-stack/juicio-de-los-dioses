@@ -3,18 +3,21 @@ import { useGame, hasSavedGame } from '../../state/GameContext';
 import { Button } from '../ui/Button';
 import { ConfirmDialog } from '../modals/ConfirmDialog';
 import { clearSavedGame } from '../../engine/persistence';
+import { FULL_SESSION_LENGTH, SHORT_SESSION_LENGTH } from '../../engine/poolBuilder';
 import { snd } from '../../engine/audio';
 
 export function MenuScreen() {
   const { dispatch } = useGame();
   const [confirmingResume, setConfirmingResume] = useState(false);
+  const [pendingLength, setPendingLength] = useState(FULL_SESSION_LENGTH);
   const continuing = hasSavedGame();
 
-  function handleNewGame() {
+  function handleNewGame(length: number) {
     if (hasSavedGame()) {
+      setPendingLength(length);
       setConfirmingResume(true);
     } else {
-      dispatch({ type: 'GO_TO_SCREEN', screen: 'intro' });
+      dispatch({ type: 'GO_TO_INTRO', length });
     }
   }
 
@@ -31,7 +34,8 @@ export function MenuScreen() {
             <span className="btn-continue-badge">En curso</span>
           </div>
         )}
-        <Button sound="start" onClick={handleNewGame}>Nueva Partida</Button>
+        <Button sound="start" onClick={() => handleNewGame(FULL_SESSION_LENGTH)}>Nueva Partida</Button>
+        <Button ghost small onClick={() => handleNewGame(SHORT_SESSION_LENGTH)}>Partida Corta (15 dilemas)</Button>
         <Button ghost onClick={() => { snd('nav'); dispatch({ type: 'GO_TO_SCREEN', screen: 'achievements' }); }}>Ver Informes Guardados</Button>
         <Button ghost onClick={() => { snd('nav'); dispatch({ type: 'GO_TO_SCREEN', screen: 'achievements' }); }}>Galería de Logros</Button>
         <Button ghost onClick={() => { snd('nav'); dispatch({ type: 'GO_TO_SCREEN', screen: 'info' }); }}>Guía Pedagógica</Button>
@@ -48,7 +52,7 @@ export function MenuScreen() {
           body="Tenés una partida sin terminar. Si comenzás una nueva, el progreso actual se perderá."
           confirmLabel="✦ Nueva Partida"
           cancelLabel="← Continuar la actual"
-          onConfirm={() => { clearSavedGame(); setConfirmingResume(false); dispatch({ type: 'GO_TO_SCREEN', screen: 'intro' }); }}
+          onConfirm={() => { clearSavedGame(); setConfirmingResume(false); dispatch({ type: 'GO_TO_INTRO', length: pendingLength }); }}
           onCancel={() => { setConfirmingResume(false); dispatch({ type: 'CONTINUE_GAME' }); }}
         />
       )}
