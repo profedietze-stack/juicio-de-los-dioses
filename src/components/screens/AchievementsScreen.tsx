@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useRef, useState, type ChangeEvent } from 'react';
 import { useGame } from '../../state/GameContext';
 import { Button } from '../ui/Button';
 import { ConfirmDialog } from '../modals/ConfirmDialog';
 import { SnapshotDetailModal } from '../modals/SnapshotDetailModal';
 import { achievements } from '../../data/achievements';
-import { getUnlockedAchievements, loadSavedResults, clearProgress } from '../../engine/persistence';
+import { getUnlockedAchievements, loadSavedResults, clearProgress, exportProgress, importProgress } from '../../engine/persistence';
 import { computeHistoryStats } from '../../engine/historyStats';
 import { PHILO_DATA } from '../../data/philosophies';
 import { PHILO_CLS } from '../../engine/philosophyDisplay';
@@ -23,7 +23,44 @@ export function AchievementsScreen() {
   const { dispatch } = useGame();
   const [confirmingClear, setConfirmingClear] = useState(false);
   const [openSnapshotIdx, setOpenSnapshotIdx] = useState<number | null>(null);
+  const [pendingImport, setPendingImport] = useState<unknown>(null);
+  const [importError, setImportError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [, forceRefresh] = useState(0);
+
+  function handleExport() {
+    const data = exportProgress();
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `juicio-de-los-dioses-progreso-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function handleFileSelected(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        setPendingImport(JSON.parse(String(reader.result)));
+        setImportError(null);
+      } catch {
+        setImportError('El archivo no es un JSON válido.');
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  function confirmImport() {
+    const ok = importProgress(pendingImport);
+    setPendingImport(null);
+    setImportError(ok ? null : 'El archivo no tiene datos válidos para importar.');
+    if (ok) forceRefresh(n => n + 1);
+  }
 
   const unlocked = getUnlockedAchievements();
   const stats = computeHistoryStats();
@@ -184,6 +221,10 @@ export function AchievementsScreen() {
 
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '.75rem', marginTop: '.5rem' }}>
         <Button ghost onClick={() => dispatch({ type: 'GO_TO_SCREEN', screen: 'menu' })}>Volver al Menú</Button>
+        <Button ghost small onClick={handleExport}>⬇ Exportar Progreso</Button>
+        <Button ghost small onClick={() => fileInputRef.current?.click()}>⬆ Importar Progreso</Button>
+        <input ref={fileInputRef} type="file" accept="application/json" hidden onChange={handleFileSelected} />
+        {importError && <div style={{ color: 'rgba(200,80,80,.9)', fontSize: '.75rem', textAlign: 'center', maxWidth: 320 }}>{importError}</div>}
         <Button danger small sound="danger" onClick={() => setConfirmingClear(true)}>⚠ Borrar progreso y volver a empezar</Button>
       </div>
 
@@ -195,6 +236,17 @@ export function AchievementsScreen() {
           cancelLabel="Cancelar"
           onConfirm={() => { clearProgress(); setConfirmingClear(false); forceRefresh(n => n + 1); }}
           onCancel={() => setConfirmingClear(false)}
+        />
+      )}
+
+      {pendingImport !== null && (
+        <ConfirmDialog
+          title="Importar progreso"
+          body="¿Reemplazar todo tu progreso actual por el del archivo importado? Esta acción no se puede deshacer."
+          confirmLabel="Reemplazar"
+          cancelLabel="Cancelar"
+          onConfirm={confirmImport}
+          onCancel={() => setPendingImport(null)}
         />
       )}
 
