@@ -3,6 +3,7 @@ import {
   saveHistory, getHistory, getSeenMap, saveSeenMap, hasSavedGame, autosave,
   clearSavedGame, clearProgress, getUnlockedAchievements, saveUnlockedAchievements,
   saveSnapshot, loadSavedResults, loadSavedGame, isStorageAvailable,
+  exportProgress, importProgress,
 } from './persistence';
 import type { HistoryRecord, AutosaveData, ResultSnapshot } from '../types';
 
@@ -188,5 +189,64 @@ describe('schema versioning', () => {
     const rawHistory = JSON.parse(localStorage.getItem('gameHistory')!);
     expect(rawHistory.version).toBe(1);
     expect(Array.isArray(rawHistory.data)).toBe(true);
+  });
+});
+
+describe('export/import progress', () => {
+  it('round-trips a full set of progress through export and import', () => {
+    autosave(autosaveData());
+    saveHistory(record({ score: 42 }));
+    saveSeenMap({ 5: 1 });
+    saveUnlockedAchievements(['defensor']);
+    saveSnapshot(snapshot());
+
+    const exported = exportProgress();
+    clearProgress();
+    expect(hasSavedGame()).toBe(false);
+    expect(getHistory()).toEqual([]);
+
+    expect(importProgress(exported)).toBe(true);
+    expect(hasSavedGame()).toBe(true);
+    expect(getHistory().map(r => r.score)).toEqual([42]);
+    expect(getSeenMap()).toEqual({ 5: 1 });
+    expect(getUnlockedAchievements()).toEqual(['defensor']);
+    expect(loadSavedResults()).toHaveLength(1);
+  });
+
+  it('does not touch existing progress when the payload has no usable keys', () => {
+    saveHistory(record({ score: 7 }));
+    expect(importProgress({ exportedAt: '2026-01-01', keys: {} })).toBe(false);
+    expect(getHistory().map(r => r.score)).toEqual([7]);
+  });
+
+  it('rejects a payload that is not an object at all, without touching existing progress', () => {
+    saveHistory(record({ score: 7 }));
+    expect(importProgress('not an object')).toBe(false);
+    expect(importProgress(null)).toBe(false);
+    expect(getHistory().map(r => r.score)).toEqual([7]);
+  });
+
+  it('imports only the valid keys when some keys in the payload are corrupted', () => {
+    const payload = {
+      exportedAt: '2026-01-01',
+      keys: {
+        gameHistory: { version: 1, data: [record({ score: 33 })] },
+        achievements: { version: 1, data: ['not-a-real-id'] }, // every entry invalid
+      },
+    };
+    saveHistory(record({ score: 7 })); // pre-existing progress, should be wiped since gameHistory import is valid
+    expect(importProgress(payload)).toBe(true);
+    expect(getHistory().map(r => r.score)).toEqual([33]);
+    expect(getUnlockedAchievements()).toEqual([]);
+  });
+
+  it('ignores a key stored at the wrong version inside the imported payload', () => {
+    const payload = {
+      exportedAt: '2026-01-01',
+      keys: {
+        gameHistory: { version: 99, data: [record({ score: 33 })] },
+      },
+    };
+    expect(importProgress(payload)).toBe(false);
   });
 });

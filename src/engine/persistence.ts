@@ -12,14 +12,18 @@ function lsSet(key: string, val: unknown) {
 // absent (same fallback as corrupted data) rather than guessed at — there is
 // no migrate() step yet because no format change has ever shipped. When one
 // does, add the concrete migration for that key at that point.
-function readVersioned<T>(key: string, expectedVersion: number, isValid: (v: unknown) => v is T): T | null {
-  let parsed: unknown;
-  try { parsed = JSON.parse(localStorage.getItem(key) || 'null'); }
-  catch { return null; }
+function parseVersioned<T>(parsed: unknown, expectedVersion: number, isValid: (v: unknown) => v is T): T | null {
   if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return null;
   const wrapper = parsed as Record<string, unknown>;
   if (wrapper.version !== expectedVersion) return null;
   return isValid(wrapper.data) ? wrapper.data : null;
+}
+
+function readVersioned<T>(key: string, expectedVersion: number, isValid: (v: unknown) => v is T): T | null {
+  let parsed: unknown;
+  try { parsed = JSON.parse(localStorage.getItem(key) || 'null'); }
+  catch { return null; }
+  return parseVersioned(parsed, expectedVersion, isValid);
 }
 
 function writeVersioned(key: string, version: number, data: unknown) {
@@ -208,4 +212,69 @@ export function isStorageAvailable(): boolean {
     localStorage.removeItem(k);
     return true;
   } catch { return false; }
+}
+
+// ── EXPORT / IMPORT PROGRESS ─────────────────────────────
+export interface ExportedProgress {
+  exportedAt: string;
+  keys: Partial<Record<'gameInProgress' | 'gameHistory' | 'dilemaSeen' | 'achievements' | 'savedSnapshots', unknown>>;
+}
+
+const EXPORT_KEYS = ['gameInProgress', 'gameHistory', 'dilemaSeen', 'achievements', 'savedSnapshots'] as const;
+
+export function exportProgress(): ExportedProgress {
+  const keys: ExportedProgress['keys'] = {};
+  for (const k of EXPORT_KEYS) {
+    const raw = localStorage.getItem(k);
+    if (!raw) continue;
+    try { keys[k] = JSON.parse(raw); } catch { /* unreadable entry, skip it */ }
+  }
+  return { exportedAt: new Date().toISOString(), keys };
+}
+
+// Validates every key before writing anything: a corrupted or hand-edited
+// import file must never wipe the player's existing progress for nothing.
+export function importProgress(payload: unknown): boolean {
+  if (!payload || typeof payload !== 'object') return false;
+  const p = payload as Record<string, unknown>;
+  if (!p.keys || typeof p.keys !== 'object') return false;
+  const keys = p.keys as Record<string, unknown>;
+
+  const toWrite: Record<string, unknown> = {};
+
+  if (parseVersioned(keys.gameInProgress, SAVE_VERSION, isValidAutosaveData) !== null) {
+    toWrite.gameInProgress = keys.gameInProgress;
+  }
+
+  const history = parseVersioned(keys.gameHistory, HISTORY_VERSION, isUnknownArray);
+  if (history) {
+    const clean = history.filter(isValidHistoryRecord);
+    if (clean.length) toWrite.gameHistory = { version: HISTORY_VERSION, data: clean };
+  }
+
+  const seen = parseVersioned(keys.dilemaSeen, SEEN_VERSION, isPlainRecord);
+  if (seen) {
+    const clean: Record<number, number> = {};
+    for (const [k, val] of Object.entries(seen)) if (typeof val === 'number') clean[Number(k)] = val;
+    if (Object.keys(clean).length) toWrite.dilemaSeen = { version: SEEN_VERSION, data: clean };
+  }
+
+  const ach = parseVersioned(keys.achievements, ACHIEVEMENTS_VERSION, isUnknownArray);
+  if (ach) {
+    const validIds = new Set(achievements.map(a => a.id));
+    const clean = ach.filter((id): id is string => typeof id === 'string' && validIds.has(id));
+    if (clean.length) toWrite.achievements = { version: ACHIEVEMENTS_VERSION, data: clean };
+  }
+
+  const snaps = parseVersioned(keys.savedSnapshots, SNAPSHOTS_VERSION, isUnknownArray);
+  if (snaps) {
+    const clean = snaps.filter(isValidSnapshot);
+    if (clean.length) toWrite.savedSnapshots = { version: SNAPSHOTS_VERSION, data: clean };
+  }
+
+  if (!Object.keys(toWrite).length) return false;
+
+  clearProgress();
+  for (const [key, val] of Object.entries(toWrite)) lsSet(key, val);
+  return true;
 }
