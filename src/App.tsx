@@ -7,6 +7,7 @@ import { ResultScreen } from './components/screens/ResultScreen';
 import { AchievementsScreen } from './components/screens/AchievementsScreen';
 import { InfoScreen } from './components/screens/InfoScreen';
 import { Toast } from './components/modals/Toast';
+import { TooltipBox } from './components/ui/TooltipBox';
 
 function Screens() {
   const { state } = useGame();
@@ -55,6 +56,7 @@ export default function App() {
             <FooterButtons />
           </div>
           <AutosaveToast />
+          <TooltipBox />
         </div>
       </GameProvider>
     </ErrorBoundary>
