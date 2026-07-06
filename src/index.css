@@ -678,6 +678,13 @@ body::before{
 .stats-philo-track{height:5px;background:rgba(255,255,255,.05);border-radius:3px;overflow:hidden;}
 .stats-philo-pct{font-family:'Cinzel',serif;font-size:.72rem;color:var(--gold);white-space:nowrap;min-width:90px;text-align:right;}
 
+.profile-compare-scroll{display:flex;gap:.65rem;overflow-x:auto;padding-bottom:.4rem;}
+.profile-compare-card{border:1px solid rgba(212,175,55,.18);background:var(--surface);padding:.8rem .9rem;backdrop-filter:blur(8px);min-width:150px;flex:0 0 auto;display:flex;flex-direction:column;gap:.4rem;}
+.profile-compare-num{font-family:'Cinzel',serif;font-size:.62rem;color:var(--gold);letter-spacing:1px;}
+.profile-compare-date{font-family:'Cinzel',serif;font-size:.56rem;color:var(--muted);margin-bottom:.2rem;}
+.profile-compare-item{display:flex;align-items:center;justify-content:space-between;gap:.5rem;}
+.profile-compare-pct{font-family:'Cinzel',serif;font-size:.62rem;color:var(--gold);white-space:nowrap;}
+
 .stats-endings-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.65rem;}
 .stats-ending-card{border:1px solid rgba(212,175,55,.18);background:var(--surface);padding:.9rem .8rem;text-align:center;backdrop-filter:blur(8px);}
 .stats-ending-icon{font-size:1.6rem;margin-bottom:.3rem;}

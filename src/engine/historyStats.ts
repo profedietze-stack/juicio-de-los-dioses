@@ -26,6 +26,15 @@ export interface HistoryStats {
 
 const POOL_SIZE = 79; // eligible dilemmas (excl. finale id=60)
 
+// Top N philosophies (by percentage) for a single game's HistoryRecord.pcts,
+// used to compare how the player's profile shifted across recent games.
+export function topPhilosophies(pcts: Partial<Record<PhilosophyKey, number>>, limit = 3): [PhilosophyKey, number][] {
+  return (Object.entries(pcts) as [PhilosophyKey, number][])
+    .filter(([, pct]) => pct > 0)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, limit);
+}
+
 // Mirrors loadHistory()'s aggregate-stats computation from the original.
 export function computeHistoryStats(): HistoryStats | null {
   const h = getHistory();

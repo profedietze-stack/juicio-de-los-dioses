@@ -85,3 +85,30 @@ describe('AchievementsScreen export/import', () => {
     expect(getHistory().map(r => r.score)).toEqual([7]);
   });
 });
+
+describe('AchievementsScreen profile comparison', () => {
+  beforeEach(() => localStorage.clear());
+
+  it('does not show the comparison section with fewer than 2 games', () => {
+    saveHistory(record({ pcts: { utilitarismo: 100 } }));
+    renderScreen();
+    expect(screen.queryByText('Comparación de perfiles (últimas partidas)')).not.toBeInTheDocument();
+  });
+
+  it('shows one card per recent game with its top philosophies', () => {
+    saveHistory(record({ date: '01 ene 2026', pcts: { utilitarismo: 70, nihilismo: 30 } }));
+    saveHistory(record({ date: '02 ene 2026', pcts: { budismo: 100 } }));
+    renderScreen();
+
+    expect(screen.getByText('Comparación de perfiles (últimas partidas)')).toBeInTheDocument();
+    const cards = document.querySelectorAll('.profile-compare-card');
+    expect(cards).toHaveLength(2);
+    // most recent game first
+    expect(cards[0].textContent).toContain('02 ene 2026');
+    expect(cards[0].textContent).toContain('Budismo');
+    expect(cards[0].textContent).toContain('100%');
+    expect(cards[1].textContent).toContain('01 ene 2026');
+    expect(cards[1].textContent).toContain('Utilitarismo');
+    expect(cards[1].textContent).toContain('70%');
+  });
+});

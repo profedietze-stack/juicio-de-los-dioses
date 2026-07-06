@@ -5,7 +5,7 @@ import { ConfirmDialog } from '../modals/ConfirmDialog';
 import { SnapshotDetailModal } from '../modals/SnapshotDetailModal';
 import { achievements } from '../../data/achievements';
 import { getUnlockedAchievements, loadSavedResults, clearProgress, exportProgress, importProgress } from '../../engine/persistence';
-import { computeHistoryStats } from '../../engine/historyStats';
+import { computeHistoryStats, topPhilosophies } from '../../engine/historyStats';
 import { PHILO_DATA } from '../../data/philosophies';
 import { PHILO_CLS } from '../../engine/philosophyDisplay';
 import { fmtTime } from '../../engine/fmtTime';
@@ -142,6 +142,26 @@ export function AchievementsScreen() {
                       <span style={{ color: 'rgba(58,110,168,.85)' }}>■ Purgatorio (21–50)</span>
                       <span style={{ color: 'rgba(176,50,50,.85)' }}>■ Extinción (0–20)</span>
                     </div>
+                  </div>
+                </>
+              )}
+
+              {stats.history.length > 1 && (
+                <>
+                  <div className="stats-section-title">Comparación de perfiles (últimas partidas)</div>
+                  <div className="profile-compare-scroll">
+                    {stats.history.slice(0, 8).map((r, i) => (
+                      <div className="profile-compare-card" key={i}>
+                        <div className="profile-compare-num">#{i + 1}</div>
+                        <div className="profile-compare-date">{r.date || '—'}</div>
+                        {topPhilosophies(r.pcts).map(([k, pct]) => (
+                          <div className="profile-compare-item" key={k}>
+                            <span className={`chip ${PHILO_CLS[k]}`} style={{ fontSize: '.52rem' }}>{PHILO_DATA[k].label}</span>
+                            <span className="profile-compare-pct">{pct}%</span>
+                          </div>
+                        ))}
+                      </div>
+                    ))}
                   </div>
                 </>
               )}
