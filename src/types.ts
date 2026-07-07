@@ -100,4 +100,6 @@ export interface GameState {
   unlocked: string[];
   feedback: DilemmaOption | null;
   pendingLength: number; // number of non-finale dilemmas to draw on the next BEGIN_GAME
+  hiddenPhilosophy: boolean; // hide the philosophy chip on option cards before choosing
+  strictJudge: boolean; // enable the per-dilemma countdown timer
 }

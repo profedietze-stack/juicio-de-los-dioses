@@ -11,6 +11,8 @@ function Harness() {
       <MenuScreen />
       <div data-testid="current-screen">{state.screen}</div>
       <div data-testid="pending-length">{state.pendingLength}</div>
+      <div data-testid="hidden-philosophy">{String(state.hiddenPhilosophy)}</div>
+      <div data-testid="strict-judge">{String(state.strictJudge)}</div>
     </>
   );
 }
@@ -79,5 +81,26 @@ describe('MenuScreen', () => {
     fireEvent.click(screen.getByText('✦ Nueva Partida'));
     expect(screen.getByTestId('current-screen').textContent).toBe('intro');
     expect(screen.getByTestId('pending-length').textContent).toBe('14');
+  });
+
+  it('difficulty toggles default to off and are passed to GO_TO_INTRO when checked', () => {
+    renderMenu();
+    expect(screen.getByLabelText('Filosofía Oculta')).not.toBeChecked();
+    expect(screen.getByLabelText('Juez Estricto')).not.toBeChecked();
+
+    fireEvent.click(screen.getByLabelText('Filosofía Oculta'));
+    fireEvent.click(screen.getByLabelText('Juez Estricto'));
+    fireEvent.click(screen.getByText('Nueva Partida'));
+
+    expect(screen.getByTestId('hidden-philosophy').textContent).toBe('true');
+    expect(screen.getByTestId('strict-judge').textContent).toBe('true');
+  });
+
+  it('difficulty toggles combine with Partida Corta', () => {
+    renderMenu();
+    fireEvent.click(screen.getByLabelText('Juez Estricto'));
+    fireEvent.click(screen.getByText('Partida Corta (15 dilemas)'));
+    expect(screen.getByTestId('pending-length').textContent).toBe('14');
+    expect(screen.getByTestId('strict-judge').textContent).toBe('true');
   });
 });

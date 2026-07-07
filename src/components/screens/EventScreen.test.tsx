@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import { GameProvider, useGame } from '../../state/GameContext';
 import { EventScreen } from './EventScreen';
 
@@ -17,6 +17,29 @@ function renderHarness() {
       <Harness />
     </GameProvider>,
   );
+  fireEvent.click(screen.getByText('start'));
+}
+
+function ModesHarness({ hiddenPhilosophy = false, strictJudge = false }: { hiddenPhilosophy?: boolean; strictJudge?: boolean }) {
+  const { state, dispatch } = useGame();
+  if (state.screen !== 'event') {
+    return (
+      <>
+        <button onClick={() => dispatch({ type: 'GO_TO_INTRO', length: 40, hiddenPhilosophy, strictJudge })}>go</button>
+        <button onClick={() => dispatch({ type: 'BEGIN_GAME' })}>start</button>
+      </>
+    );
+  }
+  return <EventScreen />;
+}
+
+function renderModesHarness(modes: { hiddenPhilosophy?: boolean; strictJudge?: boolean }) {
+  render(
+    <GameProvider>
+      <ModesHarness {...modes} />
+    </GameProvider>,
+  );
+  fireEvent.click(screen.getByText('go'));
   fireEvent.click(screen.getByText('start'));
 }
 
@@ -65,5 +88,53 @@ describe('EventScreen', () => {
       }
       fireEvent.click(continueBtn);
     }
+  });
+
+  it('shows the philosophy chip on option cards by default', () => {
+    renderHarness();
+    expect(document.querySelector('.option-tag')).toBeInTheDocument();
+  });
+});
+
+describe('EventScreen hiddenPhilosophy mode', () => {
+  beforeEach(() => localStorage.clear());
+
+  it('hides the philosophy chip on option cards before choosing', () => {
+    renderModesHarness({ hiddenPhilosophy: true });
+    expect(document.querySelector('.option-tag')).not.toBeInTheDocument();
+  });
+
+  it('still reveals the philosophy in the feedback panel after choosing', () => {
+    renderModesHarness({ hiddenPhilosophy: true });
+    fireEvent.click(document.querySelectorAll('.option-card')[0]);
+    expect(document.getElementById('feedback-panel')).toBeInTheDocument();
+    expect(document.querySelector('.fb-header .chip')).toBeInTheDocument();
+  });
+});
+
+describe('EventScreen strictJudge mode', () => {
+  beforeEach(() => {
+    localStorage.clear();
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('shows a countdown timer', () => {
+    renderModesHarness({ strictJudge: true });
+    expect(document.querySelector('.strict-timer')).toBeInTheDocument();
+  });
+
+  it('auto-picks an option and shows feedback once the countdown reaches zero', () => {
+    renderModesHarness({ strictJudge: true });
+    act(() => { vi.advanceTimersByTime(21000); });
+    expect(document.getElementById('feedback-panel')).toBeInTheDocument();
+  });
+
+  it('does not show a countdown timer when strictJudge is off', () => {
+    renderModesHarness({ strictJudge: false });
+    expect(document.querySelector('.strict-timer')).not.toBeInTheDocument();
   });
 });

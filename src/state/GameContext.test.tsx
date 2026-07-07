@@ -116,6 +116,66 @@ describe('GO_TO_INTRO / short session length', () => {
   });
 });
 
+describe('GO_TO_INTRO / difficulty modes', () => {
+  beforeEach(() => localStorage.clear());
+
+  function ModesHarness() {
+    const { state, dispatch } = useGame();
+    return (
+      <>
+        <button onClick={() => dispatch({ type: 'GO_TO_INTRO', length: 40, hiddenPhilosophy: true, strictJudge: true })}>go-both</button>
+        <button onClick={() => dispatch({ type: 'GO_TO_INTRO', length: 40 })}>go-none</button>
+        <button onClick={() => dispatch({ type: 'BEGIN_GAME' })}>begin</button>
+        <div data-testid="hidden">{String(state.hiddenPhilosophy)}</div>
+        <div data-testid="strict">{String(state.strictJudge)}</div>
+      </>
+    );
+  }
+
+  it('GO_TO_INTRO stores both modes when requested', () => {
+    render(<GameProvider><ModesHarness /></GameProvider>);
+    fireEvent.click(screen.getByText('go-both'));
+    expect(screen.getByTestId('hidden').textContent).toBe('true');
+    expect(screen.getByTestId('strict').textContent).toBe('true');
+  });
+
+  it('GO_TO_INTRO defaults both modes to false when omitted', () => {
+    render(<GameProvider><ModesHarness /></GameProvider>);
+    fireEvent.click(screen.getByText('go-none'));
+    expect(screen.getByTestId('hidden').textContent).toBe('false');
+    expect(screen.getByTestId('strict').textContent).toBe('false');
+  });
+
+  it('BEGIN_GAME carries the chosen modes into the event screen', () => {
+    render(<GameProvider><ModesHarness /></GameProvider>);
+    fireEvent.click(screen.getByText('go-both'));
+    fireEvent.click(screen.getByText('begin'));
+    expect(screen.getByTestId('hidden').textContent).toBe('true');
+    expect(screen.getByTestId('strict').textContent).toBe('true');
+  });
+});
+
+describe('CHOOSE_TIMEOUT', () => {
+  beforeEach(() => localStorage.clear());
+
+  function TimeoutHarness() {
+    const { state, dispatch } = useGame();
+    return (
+      <>
+        <button onClick={() => dispatch({ type: 'CHOOSE_TIMEOUT', option: { text: 'x', impact: 2, philosophy: 'utilitarismo' } })}>timeout</button>
+        <div data-testid="balance">{state.balance}</div>
+      </>
+    );
+  }
+
+  it('applies the option impact minus a 5-point penalty', () => {
+    render(<GameProvider><TimeoutHarness /></GameProvider>);
+    fireEvent.click(screen.getByText('timeout'));
+    // starts at 50, +2 impact, -5 penalty = 47
+    expect(screen.getByTestId('balance').textContent).toBe('47');
+  });
+});
+
 describe('storage-unavailable warning', () => {
   beforeEach(() => localStorage.clear());
 

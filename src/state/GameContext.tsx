@@ -10,14 +10,17 @@ import { PHILO_DATA } from '../data/philosophies';
 
 type Action =
   | { type: 'GO_TO_SCREEN'; screen: GameState['screen'] }
-  | { type: 'GO_TO_INTRO'; length: number }
+  | { type: 'GO_TO_INTRO'; length: number; hiddenPhilosophy?: boolean; strictJudge?: boolean }
   | { type: 'BEGIN_GAME' }
   | { type: 'CONTINUE_GAME' }
   | { type: 'CHOOSE'; option: DilemmaOption }
+  | { type: 'CHOOSE_TIMEOUT'; option: DilemmaOption }
   | { type: 'ADVANCE_FROM_FEEDBACK' }
   | { type: 'TICK_TIMER' }
   | { type: 'EXIT_TO_MENU' }
   | { type: 'SET_UNLOCKED'; unlocked: string[] };
+
+const STRICT_JUDGE_TIMEOUT_PENALTY = 5;
 
 const initialState: GameState = {
   screen: 'menu',
@@ -30,6 +33,8 @@ const initialState: GameState = {
   unlocked: [],
   feedback: null,
   pendingLength: FULL_SESSION_LENGTH,
+  hiddenPhilosophy: false,
+  strictJudge: false,
 };
 
 function reducer(state: GameState, action: Action): GameState {
@@ -38,7 +43,13 @@ function reducer(state: GameState, action: Action): GameState {
       return { ...state, screen: action.screen };
 
     case 'GO_TO_INTRO':
-      return { ...state, screen: 'intro', pendingLength: action.length };
+      return {
+        ...state,
+        screen: 'intro',
+        pendingLength: action.length,
+        hiddenPhilosophy: action.hiddenPhilosophy ?? false,
+        strictJudge: action.strictJudge ?? false,
+      };
 
     case 'BEGIN_GAME': {
       // "Comenzar el Juicio" — always starts fresh (clearSavedGame happens as a side effect).
@@ -49,6 +60,8 @@ function reducer(state: GameState, action: Action): GameState {
         sessionEvents,
         balance: 50,
         startTime: Date.now(),
+        hiddenPhilosophy: state.hiddenPhilosophy,
+        strictJudge: state.strictJudge,
       };
     }
 
@@ -88,6 +101,18 @@ function reducer(state: GameState, action: Action): GameState {
       // dilemma's title/quote/description while the feedback panel still
       // describes the previous choice.
       const balance = Math.max(0, Math.min(100, state.balance + action.option.impact));
+      return {
+        ...state,
+        balance,
+        decisions: [...state.decisions, action.option],
+        feedback: action.option,
+      };
+    }
+
+    case 'CHOOSE_TIMEOUT': {
+      // Same as CHOOSE, plus a fixed penalty for letting the clock run out
+      // under Juez Estricto mode.
+      const balance = Math.max(0, Math.min(100, state.balance + action.option.impact - STRICT_JUDGE_TIMEOUT_PENALTY));
       return {
         ...state,
         balance,

@@ -10,6 +10,8 @@ export function MenuScreen() {
   const { dispatch } = useGame();
   const [confirmingResume, setConfirmingResume] = useState(false);
   const [pendingLength, setPendingLength] = useState(FULL_SESSION_LENGTH);
+  const [hiddenPhilosophy, setHiddenPhilosophy] = useState(false);
+  const [strictJudge, setStrictJudge] = useState(false);
   const continuing = hasSavedGame();
 
   function handleNewGame(length: number) {
@@ -17,7 +19,7 @@ export function MenuScreen() {
       setPendingLength(length);
       setConfirmingResume(true);
     } else {
-      dispatch({ type: 'GO_TO_INTRO', length });
+      dispatch({ type: 'GO_TO_INTRO', length, hiddenPhilosophy, strictJudge });
     }
   }
 
@@ -36,6 +38,16 @@ export function MenuScreen() {
         )}
         <Button sound="start" onClick={() => handleNewGame(FULL_SESSION_LENGTH)}>Nueva Partida</Button>
         <Button ghost small onClick={() => handleNewGame(SHORT_SESSION_LENGTH)}>Partida Corta (15 dilemas)</Button>
+        <div className="menu-modes">
+          <label className="menu-mode-toggle">
+            <input type="checkbox" checked={hiddenPhilosophy} onChange={e => setHiddenPhilosophy(e.target.checked)} />
+            Filosofía Oculta
+          </label>
+          <label className="menu-mode-toggle">
+            <input type="checkbox" checked={strictJudge} onChange={e => setStrictJudge(e.target.checked)} />
+            Juez Estricto
+          </label>
+        </div>
         <Button ghost onClick={() => { snd('nav'); dispatch({ type: 'GO_TO_SCREEN', screen: 'achievements' }); }}>Ver Informes Guardados</Button>
         <Button ghost onClick={() => { snd('nav'); dispatch({ type: 'GO_TO_SCREEN', screen: 'achievements' }); }}>Galería de Logros</Button>
         <Button ghost onClick={() => { snd('nav'); dispatch({ type: 'GO_TO_SCREEN', screen: 'info' }); }}>Guía Pedagógica</Button>
@@ -52,7 +64,7 @@ export function MenuScreen() {
           body="Tenés una partida sin terminar. Si comenzás una nueva, el progreso actual se perderá."
           confirmLabel="✦ Nueva Partida"
           cancelLabel="← Continuar la actual"
-          onConfirm={() => { clearSavedGame(); setConfirmingResume(false); dispatch({ type: 'GO_TO_INTRO', length: pendingLength }); }}
+          onConfirm={() => { clearSavedGame(); setConfirmingResume(false); dispatch({ type: 'GO_TO_INTRO', length: pendingLength, hiddenPhilosophy, strictJudge }); }}
           onCancel={() => { setConfirmingResume(false); dispatch({ type: 'CONTINUE_GAME' }); }}
         />
       )}
