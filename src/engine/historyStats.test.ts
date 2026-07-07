@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { computeHistoryStats, topPhilosophies } from './historyStats';
 import { saveHistory } from './persistence';
+import { eventPool } from '../data/dilemmas';
 import type { HistoryRecord } from '../types';
 
 beforeEach(() => localStorage.clear());
@@ -26,6 +27,11 @@ describe('computeHistoryStats', () => {
     expect(stats?.avgScore).toBe(60);
     expect(stats?.bestScore).toBe(80);
     expect(stats?.worstScore).toBe(40);
+  });
+
+  it('reports poolSize as the number of non-finale dilemmas in the current pool', () => {
+    saveHistory(record());
+    expect(computeHistoryStats()?.poolSize).toBe(eventPool.length - 1);
   });
 });
 

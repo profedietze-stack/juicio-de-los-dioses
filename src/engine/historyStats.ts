@@ -1,6 +1,8 @@
 import type { HistoryRecord, PhilosophyKey } from '../types';
 import { getHistory, getSeenMap } from './persistence';
 import { ALL_PHILO_KEYS } from './results';
+import { eventPool } from '../data/dilemmas';
+import { FULL_SESSION_LENGTH } from './poolBuilder';
 
 export interface HistoryStats {
   totalGames: number;
@@ -21,10 +23,12 @@ export interface HistoryStats {
   freshPct: number;
   nextGameFresh: number;
   nextGameRecycled: number;
+  poolSize: number;
   history: HistoryRecord[];
 }
 
-const POOL_SIZE = 79; // eligible dilemmas (excl. finale id=60)
+// Eligible dilemmas excluding the finale (whatever the current pool size is).
+const POOL_SIZE = eventPool.length - 1;
 
 // Top N philosophies (by percentage) for a single game's HistoryRecord.pcts,
 // used to compare how the player's profile shifted across recent games.
@@ -69,12 +73,12 @@ export function computeHistoryStats(): HistoryStats | null {
   const seenCount = Object.keys(seenMap).length;
   const freshCount = POOL_SIZE - seenCount;
   const freshPct = Math.round(freshCount / POOL_SIZE * 100);
-  const nextGameFresh = Math.min(39, freshCount);
-  const nextGameRecycled = 39 - nextGameFresh;
+  const nextGameFresh = Math.min(FULL_SESSION_LENGTH, freshCount);
+  const nextGameRecycled = FULL_SESSION_LENGTH - nextGameFresh;
 
   return {
     totalGames, totalSecs, avgScore, avgTime, bestScore, worstScore, avgDiversity,
     endingCounts, topDom, aggCounts, sortedPhilo, totalDecisions, trend,
-    seenCount, freshCount, freshPct, nextGameFresh, nextGameRecycled, history: h,
+    seenCount, freshCount, freshPct, nextGameFresh, nextGameRecycled, poolSize: POOL_SIZE, history: h,
   };
 }

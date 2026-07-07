@@ -9,11 +9,11 @@ describe('buildWeightedPool', () => {
   it('excludes the given id from the drawn pool', () => {
     const pool = buildWeightedPool(60);
     expect(pool.some(d => d.id === 60)).toBe(false);
-    expect(pool).toHaveLength(79);
+    expect(pool).toHaveLength(eventPool.length - 1);
   });
 
   it('returns the full pool when no id is excluded', () => {
-    expect(buildWeightedPool()).toHaveLength(80);
+    expect(buildWeightedPool()).toHaveLength(eventPool.length);
   });
 });
 

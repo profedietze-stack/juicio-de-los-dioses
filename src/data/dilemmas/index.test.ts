@@ -2,15 +2,15 @@ import { describe, it, expect } from 'vitest';
 import { eventPool } from './index';
 
 describe('eventPool', () => {
-  it('has 80 dilemmas total (79 regular + 1 finale)', () => {
-    expect(eventPool).toHaveLength(80);
+  it('has 85 dilemmas total (84 regular + 1 finale)', () => {
+    expect(eventPool).toHaveLength(85);
   });
 
-  it('has unique ids from 1 to 80', () => {
+  it('has unique ids from 1 to 85', () => {
     const ids = eventPool.map(d => d.id).sort((a, b) => a - b);
-    expect(new Set(ids).size).toBe(80);
+    expect(new Set(ids).size).toBe(85);
     expect(Math.min(...ids)).toBe(1);
-    expect(Math.max(...ids)).toBe(80);
+    expect(Math.max(...ids)).toBe(85);
   });
 
   it('every dilemma has a title, quote, description, and options with philosophy+impact', () => {

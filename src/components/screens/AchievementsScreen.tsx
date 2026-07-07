@@ -110,7 +110,7 @@ export function AchievementsScreen() {
                     <div className="stats-pool-fill stats-pool-fresh" style={{ width: `${100 - stats.freshPct}%` }} />
                     <div className="stats-pool-fill stats-pool-unseen" style={{ width: `${stats.freshPct}%` }} />
                   </div>
-                  <span className="stats-pool-counts">{stats.seenCount} vistos · <span style={{ color: 'var(--gold)' }}>{stats.freshCount} nuevos</span> de 79</span>
+                  <span className="stats-pool-counts">{stats.seenCount} vistos · <span style={{ color: 'var(--gold)' }}>{stats.freshCount} nuevos</span> de {stats.poolSize}</span>
                 </div>
                 <div className="stats-pool-meta">
                   Próxima partida: <strong style={{ color: 'var(--gold)' }}>{stats.nextGameFresh} dilemas nuevos</strong>{stats.nextGameRecycled > 0 ? ` + ${stats.nextGameRecycled} revisión` : ''}
