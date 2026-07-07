@@ -68,6 +68,13 @@ body::before{
 .menu-modes{display:flex;gap:1.2rem;justify-content:center;margin-top:.2rem;}
 .menu-mode-toggle{display:flex;align-items:center;gap:.4rem;font-size:.72rem;color:var(--muted);cursor:pointer;letter-spacing:.5px;}
 .menu-mode-toggle input{accent-color:var(--gold);cursor:pointer;}
+
+/* SPLASH */
+.splash-screen{min-height:100vh;justify-content:center;align-items:center;text-align:center;padding:2.5rem 2rem;background:#07070f;}
+.splash-emblem{font-size:4.5rem;color:var(--gold);margin-bottom:1.2rem;filter:drop-shadow(0 0 28px var(--gold-glow));animation:em-pulse 3s ease-in-out infinite;}
+.splash-title{font-family:'Cinzel',serif;font-size:clamp(2rem,5vw,3.4rem);font-weight:900;color:var(--gold);letter-spacing:4px;line-height:1.1;margin-bottom:2rem;}
+.splash-loading{font-family:'Cinzel',serif;font-size:.8rem;color:var(--muted);letter-spacing:2px;text-transform:uppercase;animation:em-pulse 1.6s ease-in-out infinite;}
+.splash-continue{min-width:220px;font-size:.9rem;padding:1rem 2rem;}
 .creator-credit{display:flex;align-items:center;justify-content:center;gap:.7rem;opacity:.65;transition:opacity .25s;margin-top:.4rem;}
 .creator-credit:hover{opacity:1;}
 .cc-line{flex:1;max-width:55px;height:1px;}

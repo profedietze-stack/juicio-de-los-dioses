@@ -1,18 +1,33 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import App from './App';
+
+async function renderPastSplash() {
+  render(<App />);
+  await waitFor(() => screen.getByText('Continuar'));
+  fireEvent.click(screen.getByText('Continuar'));
+}
 
 describe('App', () => {
   beforeEach(() => localStorage.clear());
 
-  it('renders the main menu on load', () => {
+  it('shows the splashscreen before the menu, and Continuar advances to it', async () => {
     render(<App />);
+    expect(document.getElementById('screen-splash')).toBeInTheDocument();
+    await waitFor(() => screen.getByText('Continuar'));
+    fireEvent.click(screen.getByText('Continuar'));
+    expect(document.getElementById('screen-splash')).not.toBeInTheDocument();
+    expect(screen.getByText('Nueva Partida')).toBeInTheDocument();
+  });
+
+  it('renders the main menu on load', async () => {
+    await renderPastSplash();
     expect(screen.getByText('El Juicio de los Dioses')).toBeInTheDocument();
     expect(screen.getByText('Nueva Partida')).toBeInTheDocument();
   });
 
-  it('navigates Menú -> Guía Pedagógica -> Corrientes -> back to Menú', () => {
-    render(<App />);
+  it('navigates Menú -> Guía Pedagógica -> Corrientes -> back to Menú', async () => {
+    await renderPastSplash();
     fireEvent.click(screen.getByText('Guía Pedagógica'));
     expect(document.getElementById('screen-info')).toBeInTheDocument();
 
@@ -23,8 +38,8 @@ describe('App', () => {
     expect(document.getElementById('screen-menu')).toBeInTheDocument();
   });
 
-  it('navigates Menú -> Nueva Partida -> Intro -> Comenzar el Juicio -> event screen', () => {
-    render(<App />);
+  it('navigates Menú -> Nueva Partida -> Intro -> Comenzar el Juicio -> event screen', async () => {
+    await renderPastSplash();
     fireEvent.click(screen.getByText('Nueva Partida'));
     expect(document.getElementById('screen-intro')).toBeInTheDocument();
 
@@ -33,8 +48,8 @@ describe('App', () => {
     expect(document.getElementById('ev-title')?.textContent).toBeTruthy();
   });
 
-  it('opens Galería de Logros without a saved game', () => {
-    render(<App />);
+  it('opens Galería de Logros without a saved game', async () => {
+    await renderPastSplash();
     fireEvent.click(screen.getByText('Galería de Logros'));
     expect(document.getElementById('screen-achievements')).toBeInTheDocument();
   });

@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import { GameProvider, useGame } from './state/GameContext';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { SplashScreen } from './components/SplashScreen';
 import { MenuScreen } from './components/screens/MenuScreen';
 import { IntroScreen } from './components/screens/IntroScreen';
 import { EventScreen } from './components/screens/EventScreen';
@@ -39,6 +41,16 @@ function AutosaveToast() {
 }
 
 export default function App() {
+  const [showSplash, setShowSplash] = useState(true);
+
+  if (showSplash) {
+    return (
+      <ErrorBoundary>
+        <SplashScreen onDone={() => setShowSplash(false)} />
+      </ErrorBoundary>
+    );
+  }
+
   return (
     <ErrorBoundary>
       <GameProvider>
