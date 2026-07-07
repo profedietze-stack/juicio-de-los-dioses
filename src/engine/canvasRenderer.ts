@@ -1,5 +1,6 @@
 import { EV_THEMES } from '../data/eventThemes';
 import { _bg } from '../data/eventThemes/canvasHelpers';
+import { DILEMMA_THEME_MAP } from './dilemmaThemeMap';
 
 // Banners are rendered to data URLs only when first needed, then cached.
 // After the game starts we prefetch remaining banners during idle time.
@@ -34,11 +35,16 @@ export function prefetchBannersIdle() {
   (window.requestIdleCallback || ((cb: IdleRequestCallback) => setTimeout(cb as any, 200)))(step, { timeout: 5000 });
 }
 
+// Falls back to the old cyclic assignment for any id the curated map doesn't
+// cover yet (e.g. dilemmas added without updating DILEMMA_THEME_MAP).
+function themeIndexFor(evId: number): number {
+  return DILEMMA_THEME_MAP[evId] ?? (evId - 1) % EV_THEMES.length;
+}
+
 export function getEventImg(evId: number): string {
-  const idx = (evId - 1) % EV_THEMES.length;
-  return renderTheme(idx);
+  return renderTheme(themeIndexFor(evId));
 }
 
 export function getEventThemeLabel(evId: number): string {
-  return EV_THEMES[(evId - 1) % EV_THEMES.length].label;
+  return EV_THEMES[themeIndexFor(evId)].label;
 }

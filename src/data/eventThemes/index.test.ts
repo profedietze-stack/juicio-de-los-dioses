@@ -2,8 +2,8 @@ import { describe, it, expect } from 'vitest';
 import { EV_THEMES } from './index';
 
 describe('EV_THEMES', () => {
-  it('has 30 themes and every theme has a label and a fn', () => {
-    expect(EV_THEMES.length).toBe(30);
+  it('has 33 themes and every theme has a label and a fn', () => {
+    expect(EV_THEMES.length).toBe(33);
     for (const t of EV_THEMES) {
       expect(t.label.length).toBeGreaterThan(0);
       expect(typeof t.fn).toBe('function');
