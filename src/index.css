@@ -652,6 +652,26 @@ body::before{
   line-height:1.6;
   color:var(--text);
 }
+.mute-toggle{
+  position:fixed;
+  right:.9rem;
+  bottom:.9rem;
+  z-index:9998;
+  width:2.6rem;
+  height:2.6rem;
+  border-radius:50%;
+  border:1px solid rgba(212,175,55,.45);
+  background:rgba(10,10,22,.85);
+  color:var(--text);
+  font-size:1.2rem;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  backdrop-filter:blur(10px);
+  box-shadow:0 4px 16px rgba(0,0,0,.4);
+}
+.mute-toggle:hover{border-color:var(--gold);}
 
 /* ── STATS PANEL ── */
 .stats-panel{width:100%;max-width:820px;display:flex;flex-direction:column;gap:1.2rem;}

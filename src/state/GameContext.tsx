@@ -4,6 +4,7 @@ import { eventPool } from '../data/dilemmas';
 import { buildNewSession, recordSeenDilemas, FULL_SESSION_LENGTH } from '../engine/poolBuilder';
 import { autosave, clearSavedGame, loadSavedGame, hasSavedGame, saveHistory, saveSnapshot, saveUnlockedAchievements, isStorageAvailable } from '../engine/persistence';
 import { checkAchievements } from '../engine/achievements';
+import { startMusic, stopMusic } from '../engine/music';
 import { computeResults } from '../engine/results';
 import { PHILO_DATA } from '../data/philosophies';
 
@@ -144,6 +145,13 @@ export function GameProvider({ children }: { children: ReactNode }) {
     if (state.screen !== 'event') return;
     const id = setInterval(() => dispatch({ type: 'TICK_TIMER' }), 1000);
     return () => clearInterval(id);
+  }, [state.screen]);
+
+  // Ambient music plays only while a dilemma is on screen.
+  useEffect(() => {
+    if (state.screen === 'event') startMusic();
+    else stopMusic();
+    return () => stopMusic();
   }, [state.screen]);
 
   // Autosave at the beginning of each dilema, skipping the very first

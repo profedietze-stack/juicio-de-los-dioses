@@ -172,8 +172,8 @@ export const group1: EventTheme[] = [
   const bg=ctx.createLinearGradient(0,0,W,H);
   bg.addColorStop(0,'#010a05');bg.addColorStop(0.5,'#021208');bg.addColorStop(1,'#010e0a');
   ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
-  [[W*0.15,H*0.3,140,'rgba(0,220,120,0.05)'],[W*0.85,H*0.6,120,'rgba(0,160,220,0.06)'],
-   [W*0.5,H*0.85,100,'rgba(40,220,100,0.04)'],[W*0.7,H*0.15,90,'rgba(0,200,180,0.05)']].forEach(([x,y,r,col])=>_glow(ctx,x,y,r,col));
+  ([[W*0.15,H*0.3,140,'rgba(0,220,120,0.05)'],[W*0.85,H*0.6,120,'rgba(0,160,220,0.06)'],
+   [W*0.5,H*0.85,100,'rgba(40,220,100,0.04)'],[W*0.7,H*0.15,90,'rgba(0,200,180,0.05)']] as [number,number,number,string][]).forEach(([x,y,r,col])=>_glow(ctx,x,y,r,col));
   for(let p=0;p<60;p++){
     const px=Math.random()*W,py=Math.random()*H;
     const ps=0.8+Math.random()*2;
@@ -220,7 +220,7 @@ export const group1: EventTheme[] = [
       rg.addColorStop(1,`rgba(0,200,255,${0.5+progress*0.4})`);
       ctx.strokeStyle=rg;ctx.lineWidth=2;ctx.shadowBlur=4;ctx.shadowColor='rgba(0,255,150,0.5)';
       ctx.beginPath();ctx.moveTo(x1,y);ctx.lineTo(x2,y);ctx.stroke();ctx.shadowBlur=0;
-      [[x1,pal[0]],[x2,pal[2]]].forEach(([nx,nc])=>{
+      ([[x1,pal[0]],[x2,pal[2]]] as [number,string][]).forEach(([nx,nc])=>{
         const ng=ctx.createRadialGradient(nx,y,0,nx,y,5);
         ng.addColorStop(0,'#ffffff');ng.addColorStop(0.4,nc);ng.addColorStop(1,'transparent');
         ctx.fillStyle=ng;ctx.beginPath();ctx.arc(nx,y,5,0,Math.PI*2);ctx.fill();

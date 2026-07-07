@@ -12,7 +12,7 @@ export const group2: EventTheme[] = [
   const constel=[[W*0.1,H*0.1],[W*0.18,H*0.08],[W*0.25,H*0.12],[W*0.22,H*0.18],[W*0.15,H*0.2]];
   ctx.strokeStyle='rgba(200,180,140,0.15)';ctx.lineWidth=0.8;
   for(let i=0;i<constel.length-1;i++){ctx.beginPath();ctx.moveTo(constel[i][0],constel[i][1]);ctx.lineTo(constel[i+1][0],constel[i+1][1]);ctx.stroke();}
-  [[W*0.18,H*0.78,W*0.22,'rgba(25,18,5,0.95)'],[W*0.42,H*0.72,W*0.3,'rgba(30,22,6,0.95)'],[W*0.72,H*0.76,W*0.18,'rgba(22,16,4,0.9)']].forEach(([px,py,pw,pc])=>{
+  ([[W*0.18,H*0.78,W*0.22,'rgba(25,18,5,0.95)'],[W*0.42,H*0.72,W*0.3,'rgba(30,22,6,0.95)'],[W*0.72,H*0.76,W*0.18,'rgba(22,16,4,0.9)']] as [number,number,number,string][]).forEach(([px,py,pw,pc])=>{
     ctx.fillStyle=pc;
     ctx.beginPath();ctx.moveTo(px,py);ctx.lineTo(px-pw/2,H*0.88);ctx.lineTo(px+pw/2,H*0.88);ctx.closePath();ctx.fill();
     ctx.strokeStyle='rgba(212,175,55,0.15)';ctx.lineWidth=1;
@@ -83,8 +83,8 @@ export const group2: EventTheme[] = [
     ctx.beginPath();(ctx as any).roundRect?(ctx as any).roundRect(px-4,py,8,height,2):ctx.rect(px-4,py,8,height);ctx.fill();
     ctx.beginPath();ctx.arc(px,py-4,4.5,0,Math.PI*2);ctx.fill();
   }
-  [[W*0.2,H*0.85,'rgba(100,60,200,0.1)'],[W*0.5,H*0.82,'rgba(60,120,200,0.1)'],
-   [W*0.8,H*0.85,'rgba(200,80,100,0.08)']].forEach(([x,y,col])=>_glow(ctx,x,y,120,col));
+  ([[W*0.2,H*0.85,'rgba(100,60,200,0.1)'],[W*0.5,H*0.82,'rgba(60,120,200,0.1)'],
+   [W*0.8,H*0.85,'rgba(200,80,100,0.08)']] as [number,number,string][]).forEach(([x,y,col])=>_glow(ctx,x,y,120,col));
   const horizG=ctx.createLinearGradient(0,H*0.5,0,H*0.72);
   horizG.addColorStop(0,'transparent');horizG.addColorStop(1,'rgba(80,60,160,0.15)');
   ctx.fillStyle=horizG;ctx.fillRect(0,H*0.5,W,H*0.22);

@@ -1,9 +1,7 @@
-type SoundConfig = { type?: OscillatorType; freq: number; freq2?: number; dur?: number; vol?: number };
+import { AC } from './audioContext';
+import { isMuted } from './audioPrefs';
 
-const AC: AudioContext | null = (() => {
-  try { return new (window.AudioContext || (window as any).webkitAudioContext)(); }
-  catch { return null; }
-})();
+type SoundConfig = { type?: OscillatorType; freq: number; freq2?: number; dur?: number; vol?: number };
 
 function _play(cfg: SoundConfig) {
   if (!AC) return;
@@ -30,5 +28,6 @@ const sounds: Record<string, () => void> = {
 };
 
 export function snd(name: keyof typeof sounds) {
+  if (isMuted()) return;
   try { sounds[name]?.(); } catch { /* AudioContext unavailable (e.g. Safari private mode) */ }
 }

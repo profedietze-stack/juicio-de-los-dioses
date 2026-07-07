@@ -358,7 +358,7 @@ export const group3: EventTheme[] = [
   ctx.lineTo(rx+22,ry+40);ctx.bezierCurveTo(rx+22,ry-20,rx+10,ry-40,rx,ry-65);ctx.fill();
   ctx.strokeStyle='rgba(200,210,240,0.4)';ctx.lineWidth=1;ctx.stroke();
   _glow(ctx,rx,ry-65,20,'rgba(200,220,255,0.3)');
-  ([[-1,1],[1,-1]] as [number,number][]).forEach(([sx,sy])=>{
+  ([[-1,1],[1,-1]] as [number,number][]).forEach(([sx])=>{
     ctx.fillStyle='rgba(160,165,190,0.6)';
     ctx.beginPath();ctx.moveTo(rx+sx*22,ry+20);ctx.lineTo(rx+sx*45,ry+55);ctx.lineTo(rx+sx*22,ry+40);ctx.closePath();ctx.fill();
   });

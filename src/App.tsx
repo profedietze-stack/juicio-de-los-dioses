@@ -8,6 +8,7 @@ import { AchievementsScreen } from './components/screens/AchievementsScreen';
 import { InfoScreen } from './components/screens/InfoScreen';
 import { Toast } from './components/modals/Toast';
 import { TooltipBox } from './components/ui/TooltipBox';
+import { MuteToggle } from './components/ui/MuteToggle';
 
 function Screens() {
   const { state } = useGame();
@@ -57,6 +58,7 @@ export default function App() {
           </div>
           <AutosaveToast />
           <TooltipBox />
+          <MuteToggle />
         </div>
       </GameProvider>
     </ErrorBoundary>

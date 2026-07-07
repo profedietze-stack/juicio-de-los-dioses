@@ -58,6 +58,12 @@ export function InfoScreen() {
                 <span className="chip deon">Deontología</span>
                 <span className="chip nihi">Nihilismo</span>
                 <span className="chip virt">Virtuosismo</span>
+                <span className="chip exis">Existencialismo</span>
+                <span className="chip esto">Estoicismo</span>
+                <span className="chip prag">Pragmatismo</span>
+                <span className="chip cont">Contractualismo</span>
+                <span className="chip femi">Feminismo Ético</span>
+                <span className="chip budi">Budismo</span>
               </div>
               <h4>Utilitarismo</h4>
               <p>Fundado por Jeremy Bentham y desarrollado por John Stuart Mill, sostiene que la acción moralmente correcta es la que <strong>maximiza el bienestar del mayor número</strong>. La ética se evalúa por consecuencias, no por intenciones. El fin puede justificar los medios si el cálculo de felicidad neta es favorable. En el juego: opciones que priorizan el bien colectivo sobre derechos individuales.</p>
@@ -71,6 +77,24 @@ export function InfoScreen() {
               <h4>Virtuosismo (Ética de la Virtud)</h4>
               <p>Originado en Aristóteles. No pregunta "¿qué debo hacer?" sino "<strong>¿qué clase de persona debo ser?</strong>". La moral reside en el cultivo de virtudes —sabiduría, justicia, valentía, templanza— y en la búsqueda de la eudaimonía (florecimiento humano). En el juego: opciones que priorizan el carácter, la excelencia y el desarrollo integral.</p>
               <p><em>Pensadores clave:</em> Aristóteles, Alasdair MacIntyre, Martha Nussbaum.</p>
+              <h4>Existencialismo</h4>
+              <p>Para Sartre, <strong>la existencia precede a la esencia</strong>: no hay naturaleza humana previa, somos lo que elegimos ser. Esa libertad radical es también una condena, porque no podemos no elegir y cada elección implica una responsabilidad absoluta. De Beauvoir extendió el análisis al género, mostrando que "la mujer" es una construcción histórica, no un destino biológico. En el juego: opciones que priorizan la autenticidad, la libertad individual y la responsabilidad personal por sobre cualquier guion prefijado.</p>
+              <p><em>Pensadores clave:</em> Sartre, Simone de Beauvoir, Camus, Kierkegaard. <em>Dilema clásico:</em> la angustia de la libertad absoluta.</p>
+              <h4>Estoicismo</h4>
+              <p>Enseña a distinguir <strong>lo que depende de nosotros de lo que no</strong>, y a cultivar la serenidad interior ante lo inevitable. Epicteto, exesclavizado y libre por dentro, y Marco Aurelio, emperador y austero por convicción, muestran que esta disciplina se practica en cualquier condición. No es resignación pasiva, sino la decisión de no desperdiciar energía moral en lo que no se puede cambiar. En el juego: opciones que priorizan la ecuanimidad y la aceptación racional por sobre la reacción emocional.</p>
+              <p><em>Pensadores clave:</em> Epicteto, Marco Aurelio, Séneca, Zenón de Citio.</p>
+              <h4>Pragmatismo</h4>
+              <p>No pregunta si una idea es abstractamente verdadera sino <strong>si funciona</strong>: si produce resultados verificables y mejora la experiencia concreta. James aplicó esto a la ética, y Dewey lo llevó a la educación y la democracia como instrumentos de mejora continua. Es una ética antidogmática: ningún principio es sagrado si sus consecuencias son dañinas. En el juego: opciones que evalúan cada situación por su resultado práctico, sin apego a un marco fijo.</p>
+              <p><em>Pensadores clave:</em> William James, John Dewey, Charles Sanders Peirce, Richard Rorty.</p>
+              <h4>Contractualismo</h4>
+              <p>Sostiene que la legitimidad moral y política nace del <strong>acuerdo entre personas libres e iguales</strong>. Para Rawls, los principios de justicia son los que se elegirían tras un velo de ignorancia, sin saber qué lugar se ocupará en la sociedad. Scanlon propone que una acción es incorrecta si sus principios no pueden ser razonablemente rechazados por nadie afectado. En el juego: opciones que priorizan los procedimientos justos y el acuerdo legítimo por sobre la imposición unilateral.</p>
+              <p><em>Pensadores clave:</em> Jean-Jacques Rousseau, John Locke, John Rawls, Thomas Scanlon.</p>
+              <h4>Feminismo Ético</h4>
+              <p>Carol Gilligan demostró que las teorías éticas dominantes, basadas en principios abstractos y universales, reflejaban perspectivas masculinas e ignoraban una <strong>ética del cuidado</strong> orientada a las relaciones concretas de interdependencia. bell hooks amplió el enfoque integrando raza y clase: la opresión es interseccional. En el juego: opciones que priorizan el cuidado mutuo, las relaciones concretas y la crítica a los sistemas que naturalizan el privilegio.</p>
+              <p><em>Pensadores clave:</em> Carol Gilligan, Nel Noddings, bell hooks, Simone de Beauvoir, Virginia Held.</p>
+              <h4>Budismo</h4>
+              <p>Parte de una premisa radical: el sufrimiento es universal y tiene una causa —el apego y el deseo— que puede comprenderse y reducirse. La <strong>compasión (karuna)</strong> no es un sentimiento sino una práctica activa de reconocer el sufrimiento ajeno y actuar para aliviarlo, dentro de una red de interdependencia donde toda acción tiene consecuencias. En el juego: opciones que priorizan la reducción del daño y la ecuanimidad por sobre la afirmación del yo o del grupo propio.</p>
+              <p><em>Pensadores clave:</em> Siddhartha Gautama, Nagarjuna, Thich Nhat Hanh, Dalai Lama XIV.</p>
             </div>
           </div>
         )}
