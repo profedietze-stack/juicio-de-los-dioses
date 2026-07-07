@@ -44,4 +44,46 @@ describe('checkAchievements', () => {
     expect(checkAchievements({ score: 100, time: 1000, decisions: decisions('utilitarismo') })).toContain('ascendido');
     expect(checkAchievements({ score: 0, time: 1000, decisions: decisions('utilitarismo') })).toContain('extincion');
   });
+
+  describe('block4-themed achievements', () => {
+    function opt(philosophy: DilemmaOption['philosophy'], impact = 1): DilemmaOption {
+      return { text: 'x', impact, philosophy };
+    }
+
+    it('unlocks guardian-digital when avoiding the passive-acceptance option on both AI dilemmas (81, 82)', () => {
+      const decisions = [opt('pragmatismo'), opt('contractualismo')];
+      const eventIds = [81, 82];
+      expect(checkAchievements({ score: 50, time: 1000, decisions, eventIds })).toContain('guardian-digital');
+    });
+
+    it('does not unlock guardian-digital when the utilitarismo pass-through option was picked on either AI dilemma', () => {
+      const decisions = [opt('utilitarismo', 2), opt('contractualismo')];
+      const eventIds = [81, 82];
+      expect(checkAchievements({ score: 50, time: 1000, decisions, eventIds })).not.toContain('guardian-digital');
+    });
+
+    it('does not unlock guardian-digital when the AI dilemmas were not played', () => {
+      expect(checkAchievements({ score: 50, time: 1000, decisions: decisions_arr(), eventIds: [] })).not.toContain('guardian-digital');
+    });
+
+    it('unlocks voz-del-rio when choosing the feminismo option on dilemma 84', () => {
+      expect(checkAchievements({ score: 50, time: 1000, decisions: [opt('feminismo')], eventIds: [84] })).toContain('voz-del-rio');
+    });
+
+    it('does not unlock voz-del-rio when a different option was chosen on dilemma 84', () => {
+      expect(checkAchievements({ score: 50, time: 1000, decisions: [opt('deontologia')], eventIds: [84] })).not.toContain('voz-del-rio');
+    });
+
+    it('unlocks mano-que-toca when choosing the feminismo option on dilemma 85', () => {
+      expect(checkAchievements({ score: 50, time: 1000, decisions: [opt('feminismo')], eventIds: [85] })).toContain('mano-que-toca');
+    });
+
+    it('does not unlock mano-que-toca when dilemma 85 was not played', () => {
+      expect(checkAchievements({ score: 50, time: 1000, decisions: [], eventIds: [] })).not.toContain('mano-que-toca');
+    });
+
+    function decisions_arr(): DilemmaOption[] {
+      return [opt('utilitarismo')];
+    }
+  });
 });
