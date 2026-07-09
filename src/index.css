@@ -44,6 +44,7 @@ body::before{
 
 /* MAIN */
 #main{flex:1;overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;scrollbar-width:thin;scrollbar-color:var(--gold-dim) transparent;}
+.screen-transition{display:flex;flex-direction:column;flex:1;}
 #main::-webkit-scrollbar{width:5px;}
 #main::-webkit-scrollbar-thumb{background:var(--gold-dim);border-radius:3px;}
 
@@ -118,8 +119,10 @@ body::before{
 .ev-img-wrap img{
   width:100%;height:100%;object-fit:cover;object-position:center 30%;
   display:block;
+  opacity:0;
   transition:opacity .6s ease;
 }
+.ev-img-wrap img.ev-img-loaded{opacity:1;}
 .ev-img-wrap::before,
 .ev-img-wrap::after{
   content:'';position:absolute;left:0;right:0;z-index:2;pointer-events:none;
@@ -749,6 +752,22 @@ body::before{
 .stats-pool-badge{font-size:.52rem;letter-spacing:1.5px;text-transform:uppercase;padding:.13rem .45rem;border:1px solid rgba(212,175,55,.3);color:var(--muted);}
 .stats-pool-badge-low{border-color:rgba(196,124,43,.5);color:var(--esto);}
 .stats-pool-badge-warn{border-color:rgba(176,50,50,.4);color:var(--deon);}
+
+.stats-play-freq-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+.stats-play-freq-label{font-family:'Cinzel',serif;font-size:.58rem;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:.5rem;}
+.stats-play-freq-row{display:flex;justify-content:space-between;gap:.6rem;font-size:.72rem;padding:.35rem 0;border-bottom:1px solid rgba(212,175,55,.1);}
+.stats-play-freq-title{color:var(--text);}
+.stats-play-freq-count{color:var(--gold);font-family:'Cinzel',serif;white-space:nowrap;}
+
+/* REVIEW */
+.review-screen{flex:1;padding:2rem;align-items:center;gap:1.2rem;}
+.review-list{display:flex;flex-direction:column;gap:.7rem;width:100%;max-width:640px;}
+.review-card{border:1px solid rgba(212,175,55,.18);background:var(--surface);padding:.9rem 1.1rem;backdrop-filter:blur(8px);}
+.review-card-num{font-family:'Cinzel',serif;font-size:.56rem;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:.25rem;}
+.review-card-title{font-family:'Cinzel',serif;font-size:.85rem;color:var(--gold);margin-bottom:.4rem;}
+.review-card-chosen{font-size:.8rem;color:var(--text);line-height:1.5;margin-bottom:.55rem;}
+.review-card-foot{display:flex;align-items:center;justify-content:space-between;gap:.6rem;}
+.review-card-impact{font-family:'Cinzel',serif;font-size:.75rem;font-weight:600;}
 
 
 

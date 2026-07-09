@@ -1,5 +1,5 @@
 import type { DilemmaOption, PhilosophyKey, Ending } from '../types';
-import { endings } from '../data/endings';
+import { endings, specialEndings } from '../data/endings';
 
 export const ALL_PHILO_KEYS: PhilosophyKey[] = [
   'utilitarismo', 'deontologia', 'nihilismo', 'virtuosismo', 'existencialismo',
@@ -40,9 +40,17 @@ export function computeResults(decisions: DilemmaOption[], balance: number, tota
   else if (score <= 80) endingKey = 'enlightenment';
   else endingKey = 'deification';
 
+  // Rare-combo overrides: the philosophy profile itself was extraordinary,
+  // not just the final score. endingKey (the score bucket) stays as-is so
+  // stats/history grouping is unaffected — only the shown narrative changes.
+  let ending: Ending = endings[endingKey];
+  if (score === 100 && diversity === 1) ending = specialEndings.pureAscension;
+  else if (score === 0 && diversity === 1) ending = specialEndings.pureVoid;
+  else if (diversity >= 8) ending = specialEndings.universalMediator;
+
   return {
     score, totalTime, totalDecisions: decisions.length,
     counts, pcts, diversity, ranked, dom, sec, thr,
-    ending: endings[endingKey], endingKey,
+    ending, endingKey,
   };
 }

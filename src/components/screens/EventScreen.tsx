@@ -15,6 +15,10 @@ export function EventScreen() {
   const { state, dispatch } = useGame();
   const ev = state.sessionEvents[state.current];
   const [timeLeft, setTimeLeft] = useState(STRICT_JUDGE_SECONDS);
+  const [imgLoaded, setImgLoaded] = useState(false);
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { setImgLoaded(false); }, [state.current]);
 
   // Countdown for Juez Estricto: resets on each new dilemma and stops once
   // feedback is showing.
@@ -47,7 +51,15 @@ export function EventScreen() {
         onExit={() => { snd('nav'); dispatch({ type: 'EXIT_TO_MENU' }); }}
       />
       <div className="ev-img-wrap" id="ev-img-wrap">
-        <img id="ev-img" src={getEventImg(ev.id)} alt={getEventThemeLabel(ev.id)} aria-hidden="true" loading="eager" />
+        <img
+          id="ev-img"
+          className={imgLoaded ? 'ev-img-loaded' : ''}
+          src={getEventImg(ev.id)}
+          alt={getEventThemeLabel(ev.id)}
+          aria-hidden="true"
+          loading="eager"
+          onLoad={() => setImgLoaded(true)}
+        />
         <div className="ev-img-veil" />
       </div>
       <div className="event-body fade-up" id="event-body">

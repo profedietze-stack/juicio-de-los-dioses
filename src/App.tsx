@@ -8,11 +8,12 @@ import { EventScreen } from './components/screens/EventScreen';
 import { ResultScreen } from './components/screens/ResultScreen';
 import { AchievementsScreen } from './components/screens/AchievementsScreen';
 import { InfoScreen } from './components/screens/InfoScreen';
+import { ReviewScreen } from './components/screens/ReviewScreen';
 import { Toast } from './components/modals/Toast';
 import { TooltipBox } from './components/ui/TooltipBox';
 import { MuteToggle } from './components/ui/MuteToggle';
 
-function Screens() {
+function CurrentScreen() {
   const { state } = useGame();
   switch (state.screen) {
     case 'menu': return <MenuScreen />;
@@ -21,8 +22,20 @@ function Screens() {
     case 'result': return <ResultScreen />;
     case 'achievements': return <AchievementsScreen />;
     case 'info': return <InfoScreen />;
+    case 'review': return <ReviewScreen />;
     default: return null;
   }
+}
+
+// Remounting on screen change (via key) replays the fade-up animation,
+// giving every screen transition a soft crossfade instead of an abrupt cut.
+function Screens() {
+  const { state } = useGame();
+  return (
+    <div key={state.screen} className="screen-transition fade-up">
+      <CurrentScreen />
+    </div>
+  );
 }
 
 function FooterButtons() {
