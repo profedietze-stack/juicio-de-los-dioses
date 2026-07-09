@@ -58,7 +58,14 @@ body::before{
 .fade-up{animation:fadeUp .55s cubic-bezier(.22,1,.36,1) both;}
 
 /* MENU */
-.menu-screen{flex:1;justify-content:center;align-items:center;text-align:center;padding:2.5rem 2rem;}
+.menu-screen{
+  flex:1;justify-content:center;align-items:center;text-align:center;padding:2.5rem 2rem;
+  position:relative;
+  background:
+    linear-gradient(to bottom,rgba(7,7,15,.88),rgba(7,7,15,.82) 55%,var(--bg) 100%),
+    url('/backgrounds/menu-council-of-gods.jpg');
+  background-size:cover;background-position:center 30%;background-repeat:no-repeat;
+}
 .menu-emblem{font-size:4.5rem;color:var(--gold);margin-bottom:1.2rem;filter:drop-shadow(0 0 28px var(--gold-glow));animation:em-pulse 3s ease-in-out infinite;}
 @keyframes em-pulse{0%,100%{filter:drop-shadow(0 0 20px var(--gold-glow));}50%{filter:drop-shadow(0 0 52px rgba(212,175,55,.65));}}
 .menu-title{font-family:'Cinzel',serif;font-size:clamp(2rem,5vw,3.4rem);font-weight:900;color:var(--gold);letter-spacing:4px;line-height:1.1;margin-bottom:.4rem;}
@@ -70,7 +77,13 @@ body::before{
 .menu-mode-toggle input{accent-color:var(--gold);cursor:pointer;}
 
 /* SPLASH */
-.splash-screen{min-height:100vh;justify-content:center;align-items:center;text-align:center;padding:2.5rem 2rem;background:#07070f;}
+.splash-screen{
+  min-height:100vh;justify-content:center;align-items:center;text-align:center;padding:2.5rem 2rem;
+  background:
+    linear-gradient(to bottom,rgba(7,7,15,.85),rgba(7,7,15,.9) 60%,#07070f 100%),
+    url('/backgrounds/splash-last-judgment.jpg');
+  background-size:cover;background-position:center 25%;background-repeat:no-repeat;
+}
 .splash-emblem{font-size:4.5rem;color:var(--gold);margin-bottom:1.2rem;filter:drop-shadow(0 0 28px var(--gold-glow));animation:em-pulse 3s ease-in-out infinite;}
 .splash-title{font-family:'Cinzel',serif;font-size:clamp(2rem,5vw,3.4rem);font-weight:900;color:var(--gold);letter-spacing:4px;line-height:1.1;margin-bottom:2rem;}
 .splash-loading{font-family:'Cinzel',serif;font-size:.8rem;color:var(--muted);letter-spacing:2px;text-transform:uppercase;animation:em-pulse 1.6s ease-in-out infinite;}
