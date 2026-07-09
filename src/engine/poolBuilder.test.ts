@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { buildWeightedPool, buildNewSession, recordSeenDilemas } from './poolBuilder';
-import { getSeenMap } from './persistence';
+import { getSeenMap, getPlayCounts } from './persistence';
 import { eventPool } from '../data/dilemmas';
 
 beforeEach(() => localStorage.clear());
@@ -46,5 +46,14 @@ describe('recordSeenDilemas', () => {
     const map = getSeenMap();
     for (const d of session.slice(0, 39)) expect(map[d.id]).toBeDefined();
     expect(map[60]).toBeUndefined();
+  });
+
+  it('increments play counts across multiple games and never counts the finale', () => {
+    const session = buildNewSession();
+    recordSeenDilemas(session);
+    recordSeenDilemas(session);
+    const counts = getPlayCounts();
+    for (const d of session.slice(0, 39)) expect(counts[d.id]).toBe(2);
+    expect(counts[60]).toBeUndefined();
   });
 });

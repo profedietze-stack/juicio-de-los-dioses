@@ -1,5 +1,5 @@
 import type { HistoryRecord, PhilosophyKey } from '../types';
-import { getHistory, getSeenMap } from './persistence';
+import { getHistory, getSeenMap, getPlayCounts } from './persistence';
 import { ALL_PHILO_KEYS } from './results';
 import { eventPool } from '../data/dilemmas';
 import { FULL_SESSION_LENGTH } from './poolBuilder';
@@ -25,6 +25,8 @@ export interface HistoryStats {
   nextGameRecycled: number;
   poolSize: number;
   history: HistoryRecord[];
+  mostPlayed: { id: number; title: string; count: number }[];
+  leastPlayed: { id: number; title: string; count: number }[];
 }
 
 // Eligible dilemmas excluding the finale (whatever the current pool size is).
@@ -76,9 +78,21 @@ export function computeHistoryStats(): HistoryStats | null {
   const nextGameFresh = Math.min(FULL_SESSION_LENGTH, freshCount);
   const nextGameRecycled = FULL_SESSION_LENGTH - nextGameFresh;
 
+  // Which dilemmas the player has been drawn into most/least across all
+  // games — only counts dilemmas that have actually been played at least
+  // once, so a never-seen dilemma doesn't show up as "least played (0)".
+  const playCounts = getPlayCounts();
+  const played = eventPool
+    .filter(d => d.id !== 60 && playCounts[d.id] > 0)
+    .map(d => ({ id: d.id, title: d.title, count: playCounts[d.id] }));
+  const byCountDesc = [...played].sort((a, b) => b.count - a.count);
+  const mostPlayed = byCountDesc.slice(0, 5);
+  const leastPlayed = [...byCountDesc].reverse().slice(0, 5);
+
   return {
     totalGames, totalSecs, avgScore, avgTime, bestScore, worstScore, avgDiversity,
     endingCounts, topDom, aggCounts, sortedPhilo, totalDecisions, trend,
     seenCount, freshCount, freshPct, nextGameFresh, nextGameRecycled, poolSize: POOL_SIZE, history: h,
+    mostPlayed, leastPlayed,
   };
 }

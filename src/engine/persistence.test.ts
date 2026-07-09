@@ -3,7 +3,7 @@ import {
   saveHistory, getHistory, getSeenMap, saveSeenMap, hasSavedGame, autosave,
   clearSavedGame, clearProgress, getUnlockedAchievements, saveUnlockedAchievements,
   saveSnapshot, loadSavedResults, loadSavedGame, isStorageAvailable,
-  exportProgress, importProgress,
+  exportProgress, importProgress, getPlayCounts, savePlayCounts,
 } from './persistence';
 import type { HistoryRecord, AutosaveData, ResultSnapshot } from '../types';
 
@@ -248,5 +248,21 @@ describe('export/import progress', () => {
       },
     };
     expect(importProgress(payload)).toBe(false);
+  });
+});
+
+describe('play counts', () => {
+  it('defaults to an empty map', () => {
+    expect(getPlayCounts()).toEqual({});
+  });
+
+  it('round-trips counts through save/get', () => {
+    savePlayCounts({ 5: 3, 12: 1 });
+    expect(getPlayCounts()).toEqual({ 5: 3, 12: 1 });
+  });
+
+  it('drops non-numeric entries from a hand-edited value', () => {
+    localStorage.setItem('dilemaPlayCounts', JSON.stringify({ version: 1, data: { 5: 3, bad: 'x' } }));
+    expect(getPlayCounts()).toEqual({ 5: 3 });
   });
 });

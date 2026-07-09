@@ -1,7 +1,7 @@
 import type { Dilemma } from '../types';
 import { eventPool } from '../data/dilemmas';
 import { finale } from '../data/dilemmas/finale';
-import { getSeenMap, saveSeenMap, getTotalGamesPlayed } from './persistence';
+import { getSeenMap, saveSeenMap, getTotalGamesPlayed, getPlayCounts, savePlayCounts } from './persistence';
 
 const FINALE_ID = 60;
 
@@ -30,10 +30,15 @@ export function buildWeightedPool(excludeId?: number): Dilemma[] {
 export function recordSeenDilemas(sessionEvents: Dilemma[]) {
   const seen = getSeenMap();
   const gameNum = getTotalGamesPlayed();
+  const counts = getPlayCounts();
   sessionEvents.forEach(e => {
-    if (e.id !== FINALE_ID) seen[e.id] = gameNum;
+    if (e.id !== FINALE_ID) {
+      seen[e.id] = gameNum;
+      counts[e.id] = (counts[e.id] || 0) + 1;
+    }
   });
   saveSeenMap(seen);
+  savePlayCounts(counts);
 }
 
 export const FULL_SESSION_LENGTH = 39;

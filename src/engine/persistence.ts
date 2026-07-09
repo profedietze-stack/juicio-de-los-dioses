@@ -35,6 +35,7 @@ const HISTORY_VERSION = 1;
 const SEEN_VERSION = 1;
 const ACHIEVEMENTS_VERSION = 1;
 const SNAPSHOTS_VERSION = 1;
+const PLAY_COUNTS_VERSION = 1;
 
 function isUnknownArray(v: unknown): v is unknown[] {
   return Array.isArray(v);
@@ -173,6 +174,25 @@ export function saveSeenMap(map: Record<number, number>) {
 
 export function getTotalGamesPlayed(): number {
   return getHistory().length;
+}
+
+// ── PLAY COUNTS (how many times each dilemma id has ever been drawn) ────
+const PLAY_COUNTS_KEY = 'dilemaPlayCounts';
+
+export function getPlayCounts(): Record<number, number> {
+  const v = readVersioned(PLAY_COUNTS_KEY, PLAY_COUNTS_VERSION, isPlainRecord) ?? {};
+  const clean: Record<number, number> = {};
+  let changed = false;
+  for (const [k, val] of Object.entries(v)) {
+    if (typeof val === 'number' && Number.isFinite(Number(k))) clean[Number(k)] = val;
+    else changed = true;
+  }
+  if (changed) savePlayCounts(clean);
+  return clean;
+}
+
+export function savePlayCounts(counts: Record<number, number>) {
+  writeVersioned(PLAY_COUNTS_KEY, PLAY_COUNTS_VERSION, counts);
 }
 
 // ── ACHIEVEMENTS (unlocked ids, cumulative across all games) ────

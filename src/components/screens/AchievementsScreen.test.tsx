@@ -2,7 +2,8 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { GameProvider } from '../../state/GameContext';
 import { AchievementsScreen } from './AchievementsScreen';
-import { saveHistory, getHistory } from '../../engine/persistence';
+import { saveHistory, getHistory, savePlayCounts } from '../../engine/persistence';
+import { eventPool } from '../../data/dilemmas';
 import type { HistoryRecord } from '../../types';
 
 function record(overrides: Partial<HistoryRecord> = {}): HistoryRecord {
@@ -110,5 +111,25 @@ describe('AchievementsScreen profile comparison', () => {
     expect(cards[1].textContent).toContain('01 ene 2026');
     expect(cards[1].textContent).toContain('Utilitarismo');
     expect(cards[1].textContent).toContain('70%');
+  });
+});
+
+describe('AchievementsScreen play frequency', () => {
+  beforeEach(() => localStorage.clear());
+
+  it('does not show the play-frequency section with no play counts recorded', () => {
+    saveHistory(record());
+    renderScreen();
+    expect(screen.queryByText('Dilemas más y menos elegidos por el pool')).not.toBeInTheDocument();
+  });
+
+  it('shows the most and least played dilemmas by title', () => {
+    saveHistory(record());
+    savePlayCounts({ [eventPool[0].id]: 6, [eventPool[1].id]: 1 });
+    renderScreen();
+
+    expect(screen.getByText('Dilemas más y menos elegidos por el pool')).toBeInTheDocument();
+    expect(screen.getAllByText(eventPool[0].title).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(eventPool[1].title).length).toBeGreaterThan(0);
   });
 });

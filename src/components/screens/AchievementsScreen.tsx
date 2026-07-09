@@ -180,6 +180,32 @@ export function AchievementsScreen() {
                 })}
               </div>
 
+              {stats.mostPlayed.length > 0 && (
+                <>
+                  <div className="stats-section-title">Dilemas más y menos elegidos por el pool</div>
+                  <div className="stats-play-freq-grid">
+                    <div>
+                      <div className="stats-play-freq-label">Más frecuentes</div>
+                      {stats.mostPlayed.map(d => (
+                        <div className="stats-play-freq-row" key={d.id}>
+                          <span className="stats-play-freq-title">{d.title}</span>
+                          <span className="stats-play-freq-count">{d.count}×</span>
+                        </div>
+                      ))}
+                    </div>
+                    <div>
+                      <div className="stats-play-freq-label">Menos frecuentes</div>
+                      {stats.leastPlayed.map(d => (
+                        <div className="stats-play-freq-row" key={d.id}>
+                          <span className="stats-play-freq-title">{d.title}</span>
+                          <span className="stats-play-freq-count">{d.count}×</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
+
               <div className="stats-section-title">Distribución de finales</div>
               <div className="stats-endings-grid">
                 {Object.entries(stats.endingCounts).map(([ending, count]) => {
