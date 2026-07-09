@@ -77,7 +77,7 @@ export interface ResultSnapshot {
   decisions: number;
 }
 
-export type Screen = 'menu' | 'intro' | 'event' | 'result' | 'achievements' | 'info';
+export type Screen = 'menu' | 'intro' | 'event' | 'result' | 'achievements' | 'info' | 'review';
 
 export interface AutosaveData {
   current: number;

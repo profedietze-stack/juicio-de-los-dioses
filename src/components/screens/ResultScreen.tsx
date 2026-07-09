@@ -97,6 +97,7 @@ export function ResultScreen() {
       <div className="btn-group" style={{ marginTop: '.5rem' }}>
         <Button sound="start" onClick={() => dispatch({ type: 'BEGIN_GAME' })}>Nuevo Juicio</Button>
         <Button ghost onClick={() => setSaved(true)}>{saved ? 'Informe guardado ✓' : 'Guardar Informe'}</Button>
+        <Button ghost onClick={() => dispatch({ type: 'GO_TO_SCREEN', screen: 'review' })}>Modo Repaso</Button>
         <Button
           ghost
           onClick={() => downloadShareCard({ icon: r.ending.icon, title: r.ending.title, score: r.score, top: topPhilosophies(r.pcts) })}

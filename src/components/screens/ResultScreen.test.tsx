@@ -3,6 +3,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { GameProvider, useGame } from '../../state/GameContext';
 import { EventScreen } from './EventScreen';
 import { ResultScreen } from './ResultScreen';
+import { ReviewScreen } from './ReviewScreen';
 
 function Harness() {
   const { state, dispatch } = useGame();
@@ -11,6 +12,7 @@ function Harness() {
   }
   if (state.screen === 'event') return <EventScreen />;
   if (state.screen === 'result') return <ResultScreen />;
+  if (state.screen === 'review') return <ReviewScreen />;
   return null;
 }
 
@@ -53,6 +55,12 @@ describe('ResultScreen', () => {
     fireEvent.click(screen.getByText('Nuevo Juicio'));
     expect(document.getElementById('screen-event')).toBeInTheDocument();
     expect(document.getElementById('ev-title')?.textContent).toBeTruthy();
+  });
+
+  it('"Modo Repaso" navigates to the review screen', () => {
+    playThroughToResult();
+    fireEvent.click(screen.getByText('Modo Repaso'));
+    expect(document.getElementById('screen-review')).toBeInTheDocument();
   });
 
   it('clicking "Compartir Resultado" triggers a PNG download without throwing', () => {
