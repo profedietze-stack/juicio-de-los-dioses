@@ -1,17 +1,43 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => localStorage.clear());
 });
 
-test('loads the main menu', async ({ page }) => {
+async function skipSplash(page: Page) {
   await page.goto('/');
+  await expect(page.locator('#screen-splash')).toBeVisible();
+  await page.getByRole('button', { name: 'Continuar' }).click();
+  await expect(page.locator('#screen-splash')).toHaveCount(0);
+}
+
+test('shows the splashscreen with background art, then Continuar reveals the menu', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('#screen-splash')).toBeVisible();
+  await expect(page.getByText('El Juicio', { exact: false })).toBeVisible();
+
+  const bgImage = await page.locator('#screen-splash').evaluate(el => getComputedStyle(el).backgroundImage);
+  expect(bgImage).toContain('splash-last-judgment.jpg');
+
+  await page.getByRole('button', { name: 'Continuar' }).click();
+  await expect(page.locator('#screen-splash')).toHaveCount(0);
+  await expect(page.getByText('El Juicio de los Dioses')).toBeVisible();
+});
+
+test('menu screen has its own background art', async ({ page }) => {
+  await skipSplash(page);
+  const bgImage = await page.locator('#screen-menu').evaluate(el => getComputedStyle(el).backgroundImage);
+  expect(bgImage).toContain('menu-council-of-gods.jpg');
+});
+
+test('loads the main menu', async ({ page }) => {
+  await skipSplash(page);
   await expect(page.getByText('El Juicio de los Dioses')).toBeVisible();
   await expect(page.getByRole('button', { name: 'Nueva Partida' })).toBeVisible();
 });
 
 test('Guía Pedagógica shows all 10 philosophical currents on the Corrientes tab', async ({ page }) => {
-  await page.goto('/');
+  await skipSplash(page);
   await page.getByRole('button', { name: 'Guía Pedagógica' }).click();
   await page.getByRole('button', { name: 'Corrientes' }).click();
   await expect(page.locator('#tab-filosof .chip')).toHaveCount(10);
@@ -19,7 +45,7 @@ test('Guía Pedagógica shows all 10 philosophical currents on the Corrientes ta
 });
 
 test('plays through the first dilemma and reaches the feedback panel', async ({ page }) => {
-  await page.goto('/');
+  await skipSplash(page);
   await page.getByRole('button', { name: 'Nueva Partida' }).click();
   await page.getByRole('button', { name: 'Comenzar el Juicio' }).click();
   await expect(page.locator('#screen-event')).toBeVisible();
