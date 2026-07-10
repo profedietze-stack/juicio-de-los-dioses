@@ -678,6 +678,19 @@ body::before{
 .ateneo-card-check{position:absolute;top:.6rem;right:.6rem;color:var(--gold);font-size:1rem;}
 .ateneo-footer{display:flex;flex-direction:column;align-items:center;gap:.7rem;margin-top:1.8rem;}
 
+/* ATENEO MODAL */
+.ateneo-modal-panel{
+  max-width:560px;width:100%;max-height:88vh;overflow-y:auto;
+  background:rgba(10,10,24,.99);border:1px solid rgba(212,175,55,.4);
+  padding:1.6rem 1.5rem;display:flex;flex-direction:column;gap:1.1rem;
+}
+.ateneo-modal-title{font-family:'Cinzel',serif;font-size:.95rem;color:var(--gold);letter-spacing:2px;text-transform:uppercase;text-align:center;}
+.ateneo-modal-list{display:flex;flex-direction:column;gap:1.1rem;}
+.ateneo-modal-entry{display:flex;gap:.9rem;align-items:flex-start;}
+.ateneo-modal-portrait{width:52px;height:52px;border-radius:50%;object-fit:cover;border:2px solid rgba(212,175,55,.4);flex-shrink:0;}
+.ateneo-modal-name{font-family:'Cinzel',serif;font-size:.78rem;color:var(--gold);margin-bottom:.3rem;}
+.ateneo-modal-comment{font-size:.85rem;line-height:1.6;color:var(--text);}
+
 /* DANGER BUTTON */
 .btn-danger{border-color:rgba(180,40,40,.45);color:rgba(200,80,80,.7);font-size:.68rem;letter-spacing:2px;min-width:0;padding:.5rem 1.4rem;}
 .btn-danger::after{background:rgba(180,40,40,.8);}
