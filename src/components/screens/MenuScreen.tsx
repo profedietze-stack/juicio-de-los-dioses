@@ -56,6 +56,8 @@ export function MenuScreen() {
           onCancel={() => { setConfirmingResume(false); dispatch({ type: 'CONTINUE_GAME' }); }}
         />
       )}
+
+      <div className="menu-artwork-credit">El Juicio Final — Miguel Ángel, 1536–1541<br />Fresco, Capilla Sixtina</div>
     </div>
   );
 }

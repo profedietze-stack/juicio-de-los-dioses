@@ -17,7 +17,7 @@ test('shows the splashscreen with background art, then Continuar reveals the men
   await expect(page.getByText('El Juicio', { exact: false })).toBeVisible();
 
   const bgImage = await page.locator('#screen-splash').evaluate(el => getComputedStyle(el).backgroundImage);
-  expect(bgImage).toContain('splash-last-judgment.jpg');
+  expect(bgImage).toContain('splash-christ-redeemer.jpg');
 
   await page.getByRole('button', { name: 'Continuar' }).click();
   await expect(page.locator('#screen-splash')).toHaveCount(0);
@@ -26,8 +26,8 @@ test('shows the splashscreen with background art, then Continuar reveals the men
 
 test('menu screen has its own background art', async ({ page }) => {
   await skipSplash(page);
-  const bgImage = await page.locator('#screen-menu').evaluate(el => getComputedStyle(el).backgroundImage);
-  expect(bgImage).toContain('menu-council-of-gods.jpg');
+  const bgImage = await page.locator('#screen-menu').evaluate(el => getComputedStyle(el, '::before').backgroundImage);
+  expect(bgImage).toContain('menu-last-judgment.jpg');
 });
 
 test('loads the main menu', async ({ page }) => {

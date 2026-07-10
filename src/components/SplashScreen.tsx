@@ -27,6 +27,7 @@ export function SplashScreen({ onDone }: { onDone: () => void }) {
       ) : (
         <div className="splash-loading">Cargando…</div>
       )}
+      <div className="menu-artwork-credit">Cristo Redentor, Río de Janeiro — foto: Arian Zwegers (CC BY 2.0)</div>
     </div>
   );
 }

@@ -1,10 +1,10 @@
-const CACHE_NAME = 'juicio-de-los-dioses-v1';
+const CACHE_NAME = 'juicio-de-los-dioses-v2';
 const APP_SHELL = [
   '/',
   '/manifest.json',
   '/favicon.svg',
-  '/backgrounds/splash-last-judgment.jpg',
-  '/backgrounds/menu-council-of-gods.jpg',
+  '/backgrounds/splash-christ-redeemer.jpg',
+  '/backgrounds/menu-last-judgment.jpg',
 ];
 
 self.addEventListener('install', event => {
