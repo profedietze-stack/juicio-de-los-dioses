@@ -73,6 +73,13 @@ const ATENEO_COVERED_TITLES = new Set([
   'El Éxtasis Sin Costo', 'La Muerte Elegida', 'La Fusión de las Mentes',
   'El Planeta o la Especie', 'La Isla Perfecta', 'La Máquina que Dice Sufrir',
   'El Yo que Cambia', 'La Misericordia con lo Salvaje', 'El Veredicto Cósmico',
+  // Fase 2
+  'El Fin que Viene', 'La Memoria Prohibida', 'Después de Dios',
+  'Los Nuevos Sin Trabajo', 'La Democracia Instantánea', 'La Nueva Especie',
+  'El Asesino Arrepentido', 'El Peso de Saber', 'La Igualdad que Duele',
+  'El Placer que Daña Poco', 'La Deuda de los Muertos', 'El Conocimiento Peligroso',
+  'La Náusea del Libre Albedrío', 'La Mitad que Faltó Siempre', 'La Justicia Detrás del Velo',
+  'Uno por Diez', 'El Tranvía Cósmico', 'La Compasión Universal',
 ]);
 
 // Session order is randomized (see poolBuilder.ts), so the covered dilemma's

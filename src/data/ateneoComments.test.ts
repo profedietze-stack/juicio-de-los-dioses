@@ -6,9 +6,12 @@ import { eventPool } from './dilemmas';
 const PHILOSOPHER_IDS = philosophers.map(p => p.id).sort();
 
 describe('ateneoComments', () => {
-  it('covers exactly the 18 Phase 1 dilemma ids', () => {
+  it('covers exactly the 36 Phase 1 + Phase 2 dilemma ids', () => {
     const covered = Object.keys(ateneoComments).map(Number).sort((a, b) => a - b);
-    expect(covered).toEqual([1, 2, 3, 4, 5, 7, 9, 10, 14, 17, 18, 19, 20, 22, 25, 28, 29, 30]);
+    expect(covered).toEqual([
+      1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+      21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 34, 38, 41, 53, 56,
+    ]);
   });
 
   it('every covered dilemma id exists in the real dilemma pool', () => {
