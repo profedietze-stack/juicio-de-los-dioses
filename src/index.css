@@ -75,9 +75,6 @@ body::before{
 .menu-tagline{font-family:'Cinzel',serif;font-size:.85rem;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:2rem;max-width:480px;line-height:1.7;}
 .menu-divider{width:100px;height:1px;background:linear-gradient(to right,transparent,var(--gold),transparent);margin:0 auto 2rem;}
 .btn-group{display:flex;flex-direction:column;gap:.8rem;align-items:center;margin-bottom:1.8rem;}
-.menu-modes{display:flex;gap:1.2rem;justify-content:center;margin-top:.2rem;}
-.menu-mode-toggle{display:flex;align-items:center;gap:.4rem;font-size:.72rem;color:var(--muted);cursor:pointer;letter-spacing:.5px;}
-.menu-mode-toggle input{accent-color:var(--gold);cursor:pointer;}
 
 /* SPLASH */
 .splash-screen{
@@ -628,6 +625,19 @@ body::before{
   letter-spacing:1.5px;text-transform:uppercase;
   padding:.25rem .65rem;border:1px solid;
 }
+.intro-modes{
+  border:1px solid rgba(212,175,55,.18);padding:1.1rem 1.2rem;
+  display:flex;flex-direction:column;gap:.9rem;
+}
+.intro-mode-toggle{
+  display:flex;align-items:flex-start;gap:.7rem;cursor:pointer;
+}
+.intro-mode-toggle input{accent-color:var(--gold);cursor:pointer;margin-top:.2rem;flex-shrink:0;}
+.intro-mode-title{
+  font-family:'Cinzel',serif;font-size:.72rem;letter-spacing:1px;text-transform:uppercase;
+  color:var(--gold);margin-bottom:.25rem;
+}
+.intro-mode-text{font-size:.8rem;line-height:1.5;color:var(--muted);}
 .intro-cta{
   display:flex;flex-direction:column;align-items:center;gap:.8rem;
   margin-top:.5rem;

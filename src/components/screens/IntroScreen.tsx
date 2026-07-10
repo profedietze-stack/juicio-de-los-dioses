@@ -64,6 +64,32 @@ export function IntroScreen() {
           </div>
         </div>
 
+        <div className="intro-modes">
+          <div className="intro-rule-title" style={{ textAlign: 'center', marginBottom: '.7rem', fontFamily: "'Cinzel',serif", fontSize: '.62rem', color: 'var(--muted)', letterSpacing: 2 }}>Modos opcionales</div>
+          <label className="intro-mode-toggle">
+            <input
+              type="checkbox"
+              checked={state.hiddenPhilosophy}
+              onChange={e => dispatch({ type: 'SET_GAME_MODE', hiddenPhilosophy: e.target.checked })}
+            />
+            <div className="intro-mode-body">
+              <div className="intro-mode-title">Filosofía Oculta</div>
+              <div className="intro-mode-text">No verás qué corriente filosófica representa cada opción — deberás elegir solo por el contenido del argumento, sin la etiqueta de color como guía.</div>
+            </div>
+          </label>
+          <label className="intro-mode-toggle">
+            <input
+              type="checkbox"
+              checked={state.strictJudge}
+              onChange={e => dispatch({ type: 'SET_GAME_MODE', strictJudge: e.target.checked })}
+            />
+            <div className="intro-mode-body">
+              <div className="intro-mode-title">Juez Estricto</div>
+              <div className="intro-mode-text">Cada dilema tendrá un límite de 20 segundos. Si el tiempo se agota, se elegirá una opción al azar por vos.</div>
+            </div>
+          </label>
+        </div>
+
         <div className="intro-cta">
           <Button sound="start" onClick={() => dispatch({ type: 'BEGIN_GAME' })} className="" style={{ minWidth: 240, fontSize: '.9rem', padding: '1rem 2rem' }}>
             Comenzar el Juicio

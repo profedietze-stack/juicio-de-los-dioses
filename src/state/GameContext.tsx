@@ -11,6 +11,7 @@ import { PHILO_DATA } from '../data/philosophies';
 type Action =
   | { type: 'GO_TO_SCREEN'; screen: GameState['screen'] }
   | { type: 'GO_TO_INTRO'; length: number; hiddenPhilosophy?: boolean; strictJudge?: boolean }
+  | { type: 'SET_GAME_MODE'; hiddenPhilosophy?: boolean; strictJudge?: boolean }
   | { type: 'BEGIN_GAME' }
   | { type: 'CONTINUE_GAME' }
   | { type: 'CHOOSE'; option: DilemmaOption }
@@ -49,6 +50,13 @@ function reducer(state: GameState, action: Action): GameState {
         pendingLength: action.length,
         hiddenPhilosophy: action.hiddenPhilosophy ?? false,
         strictJudge: action.strictJudge ?? false,
+      };
+
+    case 'SET_GAME_MODE':
+      return {
+        ...state,
+        hiddenPhilosophy: action.hiddenPhilosophy ?? state.hiddenPhilosophy,
+        strictJudge: action.strictJudge ?? state.strictJudge,
       };
 
     case 'BEGIN_GAME': {
