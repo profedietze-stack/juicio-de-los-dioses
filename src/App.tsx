@@ -12,6 +12,7 @@ import { ReviewScreen } from './components/screens/ReviewScreen';
 import { Toast } from './components/modals/Toast';
 import { TooltipBox } from './components/ui/TooltipBox';
 import { MuteToggle } from './components/ui/MuteToggle';
+import { FullscreenToggle } from './components/ui/FullscreenToggle';
 
 function CurrentScreen() {
   const { state } = useGame();
@@ -84,6 +85,7 @@ export default function App() {
           <AutosaveToast />
           <TooltipBox />
           <MuteToggle />
+          <FullscreenToggle />
         </div>
       </GameProvider>
     </ErrorBoundary>

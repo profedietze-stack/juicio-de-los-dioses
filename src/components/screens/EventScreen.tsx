@@ -17,11 +17,11 @@ export function EventScreen() {
   const [timeLeft, setTimeLeft] = useState(STRICT_JUDGE_SECONDS);
   const [imgLoaded, setImgLoaded] = useState(false);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     setImgLoaded(false);
     const main = document.getElementById('main');
     if (main) main.scrollTop = 0;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.current]);
 
   // Countdown for Juez Estricto: resets on each new dilemma and stops once
