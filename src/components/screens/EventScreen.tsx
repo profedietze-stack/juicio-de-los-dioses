@@ -7,6 +7,8 @@ import { PHILO_LABELS, PHILO_CLS } from '../../engine/philosophyDisplay';
 import { PHILO_DATA } from '../../data/philosophies';
 import { ROMAN_NUMERALS } from '../../engine/romanNumerals';
 import { snd } from '../../engine/audio';
+import { ateneoComments } from '../../data/ateneoComments';
+import { AteneoModal } from '../modals/AteneoModal';
 import type { DilemmaOption } from '../../types';
 
 const STRICT_JUDGE_SECONDS = 20;
@@ -16,6 +18,7 @@ export function EventScreen() {
   const ev = state.sessionEvents[state.current];
   const [timeLeft, setTimeLeft] = useState(STRICT_JUDGE_SECONDS);
   const [imgLoaded, setImgLoaded] = useState(false);
+  const [showAteneo, setShowAteneo] = useState(false);
 
   useEffect(() => {
     setImgLoaded(false);
@@ -80,6 +83,15 @@ export function EventScreen() {
             <div className="verdict-prompt" id="verdict-prompt">
               {isFinale ? '— El veredicto definitivo de la humanidad —' : '— Pronuncia tu veredicto —'}
             </div>
+            {state.ateneoSelection.length > 0 && ateneoComments[ev.id] && (
+              <button
+                type="button"
+                className="btn btn-ghost btn-sm ateneo-open-btn"
+                onClick={() => { snd('nav'); setShowAteneo(true); }}
+              >
+                🏛 Ateneo
+              </button>
+            )}
             {state.strictJudge && (
               <div className="strict-timer" data-warn={timeLeft <= 5}>⏱ {timeLeft}s</div>
             )}
@@ -109,6 +121,13 @@ export function EventScreen() {
           />
         )}
       </div>
+      {showAteneo && (
+        <AteneoModal
+          dilemmaId={ev.id}
+          selection={state.ateneoSelection}
+          onClose={() => setShowAteneo(false)}
+        />
+      )}
     </div>
   );
 }

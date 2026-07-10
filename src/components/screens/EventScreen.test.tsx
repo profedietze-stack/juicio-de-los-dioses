@@ -138,3 +138,75 @@ describe('EventScreen strictJudge mode', () => {
     expect(document.querySelector('.strict-timer')).not.toBeInTheDocument();
   });
 });
+
+const ATENEO_COVERED_IDS = new Set([1, 2, 3, 4, 5, 7, 9, 10, 14, 17, 18, 19, 20, 22, 25, 28, 29, 30]);
+
+describe('EventScreen Ateneo button', () => {
+  function AteneoHarness({ selection }: { selection: string[] }) {
+    const { state, dispatch } = useGame();
+    if (state.screen !== 'event') {
+      return (
+        <>
+          <button onClick={() => {
+            dispatch({ type: 'GO_TO_INTRO', length: 39 });
+            dispatch({ type: 'SET_ATENEO_SELECTION', ids: selection });
+            dispatch({ type: 'BEGIN_GAME' });
+          }}
+          >
+            go
+          </button>
+        </>
+      );
+    }
+    return (
+      <>
+        <div data-testid="current-id">{state.sessionEvents[state.current]?.id}</div>
+        <EventScreen />
+      </>
+    );
+  }
+
+  function renderAteneoHarness(selection: string[]) {
+    render(
+      <GameProvider>
+        <AteneoHarness selection={selection} />
+      </GameProvider>,
+    );
+    fireEvent.click(screen.getByText('go'));
+  }
+
+  // Advances through dilemmas (always picking the first option) until
+  // landing on one covered by Phase 1 content, or throws after exhausting
+  // the session — session order is randomized so the covered dilemma's
+  // position isn't fixed, but with 18/59 dilemmas covered one is
+  // virtually certain to appear within a 39-dilemma session.
+  function advanceToCoveredDilemma() {
+    for (let i = 0; i < 39; i++) {
+      const currentId = Number(screen.getByTestId('current-id').textContent);
+      if (ATENEO_COVERED_IDS.has(currentId)) return;
+      fireEvent.click(document.querySelectorAll('.option-card')[0]);
+      fireEvent.click(document.querySelector('.fb-continue') as HTMLButtonElement);
+    }
+    throw new Error('No covered dilemma found in this session');
+  }
+
+  it('shows the Ateneo button on a covered dilemma when a philosopher is selected', () => {
+    renderAteneoHarness(['kant']);
+    advanceToCoveredDilemma();
+    expect(screen.getByText('🏛 Ateneo')).toBeInTheDocument();
+  });
+
+  it('hides the Ateneo button when no philosopher is selected', () => {
+    renderAteneoHarness([]);
+    advanceToCoveredDilemma();
+    expect(screen.queryByText('🏛 Ateneo')).not.toBeInTheDocument();
+  });
+
+  it('opens the modal with the selected philosopher\'s comment on click', () => {
+    renderAteneoHarness(['kant']);
+    advanceToCoveredDilemma();
+    fireEvent.click(screen.getByText('🏛 Ateneo'));
+    expect(document.getElementById('ateneo-modal')).toBeInTheDocument();
+    expect(screen.getByText('Immanuel Kant')).toBeInTheDocument();
+  });
+});
