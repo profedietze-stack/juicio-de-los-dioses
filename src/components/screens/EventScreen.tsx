@@ -66,7 +66,7 @@ export function EventScreen() {
         />
         <div className="ev-img-veil" />
       </div>
-      <div className="event-body fade-up" id="event-body">
+      <div className="event-body fade-up" id="event-body" key={state.current}>
         <div className="event-meta">
           <div className="event-num" id="ev-num">Dilema {ROMAN_NUMERALS[state.current] || state.current + 1}</div>
           <div className="event-meta-line" />
@@ -87,7 +87,8 @@ export function EventScreen() {
               {ev.options.map((opt, i) => (
                 <div
                   key={i}
-                  className="option-card"
+                  className="option-card option-enter"
+                  style={{ animationDelay: `${i * 0.06}s` }}
                   data-p={opt.philosophy}
                   onClick={() => { snd('choose'); dispatch({ type: 'CHOOSE', option: opt }); }}
                 >
