@@ -38,10 +38,13 @@ describe('App', () => {
     expect(document.getElementById('screen-menu')).toBeInTheDocument();
   });
 
-  it('navigates Menú -> Nueva Partida -> Intro -> Comenzar el Juicio -> event screen', async () => {
+  it('navigates Menú -> Nueva Partida -> Intro -> Ateneo -> Comenzar el Juicio -> event screen', async () => {
     await renderPastSplash();
     fireEvent.click(screen.getByText('Nueva Partida'));
     expect(document.getElementById('screen-intro')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByText('Comenzar el Juicio'));
+    expect(document.getElementById('screen-ateneo')).toBeInTheDocument();
 
     fireEvent.click(screen.getByText('Comenzar el Juicio'));
     expect(document.getElementById('screen-event')).toBeInTheDocument();

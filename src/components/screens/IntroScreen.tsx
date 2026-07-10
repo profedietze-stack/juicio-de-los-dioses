@@ -91,7 +91,7 @@ export function IntroScreen() {
         </div>
 
         <div className="intro-cta">
-          <Button sound="start" onClick={() => dispatch({ type: 'BEGIN_GAME' })} className="" style={{ minWidth: 240, fontSize: '.9rem', padding: '1rem 2rem' }}>
+          <Button sound="start" onClick={() => dispatch({ type: 'GO_TO_SCREEN', screen: 'ateneo' })} className="" style={{ minWidth: 240, fontSize: '.9rem', padding: '1rem 2rem' }}>
             Comenzar el Juicio
           </Button>
           <div className="intro-cta-note">Este botón también activa la pantalla completa</div>

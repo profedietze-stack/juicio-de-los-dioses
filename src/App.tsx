@@ -4,6 +4,7 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import { SplashScreen } from './components/SplashScreen';
 import { MenuScreen } from './components/screens/MenuScreen';
 import { IntroScreen } from './components/screens/IntroScreen';
+import { AteneoSelectScreen } from './components/screens/AteneoSelectScreen';
 import { EventScreen } from './components/screens/EventScreen';
 import { ResultScreen } from './components/screens/ResultScreen';
 import { AchievementsScreen } from './components/screens/AchievementsScreen';
@@ -20,6 +21,7 @@ function CurrentScreen() {
   switch (state.screen) {
     case 'menu': return <MenuScreen />;
     case 'intro': return <IntroScreen />;
+    case 'ateneo': return <AteneoSelectScreen />;
     case 'event': return <EventScreen />;
     case 'result': return <ResultScreen />;
     case 'achievements': return <AchievementsScreen />;
