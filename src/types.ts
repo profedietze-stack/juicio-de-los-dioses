@@ -77,7 +77,7 @@ export interface ResultSnapshot {
   decisions: number;
 }
 
-export type Screen = 'menu' | 'intro' | 'event' | 'result' | 'achievements' | 'info' | 'review';
+export type Screen = 'menu' | 'intro' | 'ateneo' | 'event' | 'result' | 'achievements' | 'info' | 'review';
 
 export interface AutosaveData {
   current: number;
@@ -102,4 +102,5 @@ export interface GameState {
   pendingLength: number; // number of non-finale dilemmas to draw on the next BEGIN_GAME
   hiddenPhilosophy: boolean; // hide the philosophy chip on option cards before choosing
   strictJudge: boolean; // enable the per-dilemma countdown timer
+  ateneoSelection: string[]; // philosopher ids chosen for this playthrough (max 4)
 }
