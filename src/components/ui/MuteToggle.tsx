@@ -17,7 +17,7 @@ export function MuteToggle() {
 
   return (
     <button
-      className="mute-toggle"
+      className="footer-icon-btn"
       onClick={toggle}
       aria-label={muted ? 'Activar sonido' : 'Silenciar'}
       title={muted ? 'Activar sonido' : 'Silenciar'}

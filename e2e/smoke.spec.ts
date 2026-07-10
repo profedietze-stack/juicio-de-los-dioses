@@ -21,7 +21,7 @@ test('shows the splashscreen with background art, then Continuar reveals the men
 
   await page.getByRole('button', { name: 'Continuar' }).click();
   await expect(page.locator('#screen-splash')).toHaveCount(0);
-  await expect(page.getByText('El Juicio de los Dioses')).toBeVisible();
+  await expect(page.locator('.menu-title')).toBeVisible();
 });
 
 test('menu screen has its own background art', async ({ page }) => {
@@ -32,7 +32,7 @@ test('menu screen has its own background art', async ({ page }) => {
 
 test('loads the main menu', async ({ page }) => {
   await skipSplash(page);
-  await expect(page.getByText('El Juicio de los Dioses')).toBeVisible();
+  await expect(page.locator('.menu-title')).toBeVisible();
   await expect(page.getByRole('button', { name: 'Nueva Partida' })).toBeVisible();
 });
 

@@ -1,5 +1,7 @@
 import { AC } from './audioContext';
-import { isMuted } from './audioPrefs';
+import { isMuted, getMusicVolume } from './audioPrefs';
+
+const BASE_GAIN = 0.05;
 
 // Soft ambient pad: a few low-gain oscillators on a sustained chord, with a
 // slow LFO modulating the master gain for a gentle "breathing" chill-out feel.
@@ -13,7 +15,7 @@ export function startMusic() {
   if (!AC || isMuted() || voices.length) return;
 
   masterGain = AC.createGain();
-  masterGain.gain.setValueAtTime(0.05, AC.currentTime);
+  masterGain.gain.setValueAtTime(BASE_GAIN * getMusicVolume(), AC.currentTime);
   masterGain.connect(AC.destination);
 
   lfo = AC.createOscillator();
@@ -43,4 +45,8 @@ export function stopMusic() {
   if (lfo) { try { lfo.stop(); } catch { /* already stopped */ } }
   lfo = null;
   masterGain = null;
+}
+
+export function setLiveMusicVolume(v: number) {
+  if (masterGain && AC) masterGain.gain.setValueAtTime(BASE_GAIN * v, AC.currentTime);
 }

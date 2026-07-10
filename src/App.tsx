@@ -13,6 +13,7 @@ import { Toast } from './components/modals/Toast';
 import { TooltipBox } from './components/ui/TooltipBox';
 import { MuteToggle } from './components/ui/MuteToggle';
 import { FullscreenToggle } from './components/ui/FullscreenToggle';
+import { OptionsModal } from './components/modals/OptionsModal';
 
 function CurrentScreen() {
   const { state } = useGame();
@@ -39,12 +40,14 @@ function Screens() {
   );
 }
 
-function FooterButtons() {
+function FooterButtons({ onOpenOptions }: { onOpenOptions: () => void }) {
   const { dispatch } = useGame();
   return (
     <>
       <button className="btn btn-ghost btn-sm" onClick={() => dispatch({ type: 'GO_TO_SCREEN', screen: 'menu' })}>☰ Menú</button>
-      <button className="btn btn-ghost btn-sm" onClick={() => location.reload()}>↻ Recargar</button>
+      <button className="btn btn-ghost btn-sm" onClick={onOpenOptions}>⚙ Opciones</button>
+      <MuteToggle />
+      <FullscreenToggle />
     </>
   );
 }
@@ -56,6 +59,7 @@ function AutosaveToast() {
 
 export default function App() {
   const [showSplash, setShowSplash] = useState(true);
+  const [showOptions, setShowOptions] = useState(false);
 
   if (showSplash) {
     return (
@@ -69,23 +73,15 @@ export default function App() {
     <ErrorBoundary>
       <GameProvider>
         <div id="app">
-          <div id="header">
-            <div className="h-sym">⚖</div>
-            <div>
-              <div className="h-title">El Juicio de los Dioses</div>
-              <div className="h-sub">Un juego de filosofía para decidir el destino de la humanidad</div>
-            </div>
-          </div>
           <div id="main">
             <Screens />
           </div>
           <div id="footer">
-            <FooterButtons />
+            <FooterButtons onOpenOptions={() => setShowOptions(true)} />
           </div>
           <AutosaveToast />
           <TooltipBox />
-          <MuteToggle />
-          <FullscreenToggle />
+          {showOptions && <OptionsModal onClose={() => setShowOptions(false)} />}
         </div>
       </GameProvider>
     </ErrorBoundary>

@@ -22,7 +22,7 @@ describe('App', () => {
 
   it('renders the main menu on load', async () => {
     await renderPastSplash();
-    expect(screen.getByText('El Juicio de los Dioses')).toBeInTheDocument();
+    expect(document.querySelector('.menu-title')?.textContent).toBe('El Juiciode los Dioses');
     expect(screen.getByText('Nueva Partida')).toBeInTheDocument();
   });
 
