@@ -18,7 +18,11 @@ export function EventScreen() {
   const [imgLoaded, setImgLoaded] = useState(false);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => { setImgLoaded(false); }, [state.current]);
+  useEffect(() => {
+    setImgLoaded(false);
+    const main = document.getElementById('main');
+    if (main) main.scrollTop = 0;
+  }, [state.current]);
 
   // Countdown for Juez Estricto: resets on each new dilemma and stops once
   // feedback is showing.
