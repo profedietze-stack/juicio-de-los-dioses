@@ -12,6 +12,7 @@ type Action =
   | { type: 'GO_TO_SCREEN'; screen: GameState['screen'] }
   | { type: 'GO_TO_INTRO'; length: number; hiddenPhilosophy?: boolean; strictJudge?: boolean }
   | { type: 'SET_GAME_MODE'; hiddenPhilosophy?: boolean; strictJudge?: boolean }
+  | { type: 'SET_ATENEO_SELECTION'; ids: string[] }
   | { type: 'BEGIN_GAME' }
   | { type: 'CONTINUE_GAME' }
   | { type: 'CHOOSE'; option: DilemmaOption }
@@ -36,6 +37,7 @@ const initialState: GameState = {
   pendingLength: FULL_SESSION_LENGTH,
   hiddenPhilosophy: false,
   strictJudge: false,
+  ateneoSelection: [],
 };
 
 function reducer(state: GameState, action: Action): GameState {
@@ -50,6 +52,7 @@ function reducer(state: GameState, action: Action): GameState {
         pendingLength: action.length,
         hiddenPhilosophy: action.hiddenPhilosophy ?? false,
         strictJudge: action.strictJudge ?? false,
+        ateneoSelection: [],
       };
 
     case 'SET_GAME_MODE':
@@ -58,6 +61,9 @@ function reducer(state: GameState, action: Action): GameState {
         hiddenPhilosophy: action.hiddenPhilosophy ?? state.hiddenPhilosophy,
         strictJudge: action.strictJudge ?? state.strictJudge,
       };
+
+    case 'SET_ATENEO_SELECTION':
+      return { ...state, ateneoSelection: action.ids.slice(0, 4) };
 
     case 'BEGIN_GAME': {
       // "Comenzar el Juicio" — always starts fresh (clearSavedGame happens as a side effect).
@@ -70,6 +76,7 @@ function reducer(state: GameState, action: Action): GameState {
         startTime: Date.now(),
         hiddenPhilosophy: state.hiddenPhilosophy,
         strictJudge: state.strictJudge,
+        ateneoSelection: state.ateneoSelection,
       };
     }
 

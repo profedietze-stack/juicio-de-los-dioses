@@ -201,3 +201,57 @@ describe('storage-unavailable warning', () => {
     expect(screen.getByTestId('toast').textContent).toBe('');
   });
 });
+
+describe('SET_ATENEO_SELECTION', () => {
+  function AteneoHarness() {
+    const { state, dispatch } = useGame();
+    return (
+      <>
+        <button onClick={() => dispatch({ type: 'GO_TO_INTRO', length: 40 })}>go-intro</button>
+        <button onClick={() => dispatch({ type: 'SET_ATENEO_SELECTION', ids: ['kant', 'mill'] })}>select-two</button>
+        <button onClick={() => dispatch({ type: 'SET_ATENEO_SELECTION', ids: ['kant', 'mill', 'nietzsche', 'seneca', 'buda'] })}>select-five</button>
+        <button onClick={() => dispatch({ type: 'BEGIN_GAME' })}>begin</button>
+        <div data-testid="selection">{state.ateneoSelection.join(',')}</div>
+      </>
+    );
+  }
+
+  function renderAteneoHarness() {
+    render(
+      <GameProvider>
+        <AteneoHarness />
+      </GameProvider>,
+    );
+  }
+
+  it('starts empty', () => {
+    renderAteneoHarness();
+    expect(screen.getByTestId('selection').textContent).toBe('');
+  });
+
+  it('stores up to 4 selected ids', () => {
+    renderAteneoHarness();
+    fireEvent.click(screen.getByText('select-two'));
+    expect(screen.getByTestId('selection').textContent).toBe('kant,mill');
+  });
+
+  it('caps at 4 even if more ids are dispatched', () => {
+    renderAteneoHarness();
+    fireEvent.click(screen.getByText('select-five'));
+    expect(screen.getByTestId('selection').textContent).toBe('kant,mill,nietzsche,seneca');
+  });
+
+  it('resets to empty on GO_TO_INTRO', () => {
+    renderAteneoHarness();
+    fireEvent.click(screen.getByText('select-two'));
+    fireEvent.click(screen.getByText('go-intro'));
+    expect(screen.getByTestId('selection').textContent).toBe('');
+  });
+
+  it('is preserved through BEGIN_GAME', () => {
+    renderAteneoHarness();
+    fireEvent.click(screen.getByText('select-two'));
+    fireEvent.click(screen.getByText('begin'));
+    expect(screen.getByTestId('selection').textContent).toBe('kant,mill');
+  });
+});
