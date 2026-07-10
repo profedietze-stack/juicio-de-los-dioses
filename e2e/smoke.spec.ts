@@ -44,10 +44,16 @@ test('Guía Pedagógica shows all 10 philosophical currents on the Corrientes ta
   await expect(page.locator('#tab-filosof h4', { hasText: 'Budismo' })).toBeVisible();
 });
 
+async function skipAteneo(page: Page) {
+  await expect(page.locator('#screen-ateneo')).toBeVisible();
+  await page.getByRole('button', { name: 'Omitir' }).click();
+}
+
 test('plays through the first dilemma and reaches the feedback panel', async ({ page }) => {
   await skipSplash(page);
   await page.getByRole('button', { name: 'Nueva Partida' }).click();
   await page.getByRole('button', { name: 'Comenzar el Juicio' }).click();
+  await skipAteneo(page);
   await expect(page.locator('#screen-event')).toBeVisible();
 
   const title = await page.locator('#ev-title').textContent();
@@ -58,4 +64,49 @@ test('plays through the first dilemma and reaches the feedback panel', async ({ 
 
   await page.locator('.fb-continue').click();
   await expect(page.locator('#feedback-panel')).toHaveCount(0);
+});
+
+const ATENEO_COVERED_TITLES = new Set([
+  'La Singularidad Inevitable', 'El Precio de la Longevidad', 'La Verdad o la Paz',
+  'El Derecho al Sufrimiento', 'La Injusticia Perfecta', 'La Esclavitud Feliz',
+  'El Precio de la Libertad', 'El Valor de una Vida', 'El Paraíso que Requiere un Infierno',
+  'El Éxtasis Sin Costo', 'La Muerte Elegida', 'La Fusión de las Mentes',
+  'El Planeta o la Especie', 'La Isla Perfecta', 'La Máquina que Dice Sufrir',
+  'El Yo que Cambia', 'La Misericordia con lo Salvaje', 'El Veredicto Cósmico',
+]);
+
+// Session order is randomized (see poolBuilder.ts), so the covered dilemma's
+// position isn't fixed — advance through the session (always picking the
+// first option) until landing on one covered by Phase 1 Ateneo content.
+async function advanceToCoveredDilemma(page: Page) {
+  for (let i = 0; i < 39; i++) {
+    const title = await page.locator('#ev-title').textContent();
+    if (title && ATENEO_COVERED_TITLES.has(title)) return;
+    await page.locator('.option-card').first().click();
+    await page.locator('.fb-continue').click();
+  }
+  throw new Error('No covered dilemma found in this session');
+}
+
+test('Ateneo: selecting philosophers surfaces their comments on a covered dilemma', async ({ page }) => {
+  await skipSplash(page);
+  await page.getByRole('button', { name: 'Nueva Partida' }).click();
+  await page.getByRole('button', { name: 'Comenzar el Juicio' }).click();
+  await expect(page.locator('#screen-ateneo')).toBeVisible();
+
+  await page.getByText('Immanuel Kant').click();
+  await page.getByText('John Stuart Mill').click();
+  await page.getByRole('button', { name: 'Comenzar el Juicio' }).click();
+  await expect(page.locator('#screen-event')).toBeVisible();
+
+  await advanceToCoveredDilemma(page);
+
+  await expect(page.getByText('🏛 Ateneo')).toBeVisible();
+  await page.getByText('🏛 Ateneo').click();
+  await expect(page.locator('#ateneo-modal')).toBeVisible();
+  await expect(page.getByText('Immanuel Kant')).toBeVisible();
+  await expect(page.getByText('John Stuart Mill')).toBeVisible();
+
+  await page.getByText('Cerrar').click();
+  await expect(page.locator('#ateneo-modal')).toHaveCount(0);
 });
