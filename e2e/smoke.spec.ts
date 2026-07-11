@@ -80,6 +80,13 @@ const ATENEO_COVERED_TITLES = new Set([
   'El Placer que Daña Poco', 'La Deuda de los Muertos', 'El Conocimiento Peligroso',
   'La Náusea del Libre Albedrío', 'La Mitad que Faltó Siempre', 'La Justicia Detrás del Velo',
   'Uno por Diez', 'El Tranvía Cósmico', 'La Compasión Universal',
+  // Fase 3
+  'El Contrato que Nadie Firmó', 'La Calma ante lo Inevitable', 'El Deseo como Problema',
+  'El Mal Menor', 'La Ingeniería del Alma', 'El Cuidado como Justicia',
+  'La Hegemonía que Se Rinde', 'La Muerte como Ceremonia', 'La Soledad Epidémica',
+  'El Oráculo de la Felicidad', 'La Templanza en la Crisis', 'La Compasión Incómoda',
+  'El Peso de la Orden', 'Lo que se Aprende Antes', 'El Derecho del Presente',
+  'La Seguridad que Amamos', 'El Exceso de Todo', 'El Derecho a No Saber',
 ]);
 
 // Session order is randomized (see poolBuilder.ts), so the covered dilemma's
