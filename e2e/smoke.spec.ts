@@ -87,6 +87,14 @@ const ATENEO_COVERED_TITLES = new Set([
   'El Oráculo de la Felicidad', 'La Templanza en la Crisis', 'La Compasión Incómoda',
   'El Peso de la Orden', 'Lo que se Aprende Antes', 'El Derecho del Presente',
   'La Seguridad que Amamos', 'El Exceso de Todo', 'El Derecho a No Saber',
+  // Fase 4
+  'La Unión de los Enemigos', 'El Filósofo Rey', 'La Autenticidad Imposible',
+  'La Nación Construida sobre Cenizas', 'El Tiempo Prestado',
+  'El Veredicto Final: ¿Merece Existir la Humanidad?',
+  'El Diario del Padre', 'El Trasplante Imposible', 'La Carta que Llegó Tarde',
+  'El Mejor Alumno', 'La Última Llamada', 'El Testigo Justo',
+  'El Precio de la Lealtad', 'La Obra Maestra Robada', 'El Experimento que Funcionó',
+  'La Herencia Envenenada', 'El Mapa del Dolor', 'El Legado sin Permiso',
 ]);
 
 // Session order is randomized (see poolBuilder.ts), so the covered dilemma's
