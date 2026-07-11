@@ -66,48 +66,10 @@ test('plays through the first dilemma and reaches the feedback panel', async ({ 
   await expect(page.locator('#feedback-panel')).toHaveCount(0);
 });
 
-const ATENEO_COVERED_TITLES = new Set([
-  'La Singularidad Inevitable', 'El Precio de la Longevidad', 'La Verdad o la Paz',
-  'El Derecho al Sufrimiento', 'La Injusticia Perfecta', 'La Esclavitud Feliz',
-  'El Precio de la Libertad', 'El Valor de una Vida', 'El Paraíso que Requiere un Infierno',
-  'El Éxtasis Sin Costo', 'La Muerte Elegida', 'La Fusión de las Mentes',
-  'El Planeta o la Especie', 'La Isla Perfecta', 'La Máquina que Dice Sufrir',
-  'El Yo que Cambia', 'La Misericordia con lo Salvaje', 'El Veredicto Cósmico',
-  // Fase 2
-  'El Fin que Viene', 'La Memoria Prohibida', 'Después de Dios',
-  'Los Nuevos Sin Trabajo', 'La Democracia Instantánea', 'La Nueva Especie',
-  'El Asesino Arrepentido', 'El Peso de Saber', 'La Igualdad que Duele',
-  'El Placer que Daña Poco', 'La Deuda de los Muertos', 'El Conocimiento Peligroso',
-  'La Náusea del Libre Albedrío', 'La Mitad que Faltó Siempre', 'La Justicia Detrás del Velo',
-  'Uno por Diez', 'El Tranvía Cósmico', 'La Compasión Universal',
-  // Fase 3
-  'El Contrato que Nadie Firmó', 'La Calma ante lo Inevitable', 'El Deseo como Problema',
-  'El Mal Menor', 'La Ingeniería del Alma', 'El Cuidado como Justicia',
-  'La Hegemonía que Se Rinde', 'La Muerte como Ceremonia', 'La Soledad Epidémica',
-  'El Oráculo de la Felicidad', 'La Templanza en la Crisis', 'La Compasión Incómoda',
-  'El Peso de la Orden', 'Lo que se Aprende Antes', 'El Derecho del Presente',
-  'La Seguridad que Amamos', 'El Exceso de Todo', 'El Derecho a No Saber',
-  // Fase 4
-  'La Unión de los Enemigos', 'El Filósofo Rey', 'La Autenticidad Imposible',
-  'La Nación Construida sobre Cenizas', 'El Tiempo Prestado',
-  'El Veredicto Final: ¿Merece Existir la Humanidad?',
-  'El Diario del Padre', 'El Trasplante Imposible', 'La Carta que Llegó Tarde',
-  'El Mejor Alumno', 'La Última Llamada', 'El Testigo Justo',
-  'El Precio de la Lealtad', 'La Obra Maestra Robada', 'El Experimento que Funcionó',
-  'La Herencia Envenenada', 'El Mapa del Dolor', 'El Legado sin Permiso',
-]);
-
-// Session order is randomized (see poolBuilder.ts), so the covered dilemma's
-// position isn't fixed — advance through the session (always picking the
-// first option) until landing on one covered by Phase 1 Ateneo content.
+// Every dilemma in the pool now has Ateneo content, so the very first
+// dilemma of any session is guaranteed to be covered — no need to advance.
 async function advanceToCoveredDilemma(page: Page) {
-  for (let i = 0; i < 39; i++) {
-    const title = await page.locator('#ev-title').textContent();
-    if (title && ATENEO_COVERED_TITLES.has(title)) return;
-    await page.locator('.option-card').first().click();
-    await page.locator('.fb-continue').click();
-  }
-  throw new Error('No covered dilemma found in this session');
+  await expect(page.locator('#ev-title')).not.toHaveText('');
 }
 
 test('Ateneo: selecting philosophers surfaces their comments on a covered dilemma', async ({ page }) => {
