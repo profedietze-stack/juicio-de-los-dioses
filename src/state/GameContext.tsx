@@ -4,7 +4,7 @@ import { eventPool } from '../data/dilemmas';
 import { buildNewSession, recordSeenDilemas, FULL_SESSION_LENGTH } from '../engine/poolBuilder';
 import { autosave, clearSavedGame, loadSavedGame, hasSavedGame, saveHistory, saveSnapshot, saveUnlockedAchievements, isStorageAvailable } from '../engine/persistence';
 import { checkAchievements } from '../engine/achievements';
-import { startMusic, stopMusic } from '../engine/music';
+import { startMusic } from '../engine/music';
 import { computeResults } from '../engine/results';
 import { computeEngagement } from '../engine/engagement';
 import { PHILO_DATA } from '../data/philosophies';
