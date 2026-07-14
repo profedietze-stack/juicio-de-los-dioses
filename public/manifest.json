@@ -2,12 +2,12 @@
   "name": "El Juicio de los Dioses",
   "short_name": "Juicio de los Dioses",
   "description": "Un juego de filosofía para decidir el destino de la humanidad",
-  "start_url": "/",
+  "start_url": ".",
   "display": "standalone",
   "background_color": "#07070f",
   "theme_color": "#07070f",
   "orientation": "any",
   "icons": [
-    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+    { "src": "favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
   ]
 }

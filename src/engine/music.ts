@@ -20,11 +20,16 @@ const CAN_PLAY_AUDIO = typeof navigator === 'undefined' || !navigator.userAgent.
 // token guards every async callback (fade ticks) so a stop supersedes any
 // fade still in flight instead of racing with it.
 
-const OPENING_TRACK = '/audio/menu-reflection.mp3';
+// import.meta.env.BASE_URL (Vite's configured `base`, e.g. "/repo-name/")
+// rather than root-absolute paths — this file is served from a GitHub Pages
+// project subpath, and a literal "/audio/..." string is never rewritten by
+// Vite the way url()/import references are, so it would 404 there.
+const BASE = import.meta.env.BASE_URL;
+const OPENING_TRACK = `${BASE}audio/menu-reflection.mp3`;
 const SHUFFLE_TRACKS = [
-  '/audio/game-calm-sad.mp3',
-  '/audio/game-longing.mp3',
-  '/audio/game-depressed.mp3',
+  `${BASE}audio/game-calm-sad.mp3`,
+  `${BASE}audio/game-longing.mp3`,
+  `${BASE}audio/game-depressed.mp3`,
 ];
 
 const FADE_MS = 700;
