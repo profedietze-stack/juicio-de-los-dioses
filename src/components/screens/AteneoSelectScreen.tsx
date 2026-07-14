@@ -4,12 +4,12 @@ import { Button } from '../ui/Button';
 import { philosophers } from '../../data/philosophers';
 import { PHILO_CLS } from '../../engine/philosophyDisplay';
 import { snd } from '../../engine/audio';
-
-const MAX_SELECTION = 4;
+import { ATENEO_MIN_SELECTION as MIN_SELECTION, ATENEO_MAX_SELECTION as MAX_SELECTION } from '../../engine/engagement';
 
 export function AteneoSelectScreen() {
   const { dispatch } = useGame();
   const [selected, setSelected] = useState<string[]>([]);
+  const canStart = selected.length >= MIN_SELECTION;
 
   function toggle(id: string) {
     snd('tab');
@@ -21,12 +21,8 @@ export function AteneoSelectScreen() {
   }
 
   function start() {
+    if (!canStart) return;
     dispatch({ type: 'SET_ATENEO_SELECTION', ids: selected });
-    dispatch({ type: 'BEGIN_GAME' });
-  }
-
-  function skip() {
-    dispatch({ type: 'SET_ATENEO_SELECTION', ids: [] });
     dispatch({ type: 'BEGIN_GAME' });
   }
 
@@ -34,9 +30,13 @@ export function AteneoSelectScreen() {
     <div className="screen ateneo-select-screen active" id="screen-ateneo">
       <div className="screen-heading">El Ateneo de los Filósofos</div>
       <div className="ateneo-intro-text">
-        Elegí hasta {MAX_SELECTION} pensadores que te acompañen durante el juicio.
+        Elegí entre {MIN_SELECTION} y {MAX_SELECTION} pensadores que te acompañen durante el juicio.
         Cuando lo necesites, vas a poder consultar cómo interpretarían el dilema
-        que tenés delante.
+        que tenés delante — <strong>cuanto más consultes el Ateneo durante la
+        partida, mejor será tu índice de compromiso reflexivo</strong> al final.
+      </div>
+      <div className="ateneo-selection-count" id="ateneo-selection-count">
+        {selected.length}/{MAX_SELECTION} seleccionados (mínimo {MIN_SELECTION})
       </div>
       <div className="ateneo-grid">
         {philosophers.map(p => {
@@ -61,8 +61,9 @@ export function AteneoSelectScreen() {
         })}
       </div>
       <div className="ateneo-footer">
-        <Button sound="start" onClick={start}>Comenzar el Juicio</Button>
-        <Button ghost small onClick={skip}>Omitir</Button>
+        <Button sound="start" onClick={start} disabled={!canStart}>
+          {canStart ? 'Comenzar el Juicio' : `Elegí al menos ${MIN_SELECTION} pensadores`}
+        </Button>
       </div>
     </div>
   );

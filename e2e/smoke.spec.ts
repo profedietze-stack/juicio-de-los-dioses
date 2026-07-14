@@ -44,16 +44,20 @@ test('Guía Pedagógica shows all 10 philosophical currents on the Corrientes ta
   await expect(page.locator('#tab-filosof h4', { hasText: 'Budismo' })).toBeVisible();
 });
 
-async function skipAteneo(page: Page) {
+// The Ateneo is mandatory: pick the minimum of 3 philosophers, then continue.
+async function pickMinimumAteneo(page: Page) {
   await expect(page.locator('#screen-ateneo')).toBeVisible();
-  await page.getByRole('button', { name: 'Omitir' }).click();
+  await page.getByText('Immanuel Kant').click();
+  await page.getByText('John Stuart Mill').click();
+  await page.getByText('Friedrich Nietzsche').click();
+  await page.getByRole('button', { name: 'Comenzar el Juicio' }).click();
 }
 
 test('plays through the first dilemma and reaches the feedback panel', async ({ page }) => {
   await skipSplash(page);
   await page.getByRole('button', { name: 'Nueva Partida' }).click();
   await page.getByRole('button', { name: 'Comenzar el Juicio' }).click();
-  await skipAteneo(page);
+  await pickMinimumAteneo(page);
   await expect(page.locator('#screen-event')).toBeVisible();
 
   const title = await page.locator('#ev-title').textContent();
@@ -80,6 +84,7 @@ test('Ateneo: selecting philosophers surfaces their comments on a covered dilemm
 
   await page.getByText('Immanuel Kant').click();
   await page.getByText('John Stuart Mill').click();
+  await page.getByText('Friedrich Nietzsche').click(); // Ateneo is mandatory: minimum of 3
   await page.getByRole('button', { name: 'Comenzar el Juicio' }).click();
   await expect(page.locator('#screen-event')).toBeVisible();
 

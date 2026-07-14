@@ -16,6 +16,6 @@ createRoot(document.getElementById('root')!).render(
 // with Vite's dev server HMR module graph.
 if ('serviceWorker' in navigator && import.meta.env.PROD) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch(() => { /* offline support unavailable */ });
+    navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`).catch(() => { /* offline support unavailable */ });
   });
 }

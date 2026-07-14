@@ -70,7 +70,10 @@ export function isValidAutosaveData(v: unknown): v is AutosaveData {
     && typeof d.elapsed === 'number'
     && Array.isArray(d.decisions) && d.decisions.every(isValidDilemmaOption)
     && Array.isArray(d.unlocked) && d.unlocked.every(u => typeof u === 'string')
-    && Array.isArray(d.eventIds) && d.eventIds.every(id => typeof id === 'number');
+    && Array.isArray(d.eventIds) && d.eventIds.every(id => typeof id === 'number')
+    // Optional: absent on saves written before engagement tracking existed.
+    && (d.decisionTimes === undefined || (Array.isArray(d.decisionTimes) && d.decisionTimes.every(t => typeof t === 'number')))
+    && (d.ateneoConsultCounts === undefined || (Array.isArray(d.ateneoConsultCounts) && d.ateneoConsultCounts.every(c => typeof c === 'number')));
 }
 
 export function isValidHistoryRecord(v: unknown): v is HistoryRecord {
@@ -86,6 +89,16 @@ export function isValidHistoryRecord(v: unknown): v is HistoryRecord {
     && typeof r.diversity === 'number'
     && typeof r.date === 'string'
     && typeof r.dateISO === 'string';
+}
+
+function isValidDeliberatedEntry(v: unknown): boolean {
+  if (!v || typeof v !== 'object') return false;
+  const e = v as Record<string, unknown>;
+  return typeof e.title === 'string'
+    && isPhilosophyKey(e.philosophy)
+    && typeof e.optionText === 'string'
+    && typeof e.seconds === 'number'
+    && typeof e.ateneoCount === 'number';
 }
 
 export function isValidSnapshot(v: unknown): v is ResultSnapshot {
@@ -107,7 +120,11 @@ export function isValidSnapshot(v: unknown): v is ResultSnapshot {
     && Array.isArray(s.ranked) && s.ranked.every(isPhilosophyKey)
     && typeof s.diversity === 'number'
     && typeof s.narrative === 'string'
-    && typeof s.decisions === 'number';
+    && typeof s.decisions === 'number'
+    // Optional: absent on snapshots saved before the engagement index existed.
+    && (s.engagementIndex === undefined || typeof s.engagementIndex === 'number')
+    && (s.engagementLabel === undefined || typeof s.engagementLabel === 'string')
+    && (s.topDeliberated === undefined || (Array.isArray(s.topDeliberated) && s.topDeliberated.every(isValidDeliberatedEntry)));
 }
 
 // ── HISTORY ─────────────────────────────────────────────

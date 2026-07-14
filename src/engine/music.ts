@@ -1,52 +1,172 @@
-import { AC } from './audioContext';
 import { isMuted, getMusicVolume } from './audioPrefs';
 
-const BASE_GAIN = 0.05;
+// jsdom (test environment) defines Audio/HTMLMediaElement but its play()/
+// pause() just log a noisy "not implemented" jsdomError instead of throwing,
+// and its volume setter enforces the 0..1 range strictly. Skip all real
+// playback/volume calls under jsdom — tests only care the state logic
+// doesn't throw, there's no real audio to hear anyway.
+const CAN_PLAY_AUDIO = typeof navigator === 'undefined' || !navigator.userAgent.includes('jsdom');
 
-// Soft ambient pad: a few low-gain oscillators on a sustained chord, with a
-// slow LFO modulating the master gain for a gentle "breathing" chill-out feel.
-const CHORD_FREQS = [130.81, 164.81, 196.0, 246.94]; // C3, E3, G3, B3
+// Real royalty-free tracks (Pixabay, free for use), played as one continuous
+// session playlist independent of which screen is showing: the calm menu
+// track opens every session, and once it ends the three game tracks shuffle
+// indefinitely (never repeating back-to-back) for the rest of the reading
+// session. Music no longer restarts or swaps on menu<->game navigation —
+// there's nothing to interrupt, so there's nothing to get out of sync.
+//
+// Everything plays through a *single* shared <audio> element, advancing only
+// on the browser's `ended` event (the one signal every browser fires
+// reliably for a finite audio file). A monotonically increasing `generation`
+// token guards every async callback (fade ticks) so a stop supersedes any
+// fade still in flight instead of racing with it.
 
-let voices: OscillatorNode[] = [];
-let masterGain: GainNode | null = null;
-let lfo: OscillatorNode | null = null;
+const OPENING_TRACK = '/audio/menu-reflection.mp3';
+const SHUFFLE_TRACKS = [
+  '/audio/game-calm-sad.mp3',
+  '/audio/game-longing.mp3',
+  '/audio/game-depressed.mp3',
+];
 
+const FADE_MS = 700;
+
+let el: HTMLAudioElement | null = null;
+let playing = false;
+let openingPlayed = false;
+let queue: string[] = [];
+let lastPlayed: string | null = null;
+let generation = 0;
+let fadeTimer: ReturnType<typeof setTimeout> | null = null;
+let wantsPlaying = false;
+let unlockAttached = false;
+
+function shuffle<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// The opening track plays once per (re)start; after that, draws from a
+// shuffled queue of the game tracks, refilling and avoiding an immediate
+// repeat of whatever just played when the queue wraps around.
+function nextTrack(): string {
+  if (!openingPlayed) {
+    openingPlayed = true;
+    return OPENING_TRACK;
+  }
+  if (!queue.length) {
+    queue = shuffle(SHUFFLE_TRACKS);
+    if (queue[0] === lastPlayed) {
+      const j = 1 + Math.floor(Math.random() * (queue.length - 1));
+      [queue[0], queue[j]] = [queue[j], queue[0]];
+    }
+  }
+  const t = queue.shift()!;
+  lastPlayed = t;
+  return t;
+}
+
+function ensureEl(): HTMLAudioElement {
+  if (!el) {
+    el = new Audio();
+    el.preload = 'auto';
+    el.loop = false;
+    el.addEventListener('ended', onEnded);
+  }
+  return el;
+}
+
+function onEnded() {
+  if (!playing) return;
+  playTrack(nextTrack(), generation);
+}
+
+function safePlay() {
+  if (!CAN_PLAY_AUDIO || !el) return;
+  try { el.play()?.catch(() => { /* blocked until a user gesture; the unlock listener retries */ }); }
+  catch { /* unsupported environment */ }
+}
+
+// Browsers may block the very first play() call if it isn't tied closely
+// enough to a user gesture (e.g. it fires from a React effect a tick after
+// the click that triggered it). Rather than fail silently forever, retry on
+// the next real interaction anywhere on the page.
+function attachUnlockListener() {
+  if (unlockAttached || typeof document === 'undefined') return;
+  unlockAttached = true;
+  const tryResume = () => { if (wantsPlaying && el?.paused) safePlay(); };
+  document.addEventListener('pointerdown', tryResume);
+  document.addEventListener('keydown', tryResume);
+}
+
+// Ticks via setTimeout rather than requestAnimationFrame: rAF callbacks are
+// paused by the browser while a tab is backgrounded/not being composited —
+// exactly the state a long reading session is likely to be in — which would
+// otherwise strand the fade forever and, with it, the swap() that starts the
+// next track. setTimeout still fires (if throttled) even in the background.
+const FADE_TICK_MS = 40;
+
+function fadeTo(target: number, gen: number, onDone?: () => void) {
+  if (!CAN_PLAY_AUDIO || !el) { onDone?.(); return; }
+  if (fadeTimer) clearTimeout(fadeTimer);
+  const from = el.volume;
+  const start = Date.now();
+  const step = () => {
+    if (gen !== generation || !el) return;
+    const p = Math.min(1, (Date.now() - start) / FADE_MS);
+    el.volume = from + (target - from) * p;
+    if (p < 1) { fadeTimer = setTimeout(step, FADE_TICK_MS); return; }
+    fadeTimer = null;
+    onDone?.();
+  };
+  fadeTimer = setTimeout(step, FADE_TICK_MS);
+}
+
+// Swaps to a new track on the shared element, fading the outgoing audio down
+// first (if anything is playing) then fading the new track in. Never two
+// elements playing at once — there is only ever one.
+function playTrack(src: string, gen: number) {
+  const a = ensureEl();
+  const swap = () => {
+    if (gen !== generation) return;
+    a.src = src;
+    a.currentTime = 0;
+    a.volume = 0;
+    wantsPlaying = true;
+    safePlay();
+    fadeTo(getMusicVolume(), gen);
+  };
+  if (CAN_PLAY_AUDIO && a.src && !a.paused) fadeTo(0, gen, swap);
+  else swap();
+}
+
+// Starts (or resumes) the session playlist. Idempotent while already
+// playing, so calling this on every screen change is cheap and harmless —
+// music is no longer tied to which screen is showing.
 export function startMusic() {
-  if (!AC || isMuted() || voices.length) return;
+  if (isMuted()) return;
+  if (playing && el && wantsPlaying && (!CAN_PLAY_AUDIO || !el.paused)) return;
 
-  masterGain = AC.createGain();
-  masterGain.gain.setValueAtTime(BASE_GAIN * getMusicVolume(), AC.currentTime);
-  masterGain.connect(AC.destination);
-
-  lfo = AC.createOscillator();
-  const lfoGain = AC.createGain();
-  lfo.frequency.setValueAtTime(0.08, AC.currentTime);
-  lfoGain.gain.setValueAtTime(0.02, AC.currentTime);
-  lfo.connect(lfoGain);
-  lfoGain.connect(masterGain.gain);
-  lfo.start();
-
-  voices = CHORD_FREQS.map(freq => {
-    const osc = AC!.createOscillator();
-    const voiceGain = AC!.createGain();
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(freq, AC!.currentTime);
-    voiceGain.gain.setValueAtTime(0.04, AC!.currentTime);
-    osc.connect(voiceGain);
-    voiceGain.connect(masterGain!);
-    osc.start();
-    return osc;
-  });
+  generation++;
+  const gen = generation;
+  playing = true;
+  attachUnlockListener();
+  playTrack(nextTrack(), gen);
 }
 
 export function stopMusic() {
-  voices.forEach(osc => { try { osc.stop(); } catch { /* already stopped */ } });
-  voices = [];
-  if (lfo) { try { lfo.stop(); } catch { /* already stopped */ } }
-  lfo = null;
-  masterGain = null;
+  generation++;
+  wantsPlaying = false;
+  playing = false;
+  if (fadeTimer) { clearTimeout(fadeTimer); fadeTimer = null; }
+  if (el && CAN_PLAY_AUDIO) {
+    try { el.pause(); } catch { /* unsupported environment */ }
+  }
 }
 
 export function setLiveMusicVolume(v: number) {
-  if (masterGain && AC) masterGain.gain.setValueAtTime(BASE_GAIN * v, AC.currentTime);
+  if (!CAN_PLAY_AUDIO || !el) return;
+  el.volume = Math.max(0, Math.min(1, v));
 }

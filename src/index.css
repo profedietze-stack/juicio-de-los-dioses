@@ -84,6 +84,16 @@ body::before{
 .menu-divider{width:100px;height:1px;background:linear-gradient(to right,transparent,var(--gold),transparent);margin:0 auto 2rem;}
 .btn-group{display:flex;flex-direction:column;gap:.8rem;align-items:center;margin-bottom:1.8rem;}
 
+@media (max-width:520px),(max-height:700px){
+  .menu-screen{padding:calc(1.2rem + env(safe-area-inset-top)) 1.2rem calc(2.4rem + env(safe-area-inset-bottom));}
+  .menu-emblem{font-size:3rem;margin-bottom:.6rem;}
+  .menu-title{font-size:clamp(1.5rem,7vw,2.2rem);margin-bottom:.3rem;}
+  .menu-tagline{font-size:.7rem;margin-bottom:1.1rem;line-height:1.5;}
+  .menu-divider{margin-bottom:1.1rem;}
+  .btn-group{gap:.55rem;margin-bottom:1.1rem;}
+  .menu-artwork-credit{bottom:1.6rem;font-size:.58rem;}
+}
+
 /* SPLASH */
 .screen.splash-screen{
   position:relative;
@@ -92,7 +102,10 @@ body::before{
   background:
     linear-gradient(to bottom,rgba(7,7,15,.75),rgba(7,7,15,.88) 65%,#07070f 100%),
     url('/backgrounds/splash-christ-redeemer.jpg');
-  background-size:cover;background-position:center 15%;background-repeat:no-repeat;
+  background-size:cover;background-position:center top;background-repeat:no-repeat;
+}
+@media (min-width:900px){
+  .screen.splash-screen{background-position:center 38%;}
 }
 .splash-emblem{font-size:4.5rem;color:var(--gold);margin-bottom:1.2rem;filter:drop-shadow(0 0 28px var(--gold-glow));animation:em-pulse 3s ease-in-out infinite;}
 .splash-title{font-family:'Cinzel',serif;font-size:clamp(2rem,5vw,3.4rem);font-weight:900;color:var(--gold);letter-spacing:4px;line-height:1.1;margin-bottom:2rem;}
@@ -116,6 +129,9 @@ body::before{
 .btn-ghost::after{background:var(--muted);}
 .btn-ghost:hover{color:var(--bg);box-shadow:none;}
 .btn-sm{padding:.5rem 1.4rem;font-size:.72rem;min-width:0;letter-spacing:1.5px;}
+.btn:disabled{opacity:.4;cursor:not-allowed;border-color:var(--muted);color:var(--muted);}
+.btn:disabled:hover{color:var(--muted);box-shadow:none;transform:none;}
+.btn:disabled::after{display:none;}
 
 /* EVENT */
 .event-screen{flex:1;position:relative;}
@@ -308,6 +324,18 @@ body::before{
 .philo-bar-fill.femi{background:var(--femi);}
 .philo-bar-fill.budi{background:var(--budi);}
 .philo-bar-fill.chip{background:var(--gold);}
+
+/* ENGAGEMENT (índice de compromiso reflexivo) */
+.engagement-disclaimer{max-width:700px;width:100%;border:1px solid rgba(212,175,55,.28);background:rgba(212,175,55,.06);padding:.9rem 1.2rem;text-align:left;font-size:.78rem;line-height:1.6;color:var(--text);}
+.engagement-disclaimer strong{color:var(--gold);}
+.engagement-header{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:1rem;}
+.engagement-index{font-family:'Cinzel',serif;font-size:1.8rem;color:var(--gold);}
+.engagement-label{font-family:'Cinzel',serif;font-size:.72rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);}
+.engagement-deliberated{display:flex;flex-direction:column;gap:.7rem;margin-top:1rem;padding-top:1rem;border-top:1px solid rgba(212,175,55,.18);}
+.engagement-deliberated-title{font-family:'Cinzel',serif;font-size:.66rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:.2rem;}
+.engagement-deliberated-item{border-left:2px solid rgba(212,175,55,.4);padding-left:.8rem;}
+.engagement-deliberated-item-title{font-size:.82rem;color:var(--text);margin-bottom:.15rem;}
+.engagement-deliberated-item-meta{font-size:.68rem;color:var(--muted);display:flex;gap:.6rem;flex-wrap:wrap;}
 .chip{font-family:'Cinzel',serif;font-size:.58rem;letter-spacing:1.5px;text-transform:uppercase;padding:.18rem .45rem;border:1px solid;}
 .chip.util{color:var(--util);border-color:var(--util);}
 .chip.deon{color:var(--deon);border-color:var(--deon);}

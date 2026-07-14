@@ -209,7 +209,7 @@ describe('SET_ATENEO_SELECTION', () => {
       <>
         <button onClick={() => dispatch({ type: 'GO_TO_INTRO', length: 40 })}>go-intro</button>
         <button onClick={() => dispatch({ type: 'SET_ATENEO_SELECTION', ids: ['kant', 'mill'] })}>select-two</button>
-        <button onClick={() => dispatch({ type: 'SET_ATENEO_SELECTION', ids: ['kant', 'mill', 'nietzsche', 'seneca', 'buda'] })}>select-five</button>
+        <button onClick={() => dispatch({ type: 'SET_ATENEO_SELECTION', ids: ['kant', 'mill', 'nietzsche', 'seneca', 'buda', 'aristoteles', 'locke'] })}>select-seven</button>
         <button onClick={() => dispatch({ type: 'BEGIN_GAME' })}>begin</button>
         <div data-testid="selection">{state.ateneoSelection.join(',')}</div>
       </>
@@ -229,16 +229,16 @@ describe('SET_ATENEO_SELECTION', () => {
     expect(screen.getByTestId('selection').textContent).toBe('');
   });
 
-  it('stores up to 4 selected ids', () => {
+  it('stores selected ids', () => {
     renderAteneoHarness();
     fireEvent.click(screen.getByText('select-two'));
     expect(screen.getByTestId('selection').textContent).toBe('kant,mill');
   });
 
-  it('caps at 4 even if more ids are dispatched', () => {
+  it('caps at 6 even if more ids are dispatched', () => {
     renderAteneoHarness();
-    fireEvent.click(screen.getByText('select-five'));
-    expect(screen.getByTestId('selection').textContent).toBe('kant,mill,nietzsche,seneca');
+    fireEvent.click(screen.getByText('select-seven'));
+    expect(screen.getByTestId('selection').textContent).toBe('kant,mill,nietzsche,seneca,buda,aristoteles');
   });
 
   it('resets to empty on GO_TO_INTRO', () => {

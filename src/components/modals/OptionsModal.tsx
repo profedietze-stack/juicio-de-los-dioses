@@ -1,22 +1,19 @@
-import { useState } from 'react';
-import { useGame } from '../../state/GameContext';
-import { isMuted, setMuted, getMusicVolume, setMusicVolume } from '../../engine/audioPrefs';
+import { useState, useSyncExternalStore } from 'react';
+import { isMuted, setMuted, subscribeMuted, getMusicVolume, setMusicVolume } from '../../engine/audioPrefs';
 import { startMusic, stopMusic, setLiveMusicVolume } from '../../engine/music';
 import { getUiPrefs, saveUiPrefs, applyUiPrefs, UI_PREFS_DEFAULTS, type UiPrefs } from '../../engine/uiPrefs';
 import { snd } from '../../engine/audio';
 
 export function OptionsModal({ onClose }: { onClose: () => void }) {
-  const { state } = useGame();
-  const [muted, setMutedState] = useState(isMuted());
+  const muted = useSyncExternalStore(subscribeMuted, isMuted);
   const [volume, setVolume] = useState(getMusicVolume());
   const [prefs, setPrefs] = useState<UiPrefs>(getUiPrefs());
 
   function toggleMuted() {
     const next = !muted;
     setMuted(next);
-    setMutedState(next);
     if (next) stopMusic();
-    else if (state.screen === 'event') startMusic();
+    else startMusic();
   }
 
   function handleVolume(v: number) {

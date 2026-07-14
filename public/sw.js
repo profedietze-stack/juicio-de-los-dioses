@@ -1,10 +1,14 @@
 const CACHE_NAME = 'juicio-de-los-dioses-v2';
+// Derived from the SW's own scope rather than hardcoded as root-relative
+// paths, so this still resolves correctly when the app is served from a
+// subpath (e.g. GitHub Pages project sites at /repo-name/).
+const BASE = new URL(self.registration.scope).pathname;
 const APP_SHELL = [
-  '/',
-  '/manifest.json',
-  '/favicon.svg',
-  '/backgrounds/splash-christ-redeemer.jpg',
-  '/backgrounds/menu-last-judgment.jpg',
+  BASE,
+  `${BASE}manifest.json`,
+  `${BASE}favicon.svg`,
+  `${BASE}backgrounds/splash-christ-redeemer.jpg`,
+  `${BASE}backgrounds/menu-last-judgment.jpg`,
 ];
 
 self.addEventListener('install', event => {

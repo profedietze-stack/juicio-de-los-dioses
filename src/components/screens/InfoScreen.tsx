@@ -45,6 +45,10 @@ export function InfoScreen() {
               <p>La <strong>Barra del Juicio</strong> registra el peso acumulado de cada decisión. No mide "lo correcto" sino las consecuencias colectivas de la cosmovisión ética del jugador. Al finalizar, recibe un veredicto narrativo y un perfil filosófico con análisis de su pensamiento dominante.</p>
               <h4>Temas cubiertos</h4>
               <p>Transhumanismo · Justicia distributiva · Libertad vs. Seguridad · Ecología profunda · Naturaleza del mal · Religión y razón · Derechos individuales vs. colectivos · Inteligencia Artificial · Ética de la vida y la muerte · Memoria histórica · Democracia y algoritmos.</p>
+              <h4>Créditos musicales</h4>
+              <p style={{ fontSize: '.8rem', opacity: .75 }}>
+                Music by <a href="https://pixabay.com/users/faithventuremedia-40297044/" target="_blank" rel="noopener noreferrer">FaithVentureMedia</a>, <a href="https://pixabay.com/users/leberch-42823964/" target="_blank" rel="noopener noreferrer">Nikita Kondrashev</a> and <a href="https://pixabay.com/users/atlasaudio-54514918/" target="_blank" rel="noopener noreferrer">AtlasAudio</a> from <a href="https://pixabay.com" target="_blank" rel="noopener noreferrer">Pixabay</a>.
+              </p>
             </div>
           </div>
         )}
@@ -190,6 +194,8 @@ export function InfoScreen() {
                 <li><strong>Fundamentación filosófica (30%):</strong> Sus argumentos remiten a principios éticos identificables.</li>
                 <li><strong>Apertura al cambio (25%):</strong> Puede reconocer la solidez de un argumento contrario sin perder su posición.</li>
               </ul>
+              <h4>Índice de Compromiso Reflexivo</h4>
+              <p>Al finalizar la partida, el juego muestra un <strong>índice de compromiso reflexivo</strong> (0-100) y hasta 3 dilemas donde el estudiante más deliberó. <strong>No es una nota</strong>: combina tiempo dedicado a cada decisión, uso del Ateneo de Filósofos y diversidad de corrientes exploradas — nunca qué opción eligió. Sirve como insumo concreto para las rúbricas de arriba (por ejemplo, para elegir con qué dilema empezar el "Diario del Árbitro" o el debate).</p>
               <h4>Nota metodológica</h4>
               <p>No se recomienda calificar el <strong>perfil filosófico resultante</strong> del juego. Hacerlo induciría a los estudiantes a elegir "para la nota". El valor pedagógico reside precisamente en la honestidad de las decisiones.</p>
             </div>

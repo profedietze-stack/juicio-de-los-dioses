@@ -1,18 +1,15 @@
-import { useState } from 'react';
-import { isMuted, setMuted } from '../../engine/audioPrefs';
+import { useSyncExternalStore } from 'react';
+import { isMuted, setMuted, subscribeMuted } from '../../engine/audioPrefs';
 import { startMusic, stopMusic } from '../../engine/music';
-import { useGame } from '../../state/GameContext';
 
 export function MuteToggle() {
-  const [muted, setMutedState] = useState(isMuted());
-  const { state } = useGame();
+  const muted = useSyncExternalStore(subscribeMuted, isMuted);
 
   function toggle() {
     const next = !muted;
     setMuted(next);
-    setMutedState(next);
     if (next) stopMusic();
-    else if (state.screen === 'event') startMusic();
+    else startMusic();
   }
 
   return (

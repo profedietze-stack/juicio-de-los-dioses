@@ -87,7 +87,7 @@ export function EventScreen() {
               <button
                 type="button"
                 className="btn btn-ghost btn-sm ateneo-open-btn"
-                onClick={() => { snd('nav'); setShowAteneo(true); }}
+                onClick={() => { snd('nav'); setShowAteneo(true); dispatch({ type: 'ATENEO_VIEWED' }); }}
               >
                 🏛 Ateneo
               </button>

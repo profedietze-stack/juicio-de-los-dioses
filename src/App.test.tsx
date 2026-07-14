@@ -46,6 +46,10 @@ describe('App', () => {
     fireEvent.click(screen.getByText('Comenzar el Juicio'));
     expect(document.getElementById('screen-ateneo')).toBeInTheDocument();
 
+    // The Ateneo is mandatory — pick the minimum of 3 before the button enables.
+    fireEvent.click(screen.getByText('Immanuel Kant'));
+    fireEvent.click(screen.getByText('John Stuart Mill'));
+    fireEvent.click(screen.getByText('Friedrich Nietzsche'));
     fireEvent.click(screen.getByText('Comenzar el Juicio'));
     expect(document.getElementById('screen-event')).toBeInTheDocument();
     expect(document.getElementById('ev-title')?.textContent).toBeTruthy();

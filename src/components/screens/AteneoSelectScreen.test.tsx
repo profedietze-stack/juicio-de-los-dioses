@@ -28,6 +28,10 @@ function renderAtAteneo() {
   fireEvent.click(screen.getByText('Comenzar el Juicio'));
 }
 
+function selectByName(...names: string[]) {
+  names.forEach(name => fireEvent.click(screen.getByText(name)));
+}
+
 describe('AteneoSelectScreen', () => {
   beforeEach(() => localStorage.clear());
 
@@ -36,44 +40,45 @@ describe('AteneoSelectScreen', () => {
     expect(document.querySelectorAll('.ateneo-card').length).toBe(10);
   });
 
-  it('toggles selection on tap and reflects it in game state', () => {
+  it('is mandatory: "Comenzar el Juicio" is disabled below the minimum of 3', () => {
     renderAtAteneo();
-    fireEvent.click(screen.getByText('Immanuel Kant'));
-    expect(screen.getByText('Comenzar el Juicio').closest('button')).toBeTruthy();
-    fireEvent.click(screen.getByText('Comenzar el Juicio'));
-    expect(screen.getByTestId('selection').textContent).toBe('kant');
+    selectByName('Immanuel Kant', 'John Stuart Mill');
+    const btn = screen.getByRole('button', { name: /elegí al menos 3 pensadores/i });
+    expect(btn).toBeDisabled();
+    fireEvent.click(btn);
+    // Still on the Ateneo screen — the disabled button must not have started the game.
+    expect(screen.getByTestId('screen').textContent).toBe('ateneo');
   });
 
-  it('caps selection at 4 — a 5th tap on an unselected card does nothing', () => {
+  it('enables "Comenzar el Juicio" once the minimum of 3 is reached, and reflects the selection in game state', () => {
     renderAtAteneo();
-    fireEvent.click(screen.getByText('Immanuel Kant'));
-    fireEvent.click(screen.getByText('John Stuart Mill'));
-    fireEvent.click(screen.getByText('Friedrich Nietzsche'));
-    fireEvent.click(screen.getByText('Séneca'));
-    fireEvent.click(screen.getByText('Aristóteles'));
-    fireEvent.click(screen.getByText('Comenzar el Juicio'));
-    expect(screen.getByTestId('selection').textContent).toBe('kant,mill,nietzsche,seneca');
-  });
-
-  it('tapping a selected card again deselects it', () => {
-    renderAtAteneo();
-    fireEvent.click(screen.getByText('Immanuel Kant'));
-    fireEvent.click(screen.getByText('Immanuel Kant'));
-    fireEvent.click(screen.getByText('Comenzar el Juicio'));
-    expect(screen.getByTestId('selection').textContent).toBe('');
-  });
-
-  it('"Omitir" starts the game with no selection', () => {
-    renderAtAteneo();
-    fireEvent.click(screen.getByText('Immanuel Kant'));
-    fireEvent.click(screen.getByText('Omitir'));
+    selectByName('Immanuel Kant', 'John Stuart Mill', 'Friedrich Nietzsche');
+    const btn = screen.getByRole('button', { name: 'Comenzar el Juicio' });
+    expect(btn).not.toBeDisabled();
+    fireEvent.click(btn);
     expect(screen.getByTestId('screen').textContent).toBe('event');
-    expect(screen.getByTestId('selection').textContent).toBe('');
+    expect(screen.getByTestId('selection').textContent).toBe('kant,mill,nietzsche');
   });
 
-  it('"Comenzar el Juicio" starts the game', () => {
+  it('caps selection at 6 — a 7th tap on an unselected card does nothing', () => {
     renderAtAteneo();
+    selectByName(
+      'Immanuel Kant', 'John Stuart Mill', 'Friedrich Nietzsche',
+      'Séneca', 'Aristóteles', 'John Locke', 'Simone de Beauvoir',
+    );
     fireEvent.click(screen.getByText('Comenzar el Juicio'));
-    expect(screen.getByTestId('screen').textContent).toBe('event');
+    expect(screen.getByTestId('selection').textContent).toBe('kant,mill,nietzsche,seneca,aristoteles,locke');
+  });
+
+  it('tapping a selected card again deselects it, dropping back below the minimum re-disables the button', () => {
+    renderAtAteneo();
+    selectByName('Immanuel Kant', 'John Stuart Mill', 'Friedrich Nietzsche');
+    fireEvent.click(screen.getByText('Immanuel Kant'));
+    expect(screen.getByRole('button', { name: /elegí al menos 3 pensadores/i })).toBeDisabled();
+  });
+
+  it('has no "Omitir" (skip) option — the Ateneo is mandatory', () => {
+    renderAtAteneo();
+    expect(screen.queryByText('Omitir')).toBeNull();
   });
 });

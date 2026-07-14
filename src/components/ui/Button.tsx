@@ -7,17 +7,19 @@ interface ButtonProps {
   ghost?: boolean;
   small?: boolean;
   danger?: boolean;
+  disabled?: boolean;
   sound?: 'nav' | 'start' | 'tab' | 'danger';
   className?: string;
   style?: React.CSSProperties;
 }
 
-export function Button({ children, onClick, ghost, small, danger, sound = 'nav', className = '', style }: ButtonProps) {
+export function Button({ children, onClick, ghost, small, danger, disabled, sound = 'nav', className = '', style }: ButtonProps) {
   return (
     <button
       className={`btn ${ghost ? 'btn-ghost' : ''} ${small ? 'btn-sm' : ''} ${danger ? 'btn-danger' : ''} ${className}`.trim()}
       style={style}
-      onClick={() => { snd(sound); onClick(); }}
+      disabled={disabled}
+      onClick={() => { if (disabled) return; snd(sound); onClick(); }}
     >
       {children}
     </button>
