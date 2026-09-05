@@ -4,3 +4,12 @@ coverage
 playwright-report
 test-results
 *.tsbuildinfo
+
+# Secretos / credenciales - nunca commitear
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+secrets.json
