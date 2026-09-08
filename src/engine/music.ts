@@ -1,4 +1,5 @@
 import { isMuted, getMusicVolume } from './audioPrefs';
+import { barajar } from './barajar';
 
 // jsdom (test environment) defines Audio/HTMLMediaElement but its play()/
 // pause() just log a noisy "not implemented" jsdomError instead of throwing,
@@ -44,14 +45,9 @@ let fadeTimer: ReturnType<typeof setTimeout> | null = null;
 let wantsPlaying = false;
 let unlockAttached = false;
 
-function shuffle<T>(arr: T[]): T[] {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
+// El barajado vive en `barajar.ts`: lo comparten la cola de temas y el
+// armado de la sesión de dilemas.
+const shuffle = barajar;
 
 // The opening track plays once per (re)start; after that, draws from a
 // shuffled queue of the game tracks, refilling and avoiding an immediate

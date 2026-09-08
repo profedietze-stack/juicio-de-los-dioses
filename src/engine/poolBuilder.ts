@@ -2,6 +2,7 @@ import type { Dilemma } from '../types';
 import { eventPool } from '../data/dilemmas';
 import { finale } from '../data/dilemmas/finale';
 import { getSeenMap, saveSeenMap, getTotalGamesPlayed, getPlayCounts, savePlayCounts } from './persistence';
+import { barajar } from './barajar';
 
 const FINALE_ID = 60;
 
@@ -50,6 +51,6 @@ export const SHORT_SESSION_LENGTH = 14;
 export function buildNewSession(count: number = FULL_SESSION_LENGTH): Dilemma[] {
   const weighted = buildWeightedPool(FINALE_ID);
   const pool = weighted.slice(0, count);
-  const shuffled = [...pool].sort(() => Math.random() - 0.5);
+  const shuffled = barajar(pool);
   return [...shuffled, finale];
 }
