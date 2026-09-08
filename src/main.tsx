@@ -1,3 +1,20 @@
+/*
+  Las tipografias, servidas desde el propio sitio y no desde el CDN de Google.
+
+  Los que abren esto son menores: ese servidor recibia, en cada carga y sin que
+  nadie lo eligiera, la IP del aula y la hora. Y con el wifi de la escuela caido
+  o el dominio filtrado, el juego se abria con otra letra.
+
+  Solo el subconjunto latino y solo los grosores que el CSS usa.
+*/
+import '@fontsource/cinzel/latin-400.css'
+import '@fontsource/cinzel/latin-600.css'
+import '@fontsource/cinzel/latin-700.css'
+import '@fontsource/cinzel/latin-900.css'
+import '@fontsource/lora/latin-400.css'
+import '@fontsource/lora/latin-500.css'
+import '@fontsource/lora/latin-400-italic.css'
+
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
