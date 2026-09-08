@@ -50,5 +50,8 @@ export function wrapTerms(text: string): string {
     return chunk;
   }).join('');
 
+  // Los \x00 son a proposito: marcan los huecos donde quedo guardado el texto
+  // original antes de envolverlo, y no pueden aparecer en el contenido.
+  // eslint-disable-next-line no-control-regex
   return processed.replace(/\x00\d+\x00/g, k => placeholders[k] || k);
 }

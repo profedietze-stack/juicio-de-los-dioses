@@ -80,7 +80,7 @@ export const group2: EventTheme[] = [
     const height=18+Math.random()*22;
     const py=groundY-height+(Math.random()-0.5)*12;
     ctx.fillStyle=`rgba(${60+Math.random()*40},${50+Math.random()*30},${80+Math.random()*40},${0.25+Math.random()*0.45})`;
-    ctx.beginPath();(ctx as any).roundRect?(ctx as any).roundRect(px-4,py,8,height,2):ctx.rect(px-4,py,8,height);ctx.fill();
+    ctx.beginPath();if(ctx.roundRect){ctx.roundRect(px-4,py,8,height,2);}else{ctx.rect(px-4,py,8,height);}ctx.fill();
     ctx.beginPath();ctx.arc(px,py-4,4.5,0,Math.PI*2);ctx.fill();
   }
   ([[W*0.2,H*0.85,'rgba(100,60,200,0.1)'],[W*0.5,H*0.82,'rgba(60,120,200,0.1)'],
@@ -218,7 +218,7 @@ export const group2: EventTheme[] = [
   frameG.addColorStop(0,'rgba(180,160,220,0.4)');frameG.addColorStop(0.5,'rgba(220,200,255,0.6)');
   frameG.addColorStop(1,'rgba(150,130,190,0.3)');
   ctx.strokeStyle=frameG;ctx.lineWidth=8;
-  ctx.beginPath();(ctx as any).roundRect?(ctx as any).roundRect(cx-frameW,cy-frameH,frameW*2,frameH*2,12):ctx.rect(cx-frameW,cy-frameH,frameW*2,frameH*2);ctx.stroke();
+  ctx.beginPath();if(ctx.roundRect){ctx.roundRect(cx-frameW,cy-frameH,frameW*2,frameH*2,12);}else{ctx.rect(cx-frameW,cy-frameH,frameW*2,frameH*2);}ctx.stroke();
   const mirrorG=ctx.createLinearGradient(cx-frameW+8,cy-frameH+8,cx+frameW-8,cy+frameH-8);
   mirrorG.addColorStop(0,'rgba(180,160,220,0.06)');mirrorG.addColorStop(0.3,'rgba(200,180,240,0.1)');
   mirrorG.addColorStop(0.7,'rgba(150,130,200,0.08)');mirrorG.addColorStop(1,'rgba(120,100,170,0.05)');
@@ -407,7 +407,8 @@ export const group2: EventTheme[] = [
    [cx-chipW/4,chipH/2],[cx,chipH/2],[cx+chipW/4,chipH/2]].forEach(([dx,py])=>{
     const px=typeof dx==='number'&&Math.abs(dx)===chipW/2?cx+dx:dx;
     const isTop=py<cy;
-    let x1=px,y1=py,x2,y2;
+    const x1=px,y1=py;
+    let x2,y2;
     if(Math.abs(py-cy)<chipH/2*0.6){x2=px<cx?px-14:px+14;y2=py;}
     else{x2=px;y2=isTop?py-10:py+10;}
     ctx.strokeStyle='rgba(0,180,160,0.5)';ctx.lineWidth=1.5;

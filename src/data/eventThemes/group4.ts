@@ -88,14 +88,14 @@ export const group4: EventTheme[] = [
     ctx.beginPath();ctx.moveTo(0,H);
     for(let x=0;x<=W;x+=3){
       const wy=y+Math.sin(x*wl*Math.PI*2)*amp+Math.sin(x*wl*Math.PI*1.3+1)*amp*0.4;
-      x===0?ctx.lineTo(0,wy):ctx.lineTo(x,wy);
+      if(x===0){ctx.lineTo(0,wy);}else{ctx.lineTo(x,wy);}
     }
     ctx.lineTo(W,H);ctx.closePath();ctx.fill();
     ctx.strokeStyle=`rgba(180,210,255,${alpha*0.3})`;ctx.lineWidth=1;
     ctx.beginPath();
     for(let x=0;x<=W;x+=3){
       const wy=y+Math.sin(x*wl*Math.PI*2)*amp+Math.sin(x*wl*Math.PI*1.3+1)*amp*0.4;
-      x===0?ctx.moveTo(0,wy):ctx.lineTo(x,wy);
+      if(x===0){ctx.moveTo(0,wy);}else{ctx.lineTo(x,wy);}
     }
     ctx.stroke();
   });
@@ -349,7 +349,7 @@ export const group4: EventTheme[] = [
       const denom=1+Math.sin(t)*Math.sin(t);
       const lx=cx+sc*Math.cos(t)*1.9/denom;
       const ly=cy+sc*Math.sin(t)*Math.cos(t)/denom;
-      t<0.02?ctx.moveTo(lx,ly):ctx.lineTo(lx,ly);
+      if(t<0.02){ctx.moveTo(lx,ly);}else{ctx.lineTo(lx,ly);}
     }
     ctx.stroke();
   });

@@ -192,7 +192,7 @@ export const group1: EventTheme[] = [
       for(let y=H*0.05;y<=H*0.95;y+=2){
         const t=(y/period)*Math.PI*2;
         const x=cx+Math.cos(t)*amplitude*xSign+1;
-        y===H*0.05?ctx.moveTo(x,y):ctx.lineTo(x,y);
+        if(y===H*0.05){ctx.moveTo(x,y);}else{ctx.lineTo(x,y);}
       }
       ctx.stroke();
     }
@@ -205,7 +205,7 @@ export const group1: EventTheme[] = [
       for(let y=H*0.05;y<=H*0.95;y+=2){
         const t=(y/period)*Math.PI*2;
         const x=cx+Math.cos(t)*amplitude*xSign;
-        y===H*0.05?ctx.moveTo(x,y):ctx.lineTo(x,y);
+        if(y===H*0.05){ctx.moveTo(x,y);}else{ctx.lineTo(x,y);}
       }
       ctx.stroke();ctx.shadowBlur=0;
     }

@@ -6,6 +6,14 @@ import { DILEMMA_THEME_MAP } from './dilemmaThemeMap';
 // After the game starts we prefetch remaining banners during idle time.
 const _renderedBanners: (string | null)[] = new Array(EV_THEMES.length).fill(null);
 
+// Safari no tiene `requestIdleCallback`. El respaldo es un `setTimeout`, pero
+// el callback espera un `IdleDeadline`, asi que hay que fabricar uno: nunca
+// hubo timeout y no queda tiempo libre declarado.
+function respaldoOcioso(demora: number) {
+  return (cb: IdleRequestCallback): number =>
+    window.setTimeout(() => cb({ didTimeout: false, timeRemaining: () => 0 }), demora);
+}
+
 export function renderTheme(idx: number): string {
   if (_renderedBanners[idx]) return _renderedBanners[idx]!;
   const W = 1000, H = 250;
@@ -26,13 +34,13 @@ export function prefetchBannersIdle() {
         renderTheme(i);
         i++;
         if (deadline.timeRemaining && deadline.timeRemaining() < 8) {
-          (window.requestIdleCallback || ((cb: IdleRequestCallback) => setTimeout(cb as any, 50)))(step, { timeout: 2000 });
+          (window.requestIdleCallback || respaldoOcioso(50))(step, { timeout: 2000 });
           return;
         }
       } else { i++; }
     }
   }
-  (window.requestIdleCallback || ((cb: IdleRequestCallback) => setTimeout(cb as any, 200)))(step, { timeout: 5000 });
+  (window.requestIdleCallback || respaldoOcioso(200))(step, { timeout: 5000 });
 }
 
 // Falls back to the old cyclic assignment for any id the curated map doesn't
