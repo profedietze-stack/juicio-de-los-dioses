@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useReducer, useRef, useState, type Dispatch, type ReactNode } from 'react';
 import type { GameState, Dilemma, DilemmaOption } from '../types';
 import { eventPool } from '../data/dilemmas';
-import { buildNewSession, recordSeenDilemas, FULL_SESSION_LENGTH } from '../engine/poolBuilder';
+import { buildNewSession, recordSeenDilemas, sortearOpciones, FULL_SESSION_LENGTH } from '../engine/poolBuilder';
 import { autosave, clearSavedGame, loadSavedGame, hasSavedGame, saveHistory, saveSnapshot, saveUnlockedAchievements, isStorageAvailable } from '../engine/persistence';
 import { checkAchievements } from '../engine/achievements';
 import { startMusic } from '../engine/music';
@@ -91,7 +91,14 @@ function reducer(state: GameState, action: Action): GameState {
       const saved = loadSavedGame();
       if (!saved) return { ...state, screen: 'intro' };
       const idMap = new Map(eventPool.map(e => [e.id, e]));
-      const sessionEvents = saved.eventIds.map(id => idMap.get(id)).filter((e): e is Dilemma => Boolean(e));
+      // El autosave guarda solo los ids, asi que al reconstruir salen las opciones en
+      // el orden en que estan escritas — con el sesgo intacto para lo que queda de
+      // partida. Se vuelven a sortear: los dilemas ya respondidos no se muestran de
+      // nuevo, asi que el alumno solo ve el orden nuevo en los que le faltan.
+      const sessionEvents = saved.eventIds
+        .map(id => idMap.get(id))
+        .filter((e): e is Dilemma => Boolean(e))
+        .map(sortearOpciones);
       // If any saved dilema id no longer exists in the current pool (e.g. a
       // content update removed one), `current` and `decisions` were indexed
       // against a session shape that no longer matches — discard the whole
