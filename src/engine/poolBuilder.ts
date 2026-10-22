@@ -1,10 +1,11 @@
 import type { Dilemma } from '../types';
 import { eventPool } from '../data/dilemmas';
-import { finale } from '../data/dilemmas/finale';
 import { getSeenMap, saveSeenMap, getTotalGamesPlayed, getPlayCounts, savePlayCounts } from './persistence';
 import { barajar } from './barajar';
 
 const FINALE_ID = 60;
+// Del banco ya armado y no del archivo suelto: asi lleva los efectos del Tribunal.
+const finale = eventPool.find(e => e.id === FINALE_ID)!;
 
 // Priority: never-seen first (score = Infinity), then least-recently-seen
 // (higher "games ago" = higher priority), with random tiebreak within a

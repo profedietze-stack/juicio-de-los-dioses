@@ -3,10 +3,25 @@ export type PhilosophyKey =
   | 'existencialismo' | 'estoicismo' | 'pragmatismo' | 'contractualismo'
   | 'feminismo' | 'budismo';
 
+// Los seis platillos de las tres balanzas del Tribunal, en pares:
+// Felicidad/Justicia, Libertad/Bien comun, Corazon/Razon.
+export type PanKey = 'Fel' | 'Jus' | 'Lib' | 'Bien' | 'Cor' | 'Raz';
+// Los cuatro vicios de La Sombra: Soberbia, Corrupcion, Crueldad, Indiferencia.
+export type ViceKey = 'Sob' | 'Corr' | 'Cru' | 'Ind';
+
+export interface OptionEffects {
+  // Ganancia (+) o perdida (-) de cada platillo. Solo figuran los que se mueven.
+  pans: Partial<Record<PanKey, number>>;
+  // Cuanto alimenta cada vicio (1 a 3). Puede estar vacio.
+  vices: Partial<Record<ViceKey, number>>;
+}
+
 export interface DilemmaOption {
   text: string;
   impact: number;
   philosophy: PhilosophyKey;
+  // Efectos en el Tribunal; los agrega src/data/tribunal/aplicar.ts.
+  effects?: OptionEffects;
 }
 
 export interface Dilemma {

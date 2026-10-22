@@ -4,5 +4,6 @@ import { block2 } from './block2';
 import { block3 } from './block3';
 import { block4 } from './block4';
 import { finale } from './finale';
+import { conEfectos } from '../tribunal/aplicar';
 
-export const eventPool: Dilemma[] = [...block1, ...block2, ...block3, ...block4, finale];
+export const eventPool: Dilemma[] = [...block1, ...block2, ...block3, ...block4, finale].map(conEfectos);
