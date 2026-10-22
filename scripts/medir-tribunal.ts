@@ -89,17 +89,15 @@ for (const largo of [39, 14]) {
   const S = sims.azar.map(r => r.S), T = sims.azar.map(r => r.tilt);
   const p = (q: number) => `S p${q * 100}=${percentil(S, q)}, desequilibrio p${q * 100}=${percentil(T, q)}`;
   console.log(`Al azar: ${p(0.5)} | ${p(0.75)} | ${p(0.9)}\n`);
-  const SCOND = Number(process.env.SCOND ?? percentil(S, 0.85));
-  const TILT = Number(process.env.TILT ?? percentil(T, 0.85));
-  console.log(`Umbrales de prueba: Sombra >= ${SCOND}, desequilibrio de alguna balanza >= ${TILT}\n`);
+  const SCOND = Number(process.env.SCOND ?? percentil(S, 0.8));
+  console.log(`Umbral de prueba: se condena con Sombra >= ${SCOND} (el azar condena ~20 %)\n`);
 
-  console.log('| estrategia | Sombra | desequilibrio | ' + PARES.map(([l, r]) => `${l}↔${r}`).join(' | ') + ' | ' + VICE_KEYS.join(' | ') + ' | condena (Sombra) | condena (balanza) | condena |');
-  console.log('|---|---|---|' + PARES.map(() => '---').join('|') + '|' + VICE_KEYS.map(() => '---').join('|') + '|---|---|---|');
+  // Solo La Sombra condena. Las balanzas no condenan: dan el tono del final.
+  console.log('| estrategia | Sombra | ' + PARES.map(([l, r]) => `${l}↔${r}`).join(' | ') + ' | ' + VICE_KEYS.join(' | ') + ' | condena |');
+  console.log('|---|---|' + PARES.map(() => '---').join('|') + '|' + VICE_KEYS.map(() => '---').join('|') + '|---|');
   for (const [nombre, rs] of Object.entries(sims)) {
     const m = (f: (r: Resultado) => number) => rs.reduce((a, r) => a + f(r), 0) / rs.length;
     const cS = rs.filter(r => r.S >= SCOND).length / rs.length;
-    const cT = rs.filter(r => r.tilt >= TILT).length / rs.length;
-    const cA = rs.filter(r => r.S >= SCOND || r.tilt >= TILT).length / rs.length;
-    console.log(`| ${nombre} | ${f1(m(r => r.S))} | ${f1(m(r => r.tilt))} | ${PARES.map((_, i) => f1(m(r => r.D[i]))).join(' | ')} | ${VICE_KEYS.map(k => f1(m(r => r.vic[k]))).join(' | ')} | ${pct(cS)} | ${pct(cT)} | ${pct(cA)} |`);
+    console.log(`| ${nombre} | ${f1(m(r => r.S))} | ${PARES.map((_, i) => f1(m(r => r.D[i]))).join(' | ')} | ${VICE_KEYS.map(k => f1(m(r => r.vic[k]))).join(' | ')} | ${pct(cS)} |`);
   }
 }

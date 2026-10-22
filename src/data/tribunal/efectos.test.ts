@@ -90,6 +90,15 @@ describe('efectos del banco', () => {
     expect(por[3]).toBeLessThan(0.2);
   });
 
+  it('ninguna corriente carga con mas del doble de vicios por opcion que otra', () => {
+    // El vicio lo define el acto, no la etiqueta: si una corriente paga mucho mas
+    // que otra, el veredicto castiga a quien la elige. Medido con las 346 opciones.
+    const por: Record<string, number[]> = {};
+    for (const { o } of opciones) (por[o.philosophy] ??= []).push(viciosTotales(o));
+    const medias = Object.values(por).map(v => v.reduce((a, b) => a + b, 0) / v.length);
+    expect(Math.max(...medias) / Math.min(...medias)).toBeLessThanOrEqual(2.2);
+  });
+
   it('el final lleva sus efectos aunque se arme desde poolBuilder', async () => {
     const { buildNewSession } = await import('../../engine/poolBuilder');
     const sesion = buildNewSession(3);
