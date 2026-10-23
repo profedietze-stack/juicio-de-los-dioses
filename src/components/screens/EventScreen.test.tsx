@@ -162,6 +162,7 @@ describe('EventScreen Ateneo button', () => {
     return (
       <>
         <div data-testid="current-id">{state.sessionEvents[state.current]?.id}</div>
+        <div data-testid="vistas">{state.ateneoViewsCurrent}</div>
         <EventScreen />
       </>
     );
@@ -208,6 +209,25 @@ describe('EventScreen Ateneo button', () => {
     fireEvent.click(screen.getByText('🏛 Ateneo'));
     expect(document.getElementById('ateneo-modal')).toBeInTheDocument();
     expect(screen.getByText('Immanuel Kant')).toBeInTheDocument();
+  });
+
+  it('abrir y cerrar el Ateneo enseguida no cuenta como consulta; leerlo 5 s o mas, si', () => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    try {
+      renderAteneoHarness(['kant']);
+      advanceToCoveredDilemma();
+
+      fireEvent.click(screen.getByText('🏛 Ateneo'));
+      fireEvent.click(screen.getByText('Cerrar'));
+      expect(screen.getByTestId('vistas').textContent).toBe('0');
+
+      fireEvent.click(screen.getByText('🏛 Ateneo'));
+      vi.setSystemTime(Date.now() + 6000);
+      fireEvent.click(screen.getByText('Cerrar'));
+      expect(screen.getByTestId('vistas').textContent).toBe('1');
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('se juega solo con teclado: las opciones se enfocan, Enter elige y el foco pasa a «Continuar»', () => {

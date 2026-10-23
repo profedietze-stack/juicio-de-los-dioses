@@ -8,6 +8,7 @@ import { PHILO_LABELS, PHILO_CLS } from '../../engine/philosophyDisplay';
 import { PHILO_DATA } from '../../data/philosophies';
 import { ROMAN_NUMERALS } from '../../engine/romanNumerals';
 import { snd } from '../../engine/audio';
+import { ATENEO_LECTURA_MIN_MS } from '../../engine/engagement';
 import { ateneoComments } from '../../data/ateneoComments';
 import { AteneoModal } from '../modals/AteneoModal';
 import type { DilemmaOption } from '../../types';
@@ -20,6 +21,11 @@ export function EventScreen() {
   const [timeLeft, setTimeLeft] = useState(STRICT_JUDGE_SECONDS);
   const [imgLoaded, setImgLoaded] = useState(false);
   const [showAteneo, setShowAteneo] = useState(false);
+  const ateneoAbiertoEn = useRef(0);
+  const cerrarAteneo = () => {
+    if (Date.now() - ateneoAbiertoEn.current >= ATENEO_LECTURA_MIN_MS) dispatch({ type: 'ATENEO_VIEWED' });
+    setShowAteneo(false);
+  };
 
   useEffect(() => {
     setImgLoaded(false);
@@ -89,7 +95,7 @@ export function EventScreen() {
               <button
                 type="button"
                 className="btn btn-ghost btn-sm ateneo-open-btn"
-                onClick={() => { snd('nav'); setShowAteneo(true); dispatch({ type: 'ATENEO_VIEWED' }); }}
+                onClick={() => { snd('nav'); ateneoAbiertoEn.current = Date.now(); setShowAteneo(true); }}
               >
                 🏛 Ateneo
               </button>
@@ -130,7 +136,7 @@ export function EventScreen() {
         <AteneoModal
           dilemmaId={ev.id}
           selection={state.ateneoSelection}
-          onClose={() => setShowAteneo(false)}
+          onClose={cerrarAteneo}
         />
       )}
     </div>

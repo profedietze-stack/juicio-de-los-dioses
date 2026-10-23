@@ -20,6 +20,11 @@ export interface EngagementResult {
   topDeliberated: DeliberatedEntry[];
 }
 
+// Abrir el Ateneo y cerrarlo enseguida no es consultarlo: la consulta cuenta solo si
+// el modal estuvo abierto al menos este tiempo. Sin esto, dos clicks por dilema
+// daban el puntaje completo de «Consultas al Ateneo» sin leer nada.
+export const ATENEO_LECTURA_MIN_MS = 5000;
+
 const IMPULSIVE_THRESHOLD_S = 4;
 // A ceiling avoids over-rewarding: sitting on one dilemma for ten minutes
 // isn't "more reflective" than ninety seconds — both already read as
