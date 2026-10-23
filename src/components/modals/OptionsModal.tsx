@@ -3,8 +3,10 @@ import { isMuted, setMuted, subscribeMuted, getMusicVolume, setMusicVolume } fro
 import { startMusic, stopMusic, setLiveMusicVolume } from '../../engine/music';
 import { getUiPrefs, saveUiPrefs, applyUiPrefs, UI_PREFS_DEFAULTS, type UiPrefs } from '../../engine/uiPrefs';
 import { snd } from '../../engine/audio';
+import { useModal } from './useModal';
 
 export function OptionsModal({ onClose }: { onClose: () => void }) {
+  const modalRef = useModal<HTMLDivElement>(onClose);
   const muted = useSyncExternalStore(subscribeMuted, isMuted);
   const [volume, setVolume] = useState(getMusicVolume());
   const [prefs, setPrefs] = useState<UiPrefs>(getUiPrefs());
@@ -36,6 +38,10 @@ export function OptionsModal({ onClose }: { onClose: () => void }) {
   return (
     <div
       id="options-modal"
+      ref={modalRef}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Opciones"
       style={{ position: 'fixed', inset: 0, zIndex: 8000, background: 'rgba(0,0,0,.85)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem', overflowY: 'auto' }}
       onClick={e => { if (e.target === e.currentTarget) onClose(); }}
     >

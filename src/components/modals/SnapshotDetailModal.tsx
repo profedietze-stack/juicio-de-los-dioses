@@ -4,6 +4,7 @@ import { PHILO_CLS, BORDER_COLOR_VARS } from '../../engine/philosophyDisplay';
 import { ALL_PHILO_KEYS } from '../../engine/results';
 import { buildSynthesis } from '../../engine/synthesis';
 import { fmtTime } from '../../engine/fmtTime';
+import { useModal } from './useModal';
 
 interface SnapshotDetailModalProps {
   snapshot: ResultSnapshot;
@@ -13,6 +14,7 @@ interface SnapshotDetailModalProps {
 const RANK_LABELS = ['Corriente Dominante', 'Segunda Corriente', 'Tercera Corriente'];
 
 export function SnapshotDetailModal({ snapshot: s, onClose }: SnapshotDetailModalProps) {
+  const modalRef = useModal<HTMLDivElement>(onClose);
   const pcts = s.pcts;
   const ranked = s.ranked;
   const sortedBars = [...ALL_PHILO_KEYS].sort((a, b) => (pcts[b] || 0) - (pcts[a] || 0)).filter(b => (pcts[b] || 0) > 0);
@@ -21,6 +23,10 @@ export function SnapshotDetailModal({ snapshot: s, onClose }: SnapshotDetailModa
   return (
     <div
       id="saved-modal"
+      ref={modalRef}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Informe guardado"
       className="open"
       style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(0,0,0,.88)', overflowY: 'auto', padding: '2rem 1rem' }}
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}

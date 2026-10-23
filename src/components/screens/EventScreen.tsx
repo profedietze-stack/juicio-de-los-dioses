@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useGame } from '../../state/GameContext';
 import { wrapTerms } from '../../engine/wrapTerms';
 import { getEventImg, getEventThemeLabel } from '../../engine/canvasRenderer';
@@ -49,6 +49,7 @@ export function EventScreen() {
   if (!ev) return null;
 
   const isFinale = ev.id === 60;
+  const elegir = (opt: DilemmaOption) => { snd('choose'); dispatch({ type: 'CHOOSE', option: opt }); };
 
   return (
     <div className="screen event-screen active" id="screen-event">
@@ -103,7 +104,10 @@ export function EventScreen() {
                   className="option-card option-enter"
                   style={{ animationDelay: `${i * 0.06}s` }}
                   data-p={opt.philosophy}
-                  onClick={() => { snd('choose'); dispatch({ type: 'CHOOSE', option: opt }); }}
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => elegir(opt)}
+                  onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); elegir(opt); } }}
                 >
                   {!state.hiddenPhilosophy && (
                     <div className="option-tag">{PHILO_LABELS[opt.philosophy] || opt.philosophy}</div>
@@ -137,6 +141,9 @@ function FeedbackPanel({ option, isLast, onAdvance }: { option: DilemmaOption; i
   const pdata = PHILO_DATA[option.philosophy];
   const cls = PHILO_CLS[option.philosophy];
   const fpCls = `fp-${cls}`;
+  // Con teclado, la tarjeta elegida desaparece: el foco pasa al boton de seguir.
+  const seguirRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => { seguirRef.current?.focus({ preventScroll: true }); }, []);
   const btnLabel = isLast ? 'Ver el Veredicto Final →' : 'Continuar →';
 
   return (
@@ -174,7 +181,7 @@ function FeedbackPanel({ option, isLast, onAdvance }: { option: DilemmaOption; i
       </div>
 
       <div className="fb-continue-row">
-        <button className={`fb-continue ${fpCls}`} onClick={onAdvance}>{btnLabel}</button>
+        <button ref={seguirRef} className={`fb-continue ${fpCls}`} onClick={onAdvance}>{btnLabel}</button>
       </div>
     </div>
   );

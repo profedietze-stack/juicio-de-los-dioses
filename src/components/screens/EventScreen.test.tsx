@@ -209,4 +209,21 @@ describe('EventScreen Ateneo button', () => {
     expect(document.getElementById('ateneo-modal')).toBeInTheDocument();
     expect(screen.getByText('Immanuel Kant')).toBeInTheDocument();
   });
+
+  it('se juega solo con teclado: las opciones se enfocan, Enter elige y el foco pasa a «Continuar»', () => {
+    renderHarness();
+    const tarjetas = document.querySelectorAll<HTMLElement>('.option-card');
+    expect(tarjetas.length).toBeGreaterThanOrEqual(4);
+    tarjetas.forEach(t => { expect(t.tabIndex).toBe(0); expect(t.getAttribute('role')).toBe('button'); });
+
+    fireEvent.keyDown(tarjetas[0], { key: 'Enter' });
+    expect(document.querySelector('.feedback-panel')).not.toBeNull();
+    expect(document.activeElement).toBe(document.querySelector('.fb-continue'));
+  });
+
+  it('la barra espaciadora tambien elige', () => {
+    renderHarness();
+    fireEvent.keyDown(document.querySelectorAll<HTMLElement>('.option-card')[1], { key: ' ' });
+    expect(document.querySelector('.feedback-panel')).not.toBeNull();
+  });
 });

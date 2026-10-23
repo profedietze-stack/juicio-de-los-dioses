@@ -1,4 +1,5 @@
 import { snd } from '../../engine/audio';
+import { useModal } from './useModal';
 
 interface ConfirmDialogProps {
   title: string;
@@ -11,9 +12,14 @@ interface ConfirmDialogProps {
 
 // Ports showCustomConfirm(): a full-screen overlay confirm dialog.
 export function ConfirmDialog({ title, body, confirmLabel, cancelLabel, onConfirm, onCancel }: ConfirmDialogProps) {
+  const modalRef = useModal<HTMLDivElement>(onCancel);
   return (
     <div
       id="custom-confirm"
+      ref={modalRef}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Confirmación"
       style={{ position: 'fixed', inset: 0, zIndex: 8000, background: 'rgba(0,0,0,.85)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem' }}
       onClick={(e) => { if (e.target === e.currentTarget) { onCancel(); } }}
     >

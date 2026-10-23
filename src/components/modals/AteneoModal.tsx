@@ -1,5 +1,6 @@
 import { philosophers } from '../../data/philosophers';
 import { ateneoComments } from '../../data/ateneoComments';
+import { useModal } from './useModal';
 
 interface AteneoModalProps {
   dilemmaId: number;
@@ -8,12 +9,17 @@ interface AteneoModalProps {
 }
 
 export function AteneoModal({ dilemmaId, selection, onClose }: AteneoModalProps) {
+  const modalRef = useModal<HTMLDivElement>(onClose);
   const comments = ateneoComments[dilemmaId] ?? {};
   const shown = philosophers.filter(p => selection.includes(p.id) && comments[p.id]);
 
   return (
     <div
       id="ateneo-modal"
+      ref={modalRef}
+      role="dialog"
+      aria-modal="true"
+      aria-label="El Ateneo opina"
       style={{ position: 'fixed', inset: 0, zIndex: 8000, background: 'rgba(0,0,0,.85)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem', overflowY: 'auto' }}
       onClick={e => { if (e.target === e.currentTarget) onClose(); }}
     >
