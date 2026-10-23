@@ -12,7 +12,7 @@ export default defineConfig({
     // se pone rojo por carga y verde al repetirlo ensena a ignorar los rojos,
     // que es peor que no tenerlo.
     testTimeout: 60000,
-    exclude: ['**/node_modules/**', '**/e2e/**'],
+    exclude: ['**/node_modules/**', '**/e2e/**', '**/e2e-offline/**'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html'],
