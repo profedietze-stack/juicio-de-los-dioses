@@ -15,7 +15,7 @@ export const EFECTOS_RAW = `
 1.1 Jus3 Bien2 Fel-2 Lib-1 |
 1.2 Lib2 Bien-3 Cor-1 | Ind2
 1.3 Bien2 Raz2 Cor1 Fel-1 |
-2.0 Fel3 Lib1 Jus-3 | Corr2 Ind2
+2.0 Fel3 Bien2 Raz1 Jus-2 | Corr1
 2.1 Jus3 Bien1 Fel-2 Lib-1 |
 2.2 Raz1 Cor-2 Bien-1 | Ind1
 2.3 Bien3 Jus2 Fel-1 Lib-1 | Ind1
@@ -27,15 +27,15 @@ export const EFECTOS_RAW = `
 4.1 Cor2 Jus1 Fel-3 Lib-1 | Ind2
 4.2 Lib3 Jus1 Bien-1 Cor-1 | Ind1
 4.3 Raz1 Cor-2 Fel-1 | Ind1
-5.0 Fel3 Bien2 Jus-4 Lib-2 | Sob1 Corr2 Cru2
+5.0 Fel2 Bien2 Raz1 Lib-2 Jus-1 | Sob1
 5.1 Jus3 Lib3 Fel-3 | Ind2
-5.2 Fel1 Jus-3 Lib-2 Raz-1 | Sob1 Corr3 Cru1
+5.2 Fel1 Bien3 Jus-3 Lib-2 Raz-1 | Sob1 Corr3 Cru1
 5.3 Jus2 Raz2 Lib1 Fel-1 | Corr1
 6.0 Fel3 Lib1 Bien-2 Raz-1 | Ind2
 6.1 Jus2 Bien2 Fel-2 |
 6.2 Lib2 Raz1 Cor-1 Bien-1 Fel-1 | Ind1
 6.3 Bien2 Cor1 Raz1 Fel-1 |
-7.0 Fel3 Lib-4 Jus-2 | Sob2 Corr1 Cru1
+7.0 Fel3 Lib2 Bien1 Raz-2 | Sob1
 7.1 Lib3 Jus3 Fel-2 |
 7.2 Raz1 Lib-2 Cor-2 | Ind1
 7.3 Lib2 Raz1 Fel-3 | Ind2
@@ -43,7 +43,7 @@ export const EFECTOS_RAW = `
 8.1 Bien3 Jus2 Fel-3 Lib-2 | Sob1 Ind2
 8.2 Raz1 Bien-2 Jus-1 | Ind1
 8.3 Raz2 Jus2 Fel1 Lib-1 | Sob1
-9.0 Fel3 Bien2 Lib-4 Jus-1 | Sob2 Corr1
+9.0 Fel3 Bien2 Raz1 Lib-2 | Sob1
 9.1 Lib3 Jus2 Fel-3 Bien-1 | Ind2
 9.2 Raz1 Lib-2 Jus-2 | Corr1 Ind2
 9.3 Bien2 Lib1 Raz1 Fel-2 |
@@ -83,7 +83,7 @@ export const EFECTOS_RAW = `
 18.1 Cor3 Fel1 Lib-3 | Sob2
 18.2 Raz1 Cor-3 Bien-1 | Cru1 Ind2
 18.3 Cor2 Bien2 Lib-2 | Sob1
-19.0 Fel3 Bien2 Lib-4 Jus-2 | Sob2 Corr1 Cru2
+19.0 Fel3 Bien1 Lib1 Raz-2 Jus-1 | Sob1
 19.1 Lib3 Jus3 Fel-2 Bien-1 |
 19.2 Raz1 Lib-2 Cor-1 | Sob1 Ind2
 19.3 Lib3 Cor1 Fel-2 Bien-1 |
@@ -107,7 +107,7 @@ export const EFECTOS_RAW = `
 24.1 Lib3 Fel2 Bien-2 Raz-1 |
 24.2 Raz1 Bien-1 Cor-1 | Ind1
 24.3 Raz2 Lib2 Bien1 Fel-1 | Ind1
-25.0 Fel2 Raz2 Cor-3 Jus-1 | Cru2 Ind1
+25.0 Fel2 Raz1 Cor1 Bien-2 Jus-1 | Ind1
 25.1 Cor2 Jus2 Fel-2 Raz-1 |
 25.2 Raz2 Lib1 Cor-3 Jus-1 | Cru1 Ind2
 25.3 Raz3 Cor1 Fel-2 |
@@ -123,7 +123,7 @@ export const EFECTOS_RAW = `
 28.1 Bien2 Jus1 Lib-3 Fel-1 | Sob2
 28.2 Raz1 Cor-2 Bien-1 | Ind1
 28.3 Jus2 Raz1 Cor1 Lib-2 | Sob1
-29.0 Fel3 Cor2 Raz-3 Lib-1 | Sob2 Cru1
+29.0 Fel3 Cor2 Raz-2 Jus-1 | Sob1
 29.1 Raz2 Jus1 Cor-2 Fel-2 | Ind1
 29.2 Raz1 Cor-3 Fel-1 | Cru1 Ind2
 29.3 Lib2 Jus1 Cor1 Fel-3 | Ind2
@@ -207,7 +207,7 @@ export const EFECTOS_RAW = `
 49.1 Jus3 Cor1 Fel-2 Lib-1 |
 49.2 Fel3 Lib1 Jus-3 Bien-2 | Corr2 Ind3
 49.3 Lib2 Bien1 Jus-2 Raz-1 | Corr1 Ind1
-50.0 Fel3 Bien2 Lib-4 Jus-1 | Sob2 Corr1 Ind1
+50.0 Fel3 Bien2 Lib-2 Jus-1 | Sob1
 50.1 Lib3 Jus2 Fel-3 Bien-1 | Ind2
 50.2 Raz2 Lib1 Jus1 Bien-2 Cor-1 | Ind1
 50.3 Bien2 Lib2 Raz-1 Jus-1 | Ind1
@@ -227,7 +227,7 @@ export const EFECTOS_RAW = `
 54.1 Lib3 Cor1 Raz-2 Bien-2 | Sob1 Ind1
 54.2 Raz1 Cor-2 Lib-1 | Ind1
 54.3 Raz2 Cor2 Lib1 Bien-1 Fel-1 |
-55.0 Raz3 Fel2 Bien1 Lib-4 Jus-2 | Sob2 Corr1
+55.0 Raz3 Fel2 Bien1 Lib-2 Jus-1 | Sob1
 55.1 Lib3 Jus2 Bien1 Raz-2 Fel-2 | Sob1 Ind1
 55.2 Raz1 Bien-2 Jus-1 | Ind1
 55.3 Raz2 Bien2 Lib1 Jus-1 | Sob1
@@ -240,7 +240,7 @@ export const EFECTOS_RAW = `
 57.2 Raz1 Bien-2 Cor-1 | Ind1
 57.3 Bien2 Cor1 Raz1 Lib-2 | Sob1
 58.0 Jus3 Cor2 Bien-2 Fel-2 | Ind1
-58.1 Bien2 Fel2 Jus-3 Cor-1 | Corr1 Ind2
+58.1 Fel3 Bien2 Jus1 Cor-1 | Ind1
 58.2 Bien3 Jus1 Lib1 Fel-1 Raz-1 |
 58.3 Raz2 Cor1 Jus-2 Fel-1 | Corr1 Ind1
 59.0 Fel3 Bien1 Raz1 Cor-3 Jus-2 | Cru1 Ind1
@@ -257,7 +257,7 @@ export const EFECTOS_RAW = `
 60.7 Cor3 Jus1 Raz-1 Lib-1 | Sob1
 60.8 Cor3 Fel1 Raz-1 Bien-1 Lib-1 |
 60.9 Raz1 Cor-2 Bien-2 | Ind1
-61.0 Fel2 Cor1 Jus-3 Raz-1 | Corr1 Ind1
+61.0 Jus2 Fel2 Cor1 Raz-1 Lib-1 |
 61.1 Jus3 Raz1 Cor-3 Fel-1 | Cru2
 61.2 Lib1 Jus-2 Raz-1 | Corr1 Ind2
 61.3 Cor3 Jus1 Raz1 Fel-2 |
@@ -289,7 +289,7 @@ export const EFECTOS_RAW = `
 68.1 Cor2 Jus2 Raz-1 Bien-1 | Sob1
 68.2 Jus3 Bien1 Raz1 Fel-2 Cor-1 |
 68.3 Raz1 Bien1 Lib1 Jus-1 | Corr1
-69.0 Fel2 Bien2 Raz-3 Jus-2 | Sob1 Corr2
+69.0 Fel3 Bien2 Raz1 Jus-2 | Corr1
 69.1 Raz3 Jus2 Fel-3 | Ind2
 69.2 Raz2 Jus1 Bien1 Cor-1 Fel-1 | Ind1
 69.3 Fel1 Raz-3 Jus-1 | Sob2 Ind2
@@ -353,7 +353,7 @@ export const EFECTOS_RAW = `
 84.1 Raz2 Fel1 Jus-2 | Corr2
 84.2 Fel3 Bien1 Jus-3 Cor-2 | Corr2
 84.3 Cor3 Lib1 Jus1 Raz-1 Fel-2 |
-85.0 Fel3 Raz1 Cor-3 Lib-1 | Cru1 Ind2
+85.0 Fel3 Cor1 Raz1 Bien-1 | Ind1
 85.1 Cor3 Bien1 Fel-2 Raz-1 |
 85.2 Lib3 Cor1 Bien-1 Fel-1 |
 85.3 Raz1 Lib1 Cor-2 Bien-1 | Ind2
