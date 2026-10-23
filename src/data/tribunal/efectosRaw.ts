@@ -247,16 +247,16 @@ export const EFECTOS_RAW = `
 59.1 Jus3 Cor2 Fel-3 Raz-1 | Ind2
 59.2 Cor1 Raz1 Lib1 Fel-2 Bien-1 |
 59.3 Bien2 Jus1 Raz1 Cor1 Fel-2 |
-60.0 Fel3 Raz2 Jus-2 Cor-1 | Sob1
+60.0 Fel3 Raz2 Cor-3 Bien-2 | Cru2 Ind1
 60.1 Jus3 Raz1 Fel-2 |
 60.2 Lib3 Bien-2 Cor-1 | Ind1
-60.3 Cor2 Bien2 Jus1 Raz-1 Fel-1 | Sob1
+60.3 Raz2 Jus2 Lib1 Fel-2 Cor-1 | Ind1
 60.4 Raz2 Lib1 Cor-2 Fel-1 | Ind1
 60.5 Raz2 Fel1 Bien1 Jus-1 Cor-1 | Ind1
 60.6 Bien3 Jus1 Lib-2 | Sob1
-60.7 Cor3 Jus1 Raz-1 Lib-1 | Sob1
+60.7 Cor3 Jus2 Raz-1 Lib-1 | Sob1
 60.8 Cor3 Fel1 Raz-1 Bien-1 Lib-1 |
-60.9 Raz1 Cor-2 Bien-2 | Ind1
+60.9 Raz2 Lib1 Cor-3 Bien-2 | Cru1 Ind2
 61.0 Jus2 Fel2 Cor1 Raz-1 Lib-1 |
 61.1 Jus3 Raz1 Cor-3 Fel-1 | Cru2
 61.2 Lib1 Jus-2 Raz-1 | Corr1 Ind2
