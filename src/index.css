@@ -906,3 +906,9 @@ body::before{
   .stats-philo-row{grid-template-columns:110px 1fr auto;}
   .stats-philo-pct{min-width:60px;font-size:.62rem;}
 }
+
+/* Pantallas tactiles: blancos de toque de al menos 44 px en los controles chicos. */
+@media (pointer:coarse){
+  .hud-exit,.btn-sm,.fb-continue,.ateneo-open-btn,.saved-modal-close{min-height:44px;min-width:44px;}
+  .tr-info{width:22px;height:22px;}
+}
