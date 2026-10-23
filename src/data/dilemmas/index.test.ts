@@ -31,4 +31,14 @@ describe('eventPool', () => {
     const finaleDilemma = eventPool.find(d => d.id === 60)!;
     expect(finaleDilemma.options).toHaveLength(10);
   });
+
+  it('ningun dilema (salvo el final) repite corriente entre sus opciones', () => {
+    // Si dos opciones son de la misma corriente, elegir entre ellas no dice nada
+    // del alumno y falta una corriente en ese dilema.
+    const repetidos = eventPool
+      .filter(d => d.id !== 60)
+      .filter(d => new Set(d.options.map(o => o.philosophy)).size !== d.options.length)
+      .map(d => d.id);
+    expect(repetidos).toEqual([]);
+  });
 });

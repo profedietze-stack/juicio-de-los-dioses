@@ -25,6 +25,16 @@ export interface ComputedResult {
   veredicto: Veredicto;
 }
 
+// «Mediador Universal» es un final raro: las diez corrientes presentes y ninguna
+// pasa del 15 %, en una partida larga. Con «8 o mas corrientes» salia en el 98 %
+// de las partidas de 40 dilemas al azar y tapaba el veredicto de La Sombra.
+export const MEDIADOR_MAX_PCT = 15;
+export const MEDIADOR_MIN_DECISIONES = 30;
+export function esMediadorUniversal(pcts: Record<PhilosophyKey, number>, diversity: number, totalDecisions: number): boolean {
+  return totalDecisions >= MEDIADOR_MIN_DECISIONES && diversity === ALL_PHILO_KEYS.length
+    && ALL_PHILO_KEYS.every(k => pcts[k] <= MEDIADOR_MAX_PCT);
+}
+
 // Mirrors finishGame()'s scoring/aggregation logic from the original.
 export function computeResults(decisions: DilemmaOption[], tribunal: TribunalState, totalTime: number): ComputedResult {
   const v = veredicto(tribunal, decisions.length);
@@ -48,7 +58,7 @@ export function computeResults(decisions: DilemmaOption[], tribunal: TribunalSta
   let ending: Ending = endings[endingKey];
   if (score === 100 && diversity === 1) ending = specialEndings.pureAscension;
   else if (score === 0 && diversity === 1) ending = specialEndings.pureVoid;
-  else if (diversity >= 8) ending = specialEndings.universalMediator;
+  else if (esMediadorUniversal(pcts, diversity, decisions.length)) ending = specialEndings.universalMediator;
 
   return {
     score, totalTime, totalDecisions: decisions.length,
