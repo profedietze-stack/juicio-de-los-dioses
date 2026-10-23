@@ -16,6 +16,13 @@ export interface OptionEffects {
   vices: Partial<Record<ViceKey, number>>;
 }
 
+// Lo que el Tribunal lleva contado en una partida: cuanto pesa cada platillo y
+// cuanto se alimento cada vicio. Ver engine/tribunal.ts.
+export interface TribunalState {
+  pans: Record<PanKey, number>;
+  vices: Record<ViceKey, number>;
+}
+
 export interface DilemmaOption {
   text: string;
   impact: number;
@@ -112,7 +119,11 @@ export type Screen = 'menu' | 'intro' | 'ateneo' | 'event' | 'result' | 'achieve
 
 export interface AutosaveData {
   current: number;
-  balance: number;
+  tribunal: TribunalState;
+  // Modos y Ateneo de la partida: sin esto, al retomar se perdian.
+  hiddenPhilosophy: boolean;
+  strictJudge: boolean;
+  ateneoSelection: string[];
   startTime: number;
   elapsed: number;
   decisions: DilemmaOption[];
@@ -133,7 +144,7 @@ export interface GameState {
   screen: Screen;
   sessionEvents: Dilemma[];
   current: number;
-  balance: number; // 0..100, neutral = 50
+  tribunal: TribunalState; // balanzas y Sombra acumuladas
   decisions: DilemmaOption[];
   startTime: number | null;
   timerSeconds: number;

@@ -1,3 +1,4 @@
+import { tribunalVacio } from './tribunal';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import {
   saveHistory, getHistory, getSeenMap, saveSeenMap, hasSavedGame, autosave,
@@ -19,7 +20,7 @@ function record(overrides: Partial<HistoryRecord> = {}): HistoryRecord {
 
 function autosaveData(overrides: Partial<AutosaveData> = {}): AutosaveData {
   return {
-    current: 1, balance: 50, startTime: Date.now(), elapsed: 10,
+    current: 1, tribunal: tribunalVacio(), hiddenPhilosophy: false, strictJudge: false, ateneoSelection: [], startTime: Date.now(), elapsed: 10,
     decisions: [{ text: 'x', impact: 1, philosophy: 'utilitarismo' }],
     unlocked: [], eventIds: [1, 2, 3],
     ...overrides,
@@ -182,7 +183,7 @@ describe('schema versioning', () => {
   it('round-trips through save functions using the versioned wrapper', () => {
     autosave(autosaveData());
     const rawSave = JSON.parse(localStorage.getItem('gameInProgress')!);
-    expect(rawSave.version).toBe(1);
+    expect(rawSave.version).toBe(2);
     expect(rawSave.data.current).toBe(1);
 
     saveHistory(record());
@@ -265,4 +266,25 @@ describe('play counts', () => {
     localStorage.setItem('dilemaPlayCounts', JSON.stringify({ version: 1, data: { 5: 3, bad: 'x' } }));
     expect(getPlayCounts()).toEqual({ 5: 3 });
   });
+
+describe('guardado de partida de la version anterior', () => {
+  beforeEach(() => localStorage.clear());
+
+  it('se descarta: no tenia Tribunal y no hay como reconstruirlo', () => {
+    localStorage.setItem('gameInProgress', JSON.stringify({
+      version: 1,
+      data: {
+        current: 1, balance: 50, startTime: Date.now(), elapsed: 10,
+        decisions: [{ text: 'x', impact: 1, philosophy: 'utilitarismo' }],
+        unlocked: [], eventIds: [1, 2, 3],
+      },
+    }));
+    expect(hasSavedGame()).toBe(false);
+  });
+
+  it('un Tribunal con un platillo que no es numero invalida el guardado', () => {
+    autosave({ ...autosaveData(), tribunal: { pans: { Fel: 'x' }, vices: {} } as never });
+    expect(hasSavedGame()).toBe(false);
+  });
+});
 });

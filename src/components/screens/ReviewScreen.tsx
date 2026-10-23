@@ -1,5 +1,6 @@
 import { useGame } from '../../state/GameContext';
 import { Button } from '../ui/Button';
+import { ChipsEfectos } from '../ui/ChipsEfectos';
 import { PHILO_DATA } from '../../data/philosophies';
 import { PHILO_CLS } from '../../engine/philosophyDisplay';
 
@@ -22,11 +23,9 @@ export function ReviewScreen() {
               <div className="review-card-num">Dilema {i + 1}</div>
               <div className="review-card-title">{ev.title}</div>
               <div className="review-card-chosen">{opt.text}</div>
+              <ChipsEfectos option={opt} />
               <div className="review-card-foot">
                 <span className={`chip ${cls}`} style={{ fontSize: '.6rem' }}>{pdata.label}</span>
-                <span className={`review-card-impact ${opt.impact > 0 ? 'fb-impact-pos' : opt.impact < 0 ? 'fb-impact-neg' : 'fb-impact-neu'}`}>
-                  {opt.impact > 0 ? '+' : ''}{opt.impact}
-                </span>
               </div>
             </div>
           );

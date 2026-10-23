@@ -1,21 +1,28 @@
 import { describe, it, expect } from 'vitest';
 import { computeResults } from './results';
 import { specialEndings, endings } from '../data/endings';
-import type { DilemmaOption } from '../types';
+import type { DilemmaOption, TribunalState } from '../types';
+import { tribunalVacio } from './tribunal';
+
+function conSombra(n: number): TribunalState {
+  const t = tribunalVacio();
+  t.vices.Ind = n;
+  return t;
+}
 
 function decisions(philosophy: DilemmaOption['philosophy'], n = 40): DilemmaOption[] {
   return Array.from({ length: n }, () => ({ text: 'x', impact: 1, philosophy }));
 }
 
 describe('computeResults special endings', () => {
-  it('returns pureAscension when score is 100 and only one philosophy was used', () => {
-    const r = computeResults(decisions('virtuosismo'), 100, 1000);
+  it('returns pureAscension when La Sombra is empty and only one philosophy was used', () => {
+    const r = computeResults(decisions('virtuosismo'), tribunalVacio(), 1000);
     expect(r.ending).toBe(specialEndings.pureAscension);
     expect(r.endingKey).toBe('deification');
   });
 
-  it('returns pureVoid when score is 0 and only one philosophy was used', () => {
-    const r = computeResults(decisions('nihilismo'), 0, 1000);
+  it('returns pureVoid when La Sombra passes the condemnation line and only one philosophy was used', () => {
+    const r = computeResults(decisions('nihilismo'), conSombra(70), 1000);
     expect(r.ending).toBe(specialEndings.pureVoid);
     expect(r.endingKey).toBe('extinction');
   });
@@ -25,7 +32,7 @@ describe('computeResults special endings', () => {
       'utilitarismo', 'deontologia', 'nihilismo', 'virtuosismo', 'existencialismo',
       'estoicismo', 'pragmatismo', 'contractualismo',
     ].map(philosophy => ({ text: 'x', impact: 1, philosophy: philosophy as DilemmaOption['philosophy'] }));
-    const r = computeResults(mixed, 50, 1000);
+    const r = computeResults(mixed, tribunalVacio(), 1000);
     expect(r.ending).toBe(specialEndings.universalMediator);
   });
 
@@ -35,7 +42,7 @@ describe('computeResults special endings', () => {
       { text: 'x', impact: 1, philosophy: 'deontologia' },
       { text: 'x', impact: 1, philosophy: 'virtuosismo' },
     ];
-    const r = computeResults(mixed, 60, 1000);
+    const r = computeResults(mixed, conSombra(4), 1000);
     expect(r.ending).toBe(endings.enlightenment);
   });
 });

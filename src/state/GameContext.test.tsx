@@ -1,3 +1,4 @@
+import { tribunalVacio } from '../engine/tribunal';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { GameProvider, useGame } from './GameContext';
@@ -28,7 +29,7 @@ describe('CONTINUE_GAME resilience', () => {
   it('falls back to Intro when a saved dilema id no longer exists in the pool', () => {
     autosave({
       current: 1,
-      balance: 50,
+      tribunal: tribunalVacio(), hiddenPhilosophy: false, strictJudge: false, ateneoSelection: [],
       startTime: Date.now(),
       elapsed: 10,
       decisions: [{ text: 'x', impact: 1, philosophy: 'utilitarismo' }],
@@ -46,7 +47,7 @@ describe('CONTINUE_GAME resilience', () => {
   it('falls back to Intro when the saved "current" index is out of range', () => {
     autosave({
       current: 5,
-      balance: 50,
+      tribunal: tribunalVacio(), hiddenPhilosophy: false, strictJudge: false, ateneoSelection: [],
       startTime: Date.now(),
       elapsed: 10,
       decisions: [{ text: 'x', impact: 1, philosophy: 'utilitarismo' }],
@@ -64,7 +65,7 @@ describe('CONTINUE_GAME resilience', () => {
   it('resumes normally when the saved game is valid', () => {
     autosave({
       current: 1,
-      balance: 60,
+      tribunal: tribunalVacio(), hiddenPhilosophy: false, strictJudge: false, ateneoSelection: [],
       startTime: Date.now(),
       elapsed: 10,
       decisions: [{ text: 'x', impact: 1, philosophy: 'utilitarismo' }],
@@ -155,6 +156,40 @@ describe('GO_TO_INTRO / difficulty modes', () => {
   });
 });
 
+describe('partida guardada: modos, Ateneo y Tribunal', () => {
+  beforeEach(() => localStorage.clear());
+
+  function Estado() {
+    const { state, dispatch } = useGame();
+    return (
+      <>
+        <button onClick={() => dispatch({ type: 'CONTINUE_GAME' })}>continue</button>
+        <div data-testid="hidden">{String(state.hiddenPhilosophy)}</div>
+        <div data-testid="strict">{String(state.strictJudge)}</div>
+        <div data-testid="ateneo">{state.ateneoSelection.join(',')}</div>
+        <div data-testid="sombra">{JSON.stringify(state.tribunal.vices)}</div>
+      </>
+    );
+  }
+
+  it('al retomar conserva los modos, el Ateneo elegido y lo acumulado en el Tribunal', () => {
+    const t = tribunalVacio();
+    t.vices.Cru = 3;
+    autosave({
+      current: 1, tribunal: t, hiddenPhilosophy: true, strictJudge: true, ateneoSelection: ['kant', 'mill', 'buda'],
+      startTime: Date.now(), elapsed: 10,
+      decisions: [{ text: 'x', impact: 1, philosophy: 'utilitarismo' }],
+      unlocked: [], eventIds: [eventPool[0].id, eventPool[1].id, eventPool[2].id],
+    });
+    render(<GameProvider><Estado /></GameProvider>);
+    fireEvent.click(screen.getByText('continue'));
+    expect(screen.getByTestId('hidden').textContent).toBe('true');
+    expect(screen.getByTestId('strict').textContent).toBe('true');
+    expect(screen.getByTestId('ateneo').textContent).toBe('kant,mill,buda');
+    expect(JSON.parse(screen.getByTestId('sombra').textContent!).Cru).toBe(3);
+  });
+});
+
 describe('CHOOSE_TIMEOUT', () => {
   beforeEach(() => localStorage.clear());
 
@@ -162,17 +197,18 @@ describe('CHOOSE_TIMEOUT', () => {
     const { state, dispatch } = useGame();
     return (
       <>
-        <button onClick={() => dispatch({ type: 'CHOOSE_TIMEOUT', option: { text: 'x', impact: 2, philosophy: 'utilitarismo' } })}>timeout</button>
-        <div data-testid="balance">{state.balance}</div>
+        <button onClick={() => dispatch({ type: 'CHOOSE_TIMEOUT', option: { text: 'x', impact: 2, philosophy: 'utilitarismo', effects: { pans: { Fel: 2, Jus: -1 }, vices: { Cru: 1, Ind: 1 } } } })}>timeout</button>
+        <div data-testid="sombra">{JSON.stringify(state.tribunal.vices)}</div>
+        <div data-testid="pans">{JSON.stringify(state.tribunal.pans)}</div>
       </>
     );
   }
 
-  it('applies the option impact minus a 5-point penalty', () => {
+  it('suma los efectos de la opcion y un punto de Indiferencia por dejar correr el reloj', () => {
     render(<GameProvider><TimeoutHarness /></GameProvider>);
     fireEvent.click(screen.getByText('timeout'));
-    // starts at 50, +2 impact, -5 penalty = 47
-    expect(screen.getByTestId('balance').textContent).toBe('47');
+    expect(JSON.parse(screen.getByTestId('pans').textContent!).Fel).toBe(2);
+    expect(JSON.parse(screen.getByTestId('sombra').textContent!)).toEqual({ Sob: 0, Corr: 0, Cru: 1, Ind: 2 });
   });
 });
 

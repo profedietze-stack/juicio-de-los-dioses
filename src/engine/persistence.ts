@@ -1,6 +1,7 @@
 import type { AutosaveData, DilemmaOption, HistoryRecord, PhilosophyKey, ResultSnapshot } from '../types';
 import { ALL_PHILO_KEYS } from './results';
 import { achievements } from '../data/achievements';
+import { PAN_KEYS, VICE_KEYS } from '../data/tribunal/parser';
 
 function lsSet(key: string, val: unknown) {
   try { localStorage.setItem(key, JSON.stringify(val)); } catch { /* storage unavailable */ }
@@ -30,7 +31,9 @@ function writeVersioned(key: string, version: number, data: unknown) {
   lsSet(key, { version, data });
 }
 
-const SAVE_VERSION = 1;
+// 2: el Tribunal (balanzas y Sombra) reemplaza a la barra de 0..100. Un guardado
+// de la version 1 no tiene como reconstruirse, asi que se descarta.
+const SAVE_VERSION = 2;
 const HISTORY_VERSION = 1;
 const SEEN_VERSION = 1;
 const ACHIEVEMENTS_VERSION = 1;
@@ -61,11 +64,26 @@ function isValidDilemmaOption(v: unknown): v is DilemmaOption {
   return typeof o.text === 'string' && typeof o.impact === 'number' && isPhilosophyKey(o.philosophy);
 }
 
+function isRecordOfNumbers(v: unknown, keys: readonly string[]): boolean {
+  if (!v || typeof v !== 'object' || Array.isArray(v)) return false;
+  const r = v as Record<string, unknown>;
+  return keys.every(k => typeof r[k] === 'number' && Number.isFinite(r[k]));
+}
+
+function isValidTribunal(v: unknown): boolean {
+  if (!v || typeof v !== 'object') return false;
+  const t = v as Record<string, unknown>;
+  return isRecordOfNumbers(t.pans, PAN_KEYS) && isRecordOfNumbers(t.vices, VICE_KEYS);
+}
+
 export function isValidAutosaveData(v: unknown): v is AutosaveData {
   if (!v || typeof v !== 'object') return false;
   const d = v as Record<string, unknown>;
   return typeof d.current === 'number'
-    && typeof d.balance === 'number'
+    && isValidTribunal(d.tribunal)
+    && typeof d.hiddenPhilosophy === 'boolean'
+    && typeof d.strictJudge === 'boolean'
+    && Array.isArray(d.ateneoSelection) && d.ateneoSelection.every(a => typeof a === 'string')
     && typeof d.startTime === 'number'
     && typeof d.elapsed === 'number'
     && Array.isArray(d.decisions) && d.decisions.every(isValidDilemmaOption)

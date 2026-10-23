@@ -1,3 +1,4 @@
+import { tribunalVacio } from '../../engine/tribunal';
 import { describe, it, expect, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { GameProvider, useGame } from '../../state/GameContext';
@@ -26,7 +27,7 @@ function renderMenu() {
 function seedSavedGame() {
   autosave({
     current: 2,
-    balance: 55,
+    tribunal: tribunalVacio(), hiddenPhilosophy: false, strictJudge: false, ateneoSelection: [],
     startTime: Date.now(),
     elapsed: 30,
     decisions: [{ philosophy: 'utilitarismo', text: 'x', impact: 1 }],

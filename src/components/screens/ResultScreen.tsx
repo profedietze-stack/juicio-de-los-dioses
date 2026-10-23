@@ -10,11 +10,13 @@ import { fmtTime } from '../../engine/fmtTime';
 import { downloadShareCard } from '../../engine/shareCard';
 import { topPhilosophies } from '../../engine/historyStats';
 import { useState } from 'react';
+import { Tribunal } from '../ui/HudTribunal';
+import { MARCA_DEL_VICIO, SIN_VICIO, TONO_DE_LA_BALANZA, BALANZAS_PAREJAS } from '../../data/tribunalTextos';
 
 export function ResultScreen() {
   const { state, dispatch } = useGame();
   const [saved, setSaved] = useState(false);
-  const r = computeResults(state.decisions, state.balance, state.timerSeconds);
+  const r = computeResults(state.decisions, state.tribunal, state.timerSeconds);
   const engagement = computeEngagement(
     state.sessionEvents, state.decisions, state.decisionTimes,
     state.ateneoConsultCounts, state.ateneoSelection.length, r.diversity,
@@ -36,10 +38,21 @@ export function ResultScreen() {
       </div>
 
       <div className="result-metrics">
-        <div className="metric"><div className="metric-label">Veredicto</div><div className="metric-value" id="r-score">{r.score}</div></div>
+        <div className="metric"><div className="metric-label">Sombra</div><div className="metric-value" id="r-score">{r.veredicto.sombra}/{r.veredicto.umbral}</div></div>
         <div className="metric"><div className="metric-label">Tiempo</div><div className="metric-value" id="r-time">{fmtTime(r.totalTime)}</div></div>
         <div className="metric"><div className="metric-label">Dilemas</div><div className="metric-value" id="r-total">{r.totalDecisions}</div></div>
         <div className="metric"><div className="metric-label">Corrientes</div><div className="metric-value" id="r-diversity">{r.diversity}/10</div></div>
+      </div>
+
+      <div className="philo-report" id="tribunal-final">
+        <div className="philo-report-title">Así los juzgaron los dioses</div>
+        <Tribunal tribunal={r.tribunal} total={r.totalDecisions} />
+        <div className="tr-lectura">
+          <p>{r.veredicto.vicio ? MARCA_DEL_VICIO[r.veredicto.vicio] : SIN_VICIO}</p>
+          <p>{r.veredicto.balanzaMayor
+            ? TONO_DE_LA_BALANZA[r.veredicto.balanzaMayor.inclinacion === 'izq' ? r.veredicto.balanzaMayor.izq : r.veredicto.balanzaMayor.der]
+            : BALANZAS_PAREJAS}</p>
+        </div>
       </div>
 
       <div className="philo-report">

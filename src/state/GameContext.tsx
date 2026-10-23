@@ -6,6 +6,7 @@ import { autosave, clearSavedGame, loadSavedGame, hasSavedGame, saveHistory, sav
 import { checkAchievements } from '../engine/achievements';
 import { startMusic } from '../engine/music';
 import { computeResults } from '../engine/results';
+import { tribunalVacio, aplicarEfectos } from '../engine/tribunal';
 import { computeEngagement } from '../engine/engagement';
 import { PHILO_DATA } from '../data/philosophies';
 
@@ -24,13 +25,14 @@ type Action =
   | { type: 'EXIT_TO_MENU' }
   | { type: 'SET_UNLOCKED'; unlocked: string[] };
 
-const STRICT_JUDGE_TIMEOUT_PENALTY = 5;
+// Dejar que se acabe el reloj es mirar para otro lado: alimenta la Indiferencia.
+const CASTIGO_POR_TIEMPO = { pans: {}, vices: { Ind: 1 } };
 
 const initialState: GameState = {
   screen: 'menu',
   sessionEvents: [],
   current: 0,
-  balance: 50,
+  tribunal: tribunalVacio(),
   decisions: [],
   startTime: null,
   timerSeconds: 0,
@@ -78,7 +80,6 @@ function reducer(state: GameState, action: Action): GameState {
         ...initialState,
         screen: 'event',
         sessionEvents,
-        balance: 50,
         startTime: Date.now(),
         hiddenPhilosophy: state.hiddenPhilosophy,
         strictJudge: state.strictJudge,
@@ -114,7 +115,10 @@ function reducer(state: GameState, action: Action): GameState {
         screen: 'event',
         sessionEvents,
         current: saved.current,
-        balance: saved.balance,
+        tribunal: saved.tribunal,
+        hiddenPhilosophy: saved.hiddenPhilosophy,
+        strictJudge: saved.strictJudge,
+        ateneoSelection: saved.ateneoSelection,
         decisions: saved.decisions,
         unlocked: saved.unlocked,
         startTime: Date.now() - saved.elapsed * 1000,
@@ -135,11 +139,11 @@ function reducer(state: GameState, action: Action): GameState {
       // immediately would make EventScreen re-render with the *next*
       // dilemma's title/quote/description while the feedback panel still
       // describes the previous choice.
-      const balance = Math.max(0, Math.min(100, state.balance + action.option.impact));
+      const tribunal = aplicarEfectos(state.tribunal, action.option.effects);
       const elapsed = state.dilemmaStartTime ? Date.now() - state.dilemmaStartTime : 0;
       return {
         ...state,
-        balance,
+        tribunal,
         decisions: [...state.decisions, action.option],
         decisionTimes: [...state.decisionTimes, elapsed],
         ateneoConsultCounts: [...state.ateneoConsultCounts, state.ateneoViewsCurrent],
@@ -148,13 +152,13 @@ function reducer(state: GameState, action: Action): GameState {
     }
 
     case 'CHOOSE_TIMEOUT': {
-      // Same as CHOOSE, plus a fixed penalty for letting the clock run out
-      // under Juez Estricto mode.
-      const balance = Math.max(0, Math.min(100, state.balance + action.option.impact - STRICT_JUDGE_TIMEOUT_PENALTY));
+      // Same as CHOOSE, plus a cost in Indiferencia for letting the clock run
+      // out under Juez Estricto mode.
+      const tribunal = aplicarEfectos(aplicarEfectos(state.tribunal, action.option.effects), CASTIGO_POR_TIEMPO);
       const elapsed = state.dilemmaStartTime ? Date.now() - state.dilemmaStartTime : 0;
       return {
         ...state,
-        balance,
+        tribunal,
         decisions: [...state.decisions, action.option],
         decisionTimes: [...state.decisionTimes, elapsed],
         ateneoConsultCounts: [...state.ateneoConsultCounts, state.ateneoViewsCurrent],
@@ -231,7 +235,10 @@ export function GameProvider({ children }: { children: ReactNode }) {
     if (state.screen !== 'event' || state.current === 0 || !state.startTime) return;
     autosave({
       current: state.current,
-      balance: state.balance,
+      tribunal: state.tribunal,
+      hiddenPhilosophy: state.hiddenPhilosophy,
+      strictJudge: state.strictJudge,
+      ateneoSelection: state.ateneoSelection,
       startTime: state.startTime,
       elapsed: Math.floor((Date.now() - state.startTime) / 1000),
       decisions: state.decisions,
@@ -251,7 +258,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     clearSavedGame();
 
     const totalTime = state.startTime ? Math.floor((Date.now() - state.startTime) / 1000) : 0;
-    const r = computeResults(state.decisions, state.balance, totalTime);
+    const r = computeResults(state.decisions, state.tribunal, totalTime);
     const unlocked = checkAchievements({
       score: r.score, time: totalTime, decisions: state.decisions,
       eventIds: state.sessionEvents.map(e => e.id),

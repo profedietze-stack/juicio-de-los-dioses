@@ -1,4 +1,5 @@
-import type { DilemmaOption, PhilosophyKey, Ending } from '../types';
+import type { DilemmaOption, PhilosophyKey, Ending, TribunalState } from '../types';
+import { veredicto, type Veredicto } from './tribunal';
 import { endings, specialEndings } from '../data/endings';
 
 export const ALL_PHILO_KEYS: PhilosophyKey[] = [
@@ -19,11 +20,15 @@ export interface ComputedResult {
   thr: PhilosophyKey;
   ending: Ending;
   endingKey: keyof typeof endings;
+  // Lo que pesaron las balanzas y La Sombra: define el final y su tono.
+  tribunal: TribunalState;
+  veredicto: Veredicto;
 }
 
 // Mirrors finishGame()'s scoring/aggregation logic from the original.
-export function computeResults(decisions: DilemmaOption[], balance: number, totalTime: number): ComputedResult {
-  const score = balance;
+export function computeResults(decisions: DilemmaOption[], tribunal: TribunalState, totalTime: number): ComputedResult {
+  const v = veredicto(tribunal, decisions.length);
+  const score = v.score;
   const n = decisions.length || 1;
   const counts = Object.fromEntries(ALL_PHILO_KEYS.map(k => [k, 0])) as Record<PhilosophyKey, number>;
   decisions.forEach(d => { if (counts[d.philosophy] !== undefined) counts[d.philosophy]++; });
@@ -34,11 +39,8 @@ export function computeResults(decisions: DilemmaOption[], balance: number, tota
   const ranked = sortedKeys.filter(k => pcts[k] > 0);
   const [dom, sec, thr] = ranked;
 
-  let endingKey: keyof typeof endings;
-  if (score <= 20) endingKey = 'extinction';
-  else if (score <= 50) endingKey = 'purgatory';
-  else if (score <= 80) endingKey = 'enlightenment';
-  else endingKey = 'deification';
+  // El final lo decide La Sombra (ver engine/tribunal.ts), no las corrientes.
+  const endingKey: keyof typeof endings = v.endingKey;
 
   // Rare-combo overrides: the philosophy profile itself was extraordinary,
   // not just the final score. endingKey (the score bucket) stays as-is so
@@ -51,6 +53,6 @@ export function computeResults(decisions: DilemmaOption[], balance: number, tota
   return {
     score, totalTime, totalDecisions: decisions.length,
     counts, pcts, diversity, ranked, dom, sec, thr,
-    ending, endingKey,
+    ending, endingKey, tribunal, veredicto: v,
   };
 }

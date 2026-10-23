@@ -35,15 +35,15 @@ export function IntroScreen() {
           <div className="intro-rule">
             <div className="intro-rule-icon">⚖</div>
             <div className="intro-rule-body">
-              <div className="intro-rule-title">La balanza</div>
-              <div className="intro-rule-text">La barra superior muestra el balance moral acumulado. Crece hacia la derecha con decisiones que favorecen a la humanidad, hacia la izquierda con las que la perjudican. El resultado final determina el veredicto de los dioses.</div>
+              <div className="intro-rule-title">Las balanzas y La Sombra</div>
+              <div className="intro-rule-text">Cada decisión tiene un costo: suma en un platillo de las tres balanzas (Felicidad ⇄ Justicia, Libertad ⇄ Bien común, Corazón ⇄ Razón) y resta en otro, y a veces alimenta La Sombra: Soberbia, Corrupción, Crueldad o Indiferencia. Si La Sombra llega a la línea de condena, los dioses condenan a la humanidad. Tocá la «i» de cada concepto para ver qué significa.</div>
             </div>
           </div>
           <div className="intro-rule">
             <div className="intro-rule-icon">🔄</div>
             <div className="intro-rule-body">
               <div className="intro-rule-title">Rejugabilidad</div>
-              <div className="intro-rule-text">Cada partida selecciona 40 dilemas al azar de un pool de 60. Nunca jugarás exactamente lo mismo dos veces. Al final recibirás un perfil filosófico basado en tus decisiones.</div>
+              <div className="intro-rule-text">Cada partida selecciona los dilemas al azar de un banco de más de ochenta. Nunca jugarás exactamente lo mismo dos veces. Al final recibirás un perfil filosófico basado en tus decisiones.</div>
             </div>
           </div>
         </div>

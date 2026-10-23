@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { useGame } from '../../state/GameContext';
 import { wrapTerms } from '../../engine/wrapTerms';
 import { getEventImg, getEventThemeLabel } from '../../engine/canvasRenderer';
-import { HudBalance } from '../ui/HudBalance';
+import { HudTribunal } from '../ui/HudTribunal';
+import { ChipsEfectos } from '../ui/ChipsEfectos';
 import { PHILO_LABELS, PHILO_CLS } from '../../engine/philosophyDisplay';
 import { PHILO_DATA } from '../../data/philosophies';
 import { ROMAN_NUMERALS } from '../../engine/romanNumerals';
@@ -51,10 +52,10 @@ export function EventScreen() {
 
   return (
     <div className="screen event-screen active" id="screen-event">
-      <HudBalance
+      <HudTribunal
         current={state.current}
         total={state.sessionEvents.length}
-        balance={state.balance}
+        tribunal={state.tribunal}
         onExit={() => { snd('nav'); dispatch({ type: 'EXIT_TO_MENU' }); }}
       />
       <div className="ev-img-wrap" id="ev-img-wrap">
@@ -136,12 +137,6 @@ function FeedbackPanel({ option, isLast, onAdvance }: { option: DilemmaOption; i
   const pdata = PHILO_DATA[option.philosophy];
   const cls = PHILO_CLS[option.philosophy];
   const fpCls = `fp-${cls}`;
-  const impactVal = option.impact;
-  const impactSign = impactVal > 0 ? '+' : '';
-  const impactCls = impactVal > 0 ? 'fb-impact-pos' : impactVal < 0 ? 'fb-impact-neg' : 'fb-impact-neu';
-  const balanceLabel = impactVal > 0
-    ? 'La balanza se inclina hacia la Salvación'
-    : impactVal < 0 ? 'La balanza se inclina hacia la Perdición' : 'La balanza permanece en equilibrio';
   const btnLabel = isLast ? 'Ver el Veredicto Final →' : 'Continuar →';
 
   return (
@@ -173,9 +168,9 @@ function FeedbackPanel({ option, isLast, onAdvance }: { option: DilemmaOption; i
 
       <div className="fb-divider" />
 
-      <div className="fb-impact">
-        <span className={`fb-impact-val ${impactCls}`}>{impactSign}{impactVal}</span>
-        <span style={{ color: 'var(--muted)' }}>{balanceLabel}</span>
+      <div>
+        <div className="fb-section-label">Así lo juzgan los dioses</div>
+        <ChipsEfectos option={option} />
       </div>
 
       <div className="fb-continue-row">
