@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import type { PanKey, TribunalState, ViceKey } from '../../types';
 import { balanzas, sombraTotal, umbralCondena, type EstadoBalanza } from '../../engine/tribunal';
 import { VICE_KEYS } from '../../data/tribunal/parser';
@@ -17,45 +18,71 @@ const GRADOS_MAXIMOS = 13;
 const BRAZO = 62;
 
 // Boton «i» que explica el concepto con palabras simples. Abre al tocar (tablets)
-// o al pasar el mouse, y se cierra con Escape o tocando afuera.
-function Info({ titulo, definicion, ejemplo, lado = 'centro' }: { titulo: string; definicion: string; ejemplo: string; lado?: 'izq' | 'der' | 'centro' }) {
-  const [abierto, setAbierto] = useState(false);
+// o al pasar el mouse, y se cierra con Escape o tocando afuera. El globo sale a un
+// portal y se acomoda dentro de la pantalla: las columnas de los costados no lo recortan.
+const ANCHO_GLOBO = 210;
+
+function Info({ titulo, definicion, ejemplo }: { titulo: string; definicion: string; ejemplo: string }) {
+  const [pos, setPos] = useState<{ left: number; top: number; arriba: boolean } | null>(null);
+  // Abierto con un toque o click: no se cierra al sacar el mouse, solo con otro toque, Escape o afuera.
+  const [fijo, setFijo] = useState(false);
   const ref = useRef<HTMLSpanElement>(null);
   const id = useId();
 
+  const abrir = () => {
+    const r = ref.current?.getBoundingClientRect();
+    if (!r) return;
+    const ancho = Math.min(ANCHO_GLOBO, window.innerWidth - 16);
+    const left = Math.max(8, Math.min(r.left + r.width / 2 - ancho / 2, window.innerWidth - ancho - 8));
+    const arriba = r.top > 150;
+    setPos({ left, top: arriba ? r.top - 6 : r.bottom + 6, arriba });
+  };
+
   useEffect(() => {
-    if (!abierto) return;
+    if (!pos) return;
     const cerrar = (e: Event) => {
-      if (e instanceof KeyboardEvent) { if (e.key === 'Escape') setAbierto(false); return; }
-      if (!ref.current?.contains(e.target as Node)) setAbierto(false);
+      if (e instanceof KeyboardEvent) { if (e.key === 'Escape') { setPos(null); setFijo(false); } return; }
+      if (!ref.current?.contains(e.target as Node)) { setPos(null); setFijo(false); }
     };
+    const mover = () => { setPos(null); setFijo(false); };
     document.addEventListener('keydown', cerrar);
     document.addEventListener('pointerdown', cerrar);
-    return () => { document.removeEventListener('keydown', cerrar); document.removeEventListener('pointerdown', cerrar); };
-  }, [abierto]);
+    window.addEventListener('scroll', mover, true);
+    window.addEventListener('resize', mover);
+    return () => {
+      document.removeEventListener('keydown', cerrar);
+      document.removeEventListener('pointerdown', cerrar);
+      window.removeEventListener('scroll', mover, true);
+      window.removeEventListener('resize', mover);
+    };
+  }, [pos]);
 
   return (
-    <span className="tr-info-wrap" ref={ref} onMouseEnter={() => setAbierto(true)} onMouseLeave={() => setAbierto(false)}>
+    <span className="tr-info-wrap" ref={ref} onMouseEnter={abrir} onMouseLeave={() => { if (!fijo) setPos(null); }}>
       <button
-        type="button" className="tr-info" aria-label={`Qué es ${titulo}`} aria-expanded={abierto} aria-controls={id}
-        onClick={() => setAbierto(a => !a)}
+        type="button" className="tr-info" aria-label={`Qué es ${titulo}`} aria-expanded={pos !== null} aria-controls={id}
+        onClick={() => { if (pos && fijo) { setPos(null); setFijo(false); } else { abrir(); setFijo(true); } }}
       >i</button>
-      {abierto && (
-        <span id={id} role="tooltip" className={`tr-tip tr-tip-${lado}`}>
+      {pos && createPortal(
+        <span
+          id={id} role="tooltip" className="tr-tip"
+          style={{ left: pos.left, top: pos.top, width: Math.min(ANCHO_GLOBO, window.innerWidth - 16), transform: pos.arriba ? 'translateY(-100%)' : undefined }}
+        >
           <b>{titulo}</b>
           {definicion}
           <i>Ejemplo: {ejemplo}</i>
-        </span>
+        </span>,
+        document.body,
       )}
     </span>
   );
 }
 
-function Platillo({ pan, pesa, lado }: { pan: PanKey; pesa: boolean; lado: 'izq' | 'der' }) {
+function Platillo({ pan, pesa }: { pan: PanKey; pesa: boolean }) {
   const p = PANES[pan];
   return (
     <div className={`tr-pl ${pesa ? 'hi' : 'lo'}`} data-pan={pan}>
-      <b>{p.nombre}<Info titulo={p.nombre} definicion={p.definicion} ejemplo={p.ejemplo} lado={lado} /></b>
+      <b>{p.nombre}<Info titulo={p.nombre} definicion={p.definicion} ejemplo={p.ejemplo} /></b>
       <small>{p.definicion}</small>
     </div>
   );
@@ -85,8 +112,8 @@ export function Balanza({ b }: { b: EstadoBalanza }) {
         {platillo(100 + BRAZO, dy, pesaDer)}
       </svg>
       <div className="tr-pans">
-        <Platillo pan={b.izq} pesa={pesaIzq} lado="izq" />
-        <Platillo pan={b.der} pesa={pesaDer} lado="der" />
+        <Platillo pan={b.izq} pesa={pesaIzq} />
+        <Platillo pan={b.der} pesa={pesaDer} />
       </div>
     </div>
   );

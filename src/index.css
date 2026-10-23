@@ -200,12 +200,10 @@ body::before{
 .tr-pl.lo b{color:var(--muted);}
 .tr-pl small{font:.58rem/1.25 'Lora',serif;color:#9d8e6c;letter-spacing:0;text-align:center;padding:0 2px;}
 .tr-info-wrap{position:relative;display:inline-block;}
-.tr-info{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;margin-left:4px;border:1px solid var(--gold-dim);border-radius:50%;background:transparent;font:italic 700 .55rem 'Lora',serif;color:var(--gold);cursor:pointer;vertical-align:middle;padding:0;}
+.tr-info{position:relative;display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;margin-left:4px;border:1px solid var(--gold-dim);border-radius:50%;background:transparent;font:italic 700 .55rem 'Lora',serif;color:var(--gold);cursor:pointer;vertical-align:middle;padding:0;}
+.tr-info::after{content:'';position:absolute;inset:-8px;}
 .tr-info:hover,.tr-info:focus-visible{border-color:var(--gold);background:rgba(212,175,55,.15);}
-.tr-tip{position:absolute;bottom:calc(100% + 6px);width:210px;z-index:20;background:#14122a;border:1px solid var(--gold);padding:8px 10px;font:400 .68rem/1.4 'Lora',serif;letter-spacing:0;text-transform:none;color:var(--text);text-align:left;box-shadow:0 4px 18px rgba(0,0,0,.6);}
-.tr-tip-centro{left:50%;transform:translateX(-50%);}
-.tr-tip-izq{left:-8px;}
-.tr-tip-der{right:-8px;}
+.tr-tip{position:fixed;z-index:200;background:#14122a;border:1px solid var(--gold);padding:8px 10px;font:400 .68rem/1.4 'Lora',serif;letter-spacing:0;text-transform:none;color:var(--text);text-align:left;box-shadow:0 4px 18px rgba(0,0,0,.6);pointer-events:none;}
 .tr-tip b{display:block;color:var(--gold);font-family:'Cinzel',serif;letter-spacing:1px;font-size:.62rem;margin-bottom:2px;}
 .tr-tip i{display:block;margin-top:3px;color:#9d8e6c;}
 .tr-sombra{grid-column:1/-1;border-color:rgba(155,44,94,.55);background:linear-gradient(180deg,rgba(40,10,32,.85),rgba(18,10,28,.9));padding:10px 16px 12px;}
@@ -596,7 +594,6 @@ body::before{
 .toast-text{font-family:'Cinzel',serif;font-size:.56rem;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;}
 
 /* ── CONTINUE BUTTON (menu) ── */
-#btn-continue{display:none;}
 .btn-continue-wrap{position:relative;display:flex;justify-content:center;}
 .btn-continue-badge{
   position:absolute;top:-7px;right:calc(50% - 110px - 7px);
