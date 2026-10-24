@@ -48,4 +48,28 @@ describe('dialogos modales accesibles', () => {
     fireEvent.keyDown(document, { key: 'Escape' });
     expect(o).toHaveBeenCalled();
   });
+
+  // Las pantallas llevan `animation: fadeUp ... both`, que deja un transform puesto: dentro de
+  // ellas, `position: fixed` deja de ser relativo a la ventana y el modal se corre con el scroll
+  // (con el dilema leido hasta abajo, el modal quedaba cortado arriba y sin fondo oscuro).
+  it('los modales se montan en <body>, fuera de la pantalla con transform', () => {
+    const pantalla = document.createElement('div');
+    pantalla.style.transform = 'translateY(0)';
+    document.body.appendChild(pantalla);
+    const casos: [string, JSX.Element][] = [
+      ['confirm', <ConfirmDialog key="c" title="T" body="B" confirmLabel="Sí" cancelLabel="No" onConfirm={() => {}} onCancel={() => {}} />],
+      ['ateneo', <AteneoModal key="a" dilemmaId={1} selection={['kant']} onClose={() => {}} />],
+      ['opciones', <OptionsModal key="o" onClose={() => {}} />],
+    ];
+    for (const [nombre, ui] of casos) {
+      const hueco = document.createElement('div');
+      pantalla.appendChild(hueco);
+      const { unmount } = render(ui, { container: hueco });
+      const dlg = screen.getByRole('dialog');
+      expect(pantalla.contains(dlg), nombre).toBe(false);
+      expect(document.body.contains(dlg), nombre).toBe(true);
+      unmount();
+    }
+    pantalla.remove();
+  });
 });

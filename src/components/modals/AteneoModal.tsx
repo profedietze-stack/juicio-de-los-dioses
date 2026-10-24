@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import { philosophers } from '../../data/philosophers';
 import { ateneoComments } from '../../data/ateneoComments';
 import { useModal } from './useModal';
@@ -13,7 +14,8 @@ export function AteneoModal({ dilemmaId, selection, onClose }: AteneoModalProps)
   const comments = ateneoComments[dilemmaId] ?? {};
   const shown = philosophers.filter(p => selection.includes(p.id) && comments[p.id]);
 
-  return (
+  // En <body>: dentro de una pantalla con transform, `fixed` se corre con el scroll.
+  return createPortal(
     <div
       id="ateneo-modal"
       ref={modalRef}
@@ -38,6 +40,7 @@ export function AteneoModal({ dilemmaId, selection, onClose }: AteneoModalProps)
         </div>
         <button className="btn btn-ghost btn-sm" style={{ marginTop: '.5rem', alignSelf: 'center' }} onClick={onClose}>Cerrar</button>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

@@ -133,6 +133,31 @@ describe('EventScreen strictJudge mode', () => {
     expect(document.getElementById('feedback-panel')).toBeInTheDocument();
   });
 
+  it('el reloj se detiene mientras el Ateneo esta abierto: leerlo no puede costar el dilema', () => {
+    function Juego() {
+      const { state, dispatch } = useGame();
+      if (state.screen !== 'event') {
+        return (
+          <button onClick={() => {
+            dispatch({ type: 'GO_TO_INTRO', length: 15, strictJudge: true });
+            dispatch({ type: 'SET_ATENEO_SELECTION', ids: ['kant', 'mill', 'buda'] });
+            dispatch({ type: 'BEGIN_GAME' });
+          }}
+          >go</button>
+        );
+      }
+      return <EventScreen />;
+    }
+    render(<GameProvider><Juego /></GameProvider>);
+    fireEvent.click(screen.getByText('go'));
+    fireEvent.click(document.querySelector('.ateneo-open-btn') as HTMLElement);
+    act(() => { vi.advanceTimersByTime(40000); }); // el doble del limite
+    expect(document.getElementById('feedback-panel')).not.toBeInTheDocument();
+    fireEvent.click(screen.getByText('Cerrar'));
+    act(() => { vi.advanceTimersByTime(21000); });
+    expect(document.getElementById('feedback-panel')).toBeInTheDocument();
+  });
+
   it('does not show a countdown timer when strictJudge is off', () => {
     renderModesHarness({ strictJudge: false });
     expect(document.querySelector('.strict-timer')).not.toBeInTheDocument();
@@ -194,19 +219,42 @@ describe('EventScreen Ateneo button', () => {
   it('shows the Ateneo button on a covered dilemma when a philosopher is selected', () => {
     renderAteneoHarness(['kant']);
     advanceToCoveredDilemma();
-    expect(screen.getByText('🏛 Ateneo')).toBeInTheDocument();
+    expect(document.querySelector('.ateneo-open-btn')).toBeInTheDocument();
   });
 
   it('hides the Ateneo button when no philosopher is selected', () => {
     renderAteneoHarness([]);
     advanceToCoveredDilemma();
-    expect(screen.queryByText('🏛 Ateneo')).not.toBeInTheDocument();
+    expect(document.querySelector('.ateneo-open-btn')).not.toBeInTheDocument();
+  });
+
+  it('avisa en cada dilema que un pensador tiene un comentario, con su nombre', () => {
+    renderAteneoHarness(['kant']);
+    advanceToCoveredDilemma();
+    const aviso = document.querySelector('.ateneo-open-btn') as HTMLElement;
+    expect(aviso.textContent).toContain('Kant tiene un comentario');
+  });
+
+  it('el aviso cambia a «ya leído» despues de leer, y sigue pudiendo reabrirse', () => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    try {
+      renderAteneoHarness(['kant']);
+      advanceToCoveredDilemma();
+      fireEvent.click(document.querySelector('.ateneo-open-btn') as HTMLElement);
+      vi.setSystemTime(Date.now() + 6000);
+      fireEvent.click(screen.getByText('Cerrar'));
+      const aviso = document.querySelector('.ateneo-open-btn') as HTMLElement;
+      expect(aviso.textContent).not.toContain('tiene un comentario');
+      expect(aviso.textContent).toContain('leíste');
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('opens the modal with the selected philosopher\'s comment on click', () => {
     renderAteneoHarness(['kant']);
     advanceToCoveredDilemma();
-    fireEvent.click(screen.getByText('🏛 Ateneo'));
+    fireEvent.click(document.querySelector('.ateneo-open-btn') as HTMLElement);
     expect(document.getElementById('ateneo-modal')).toBeInTheDocument();
     expect(screen.getByText('Immanuel Kant')).toBeInTheDocument();
   });
@@ -217,11 +265,11 @@ describe('EventScreen Ateneo button', () => {
       renderAteneoHarness(['kant']);
       advanceToCoveredDilemma();
 
-      fireEvent.click(screen.getByText('🏛 Ateneo'));
+      fireEvent.click(document.querySelector('.ateneo-open-btn') as HTMLElement);
       fireEvent.click(screen.getByText('Cerrar'));
       expect(screen.getByTestId('vistas').textContent).toBe('0');
 
-      fireEvent.click(screen.getByText('🏛 Ateneo'));
+      fireEvent.click(document.querySelector('.ateneo-open-btn') as HTMLElement);
       vi.setSystemTime(Date.now() + 6000);
       fireEvent.click(screen.getByText('Cerrar'));
       expect(screen.getByTestId('vistas').textContent).toBe('1');

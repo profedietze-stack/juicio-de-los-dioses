@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import { useState, useSyncExternalStore } from 'react';
 import { isMuted, setMuted, subscribeMuted, getMusicVolume, setMusicVolume } from '../../engine/audioPrefs';
 import { startMusic, stopMusic, setLiveMusicVolume } from '../../engine/music';
@@ -35,7 +36,8 @@ export function OptionsModal({ onClose }: { onClose: () => void }) {
     updatePrefs(UI_PREFS_DEFAULTS);
   }
 
-  return (
+  // En <body>: dentro de una pantalla con transform, `fixed` se corre con el scroll.
+  return createPortal(
     <div
       id="options-modal"
       ref={modalRef}
@@ -88,6 +90,7 @@ export function OptionsModal({ onClose }: { onClose: () => void }) {
         <button className="btn btn-ghost btn-sm" style={{ marginTop: '.3rem' }} onClick={reset}>Restablecer valores por defecto</button>
         <button className="btn" style={{ marginTop: '.7rem' }} onClick={() => { snd('nav'); onClose(); }}>Cerrar</button>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

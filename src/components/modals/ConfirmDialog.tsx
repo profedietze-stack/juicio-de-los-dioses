@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import { snd } from '../../engine/audio';
 import { useModal } from './useModal';
 
@@ -13,7 +14,8 @@ interface ConfirmDialogProps {
 // Ports showCustomConfirm(): a full-screen overlay confirm dialog.
 export function ConfirmDialog({ title, body, confirmLabel, cancelLabel, onConfirm, onCancel }: ConfirmDialogProps) {
   const modalRef = useModal<HTMLDivElement>(onCancel);
-  return (
+  // En <body>: dentro de una pantalla con transform, `fixed` se corre con el scroll.
+  return createPortal(
     <div
       id="custom-confirm"
       ref={modalRef}
@@ -34,6 +36,7 @@ export function ConfirmDialog({ title, body, confirmLabel, cancelLabel, onConfir
           <button className="btn btn-ghost" style={{ fontSize: '.78rem', padding: '.7rem 1.5rem' }} onClick={() => { snd('nav'); onCancel(); }}>{cancelLabel}</button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

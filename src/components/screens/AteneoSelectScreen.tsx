@@ -31,9 +31,8 @@ export function AteneoSelectScreen() {
       <div className="screen-heading">El Ateneo de los Filósofos</div>
       <div className="ateneo-intro-text">
         Elegí entre {MIN_SELECTION} y {MAX_SELECTION} pensadores que te acompañen durante el juicio.
-        Cuando lo necesites, vas a poder consultar cómo interpretarían el dilema
-        que tenés delante — <strong>cuanto más consultes el Ateneo durante la
-        partida, mejor será tu índice de compromiso reflexivo</strong> al final.
+        En cada dilema, uno de ellos te va a avisar que tiene un comentario: leerlo no te
+        dice qué elegir, pero te muestra cómo lo vería alguien que piensa distinto.
       </div>
       <div className="ateneo-selection-count" id="ateneo-selection-count">
         {selected.length}/{MAX_SELECTION} seleccionados (mínimo {MIN_SELECTION})

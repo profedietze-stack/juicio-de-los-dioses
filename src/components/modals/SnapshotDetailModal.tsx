@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import type { ResultSnapshot } from '../../types';
 import { PHILO_DATA } from '../../data/philosophies';
 import { PHILO_CLS, BORDER_COLOR_VARS } from '../../engine/philosophyDisplay';
@@ -20,7 +21,8 @@ export function SnapshotDetailModal({ snapshot: s, onClose }: SnapshotDetailModa
   const sortedBars = [...ALL_PHILO_KEYS].sort((a, b) => (pcts[b] || 0) - (pcts[a] || 0)).filter(b => (pcts[b] || 0) > 0);
   const synth = buildSynthesis(ranked, pcts);
 
-  return (
+  // En <body>: dentro de una pantalla con transform, `fixed` se corre con el scroll.
+  return createPortal(
     <div
       id="saved-modal"
       ref={modalRef}
@@ -92,6 +94,7 @@ export function SnapshotDetailModal({ snapshot: s, onClose }: SnapshotDetailModa
           EL JUICIO DE LOS DIOSES · CREADO POR PROFD.
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

@@ -90,8 +90,8 @@ test('Ateneo: selecting philosophers surfaces their comments on a covered dilemm
 
   await advanceToCoveredDilemma(page);
 
-  await expect(page.getByText('🏛 Ateneo')).toBeVisible();
-  await page.getByText('🏛 Ateneo').click();
+  await expect(page.locator('.ateneo-open-btn')).toBeVisible();
+  await page.locator('.ateneo-open-btn').click();
   await expect(page.locator('#ateneo-modal')).toBeVisible();
   await expect(page.getByText('Immanuel Kant')).toBeVisible();
   await expect(page.getByText('John Stuart Mill')).toBeVisible();

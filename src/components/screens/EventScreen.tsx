@@ -9,7 +9,7 @@ import { PHILO_DATA } from '../../data/philosophies';
 import { ROMAN_NUMERALS } from '../../engine/romanNumerals';
 import { snd } from '../../engine/audio';
 import { ATENEO_LECTURA_MIN_MS } from '../../engine/engagement';
-import { ateneoComments } from '../../data/ateneoComments';
+import { filosofoDestacado, nombreCorto } from '../../engine/ateneo';
 import { AteneoModal } from '../modals/AteneoModal';
 import type { DilemmaOption } from '../../types';
 
@@ -37,12 +37,17 @@ export function EventScreen() {
   // Countdown for Juez Estricto: resets on each new dilemma and stops once
   // feedback is showing.
   useEffect(() => {
-    if (!state.strictJudge || state.feedback || !ev) return;
-    setTimeLeft(STRICT_JUDGE_SECONDS);
+    if (state.strictJudge) setTimeLeft(STRICT_JUDGE_SECONDS);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.strictJudge, state.current]);
+
+  // Con el Ateneo abierto el reloj espera: leerlo no puede costarle el dilema al alumno.
+  useEffect(() => {
+    if (!state.strictJudge || state.feedback || !ev || showAteneo) return;
     const id = setInterval(() => setTimeLeft(t => Math.max(0, t - 1)), 1000);
     return () => clearInterval(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.strictJudge, state.current, state.feedback]);
+  }, [state.strictJudge, state.current, state.feedback, showAteneo]);
 
   // Auto-pick a random option once the countdown reaches zero.
   useEffect(() => {
@@ -55,6 +60,8 @@ export function EventScreen() {
   if (!ev) return null;
 
   const isFinale = ev.id === 60;
+  const destacado = filosofoDestacado(state.ateneoSelection, ev.id, state.current);
+  const yaLeyo = state.ateneoViewsCurrent > 0;
   const elegir = (opt: DilemmaOption) => { snd('choose'); dispatch({ type: 'CHOOSE', option: opt }); };
 
   return (
@@ -88,18 +95,25 @@ export function EventScreen() {
 
         {!state.feedback ? (
           <>
+            {destacado && (
+              <button
+                type="button"
+                className={`ateneo-open-btn ${yaLeyo ? 'leido' : ''}`}
+                onClick={() => { snd('nav'); ateneoAbiertoEn.current = Date.now(); setShowAteneo(true); }}
+              >
+                <img src={destacado.portrait} alt="" className="ateneo-aviso-retrato" />
+                <span className="ateneo-aviso-texto">
+                  {yaLeyo ? (
+                    <>🏛 Ya leíste al Ateneo<small>Tocá para volver a abrirlo</small></>
+                  ) : (
+                    <>🏛 {nombreCorto(destacado.name)} tiene un comentario sobre este dilema<small>Tocá para leer al Ateneo antes de decidir</small></>
+                  )}
+                </span>
+              </button>
+            )}
             <div className="verdict-prompt" id="verdict-prompt">
               {isFinale ? '— El veredicto definitivo de la humanidad —' : '— Pronuncia tu veredicto —'}
             </div>
-            {state.ateneoSelection.length > 0 && ateneoComments[ev.id] && (
-              <button
-                type="button"
-                className="btn btn-ghost btn-sm ateneo-open-btn"
-                onClick={() => { snd('nav'); ateneoAbiertoEn.current = Date.now(); setShowAteneo(true); }}
-              >
-                🏛 Ateneo
-              </button>
-            )}
             {state.strictJudge && (
               <div className="strict-timer" data-warn={timeLeft <= 5}>⏱ {timeLeft}s</div>
             )}
