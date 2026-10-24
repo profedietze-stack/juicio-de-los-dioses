@@ -194,8 +194,8 @@ export function InfoScreen() {
                 <li><strong>Fundamentación filosófica (30%):</strong> Sus argumentos remiten a principios éticos identificables.</li>
                 <li><strong>Apertura al cambio (25%):</strong> Puede reconocer la solidez de un argumento contrario sin perder su posición.</li>
               </ul>
-              <h4>Índice de Compromiso Reflexivo</h4>
-              <p>Al finalizar la partida, el juego muestra un <strong>índice de compromiso reflexivo</strong> (0-100) y hasta 3 dilemas donde el estudiante más deliberó. <strong>No es una nota</strong>: combina tiempo dedicado a cada decisión, uso del Ateneo de Filósofos y diversidad de corrientes exploradas — nunca qué opción eligió. Sirve como insumo concreto para las rúbricas de arriba (por ejemplo, para elegir con qué dilema empezar el "Diario del Árbitro" o el debate).</p>
+              <h4>Cómo se jugó (Dedicación y Exploración)</h4>
+              <p>Al finalizar, el juego describe <strong>cómo se jugó</strong> en palabras y con números, sin puntaje: en <strong>Dedicación</strong>, en cuántos dilemas se detuvo 20 s o más (solo cuenta el tiempo con la pestaña visible), en cuántos resolvió en menos de 4 s, en cuántos leyó el Ateneo y en cuántos leyó a alguien de una corriente distinta de la que después eligió; en <strong>Exploración</strong>, cuántas de las diez corrientes recorrió. También muestra hasta 3 dilemas donde más deliberó. <strong>No es una nota</strong> ni mira qué opción eligió. Sirve como insumo concreto para las rúbricas de arriba (por ejemplo, para elegir con qué dilema empezar el "Diario del Árbitro" o el debate). Un número aislado se puede jugar; la conversación con el estudiante, no.</p>
               <h4>Nota metodológica</h4>
               <p>No se recomienda calificar el <strong>perfil filosófico resultante</strong> del juego. Hacerlo induciría a los estudiantes a elegir "para la nota". El valor pedagógico reside precisamente en la honestidad de las decisiones.</p>
             </div>

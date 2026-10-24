@@ -1,5 +1,5 @@
 import { tribunalVacio } from '../engine/tribunal';
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { GameProvider, useGame } from './GameContext';
 import { autosave, hasSavedGame } from '../engine/persistence';
@@ -289,5 +289,42 @@ describe('SET_ATENEO_SELECTION', () => {
     fireEvent.click(screen.getByText('select-two'));
     fireEvent.click(screen.getByText('begin'));
     expect(screen.getByTestId('selection').textContent).toBe('kant,mill');
+  });
+});
+
+describe('tiempo de reflexion: solo cuenta con la pestaña visible', () => {
+  function Juego() {
+    const { state, dispatch } = useGame();
+    return (
+      <>
+        <button onClick={() => dispatch({ type: 'GO_TO_INTRO', length: 15 })}>intro</button>
+        <button onClick={() => dispatch({ type: 'BEGIN_GAME' })}>begin</button>
+        <button onClick={() => dispatch({ type: 'CHOOSE', option: state.sessionEvents[0].options[0] })}>choose</button>
+        <div data-testid="tiempos">{state.decisionTimes.join(',')}</div>
+      </>
+    );
+  }
+
+  function ocultar(oculta: boolean) {
+    Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => (oculta ? 'hidden' : 'visible') });
+    document.dispatchEvent(new Event('visibilitychange'));
+  }
+
+  beforeEach(() => { localStorage.clear(); vi.useFakeTimers({ toFake: ['Date'] }); vi.setSystemTime(new Date('2026-01-01T10:00:00Z')); });
+  afterEach(() => { ocultar(false); vi.useRealTimers(); });
+
+  it('los minutos con la pestaña oculta no suman al tiempo de la decision', () => {
+    render(<GameProvider><Juego /></GameProvider>);
+    fireEvent.click(screen.getByText('intro'));
+    fireEvent.click(screen.getByText('begin'));
+
+    vi.setSystemTime(Date.now() + 10_000); // 10 s mirando el dilema
+    ocultar(true);
+    vi.setSystemTime(Date.now() + 600_000); // 10 min en otra pestaña
+    ocultar(false);
+    vi.setSystemTime(Date.now() + 5_000); // 5 s mas
+    fireEvent.click(screen.getByText('choose'));
+
+    expect(screen.getByTestId('tiempos').textContent).toBe('15000');
   });
 });

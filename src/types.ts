@@ -112,6 +112,7 @@ export interface ResultSnapshot {
   // Optional: absent on snapshots saved before the engagement index existed.
   engagementIndex?: number;
   engagementLabel?: string;
+  engagementEvidence?: string[]; // frases de Dedicación y Exploración (reemplazan al índice)
   topDeliberated?: DeliberatedEntry[];
 }
 
@@ -154,6 +155,7 @@ export interface GameState {
   // Reflective-engagement tracking: how long each decision took and how many
   // times the Ateneo was consulted before choosing — see engine/engagement.ts.
   dilemmaStartTime: number | null;
+  dilemmaPausedAt: number | null; // momento en que se ocultó la pestaña; null si está visible
   decisionTimes: number[];
   ateneoViewsCurrent: number;
   ateneoConsultCounts: number[];

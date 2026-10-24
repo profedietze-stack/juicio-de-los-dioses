@@ -19,7 +19,7 @@ export function ResultScreen() {
   const r = computeResults(state.decisions, state.tribunal, state.timerSeconds);
   const engagement = computeEngagement(
     state.sessionEvents, state.decisions, state.decisionTimes,
-    state.ateneoConsultCounts, state.ateneoSelection.length, r.diversity,
+    state.ateneoConsultCounts, state.ateneoSelection,
   );
 
   const rankLabels = ['Corriente Dominante', 'Segunda Corriente', 'Tercera Corriente'];
@@ -104,47 +104,20 @@ export function ResultScreen() {
       </div>
 
       <div className="engagement-disclaimer" id="engagement-disclaimer">
-        ⚠ Este índice <strong>no mide si las decisiones fueron "correctas"</strong> — ninguna lo es.
-        Mide el <strong>grado de reflexión</strong> con que se atravesó el juego: tiempo dedicado a
-        pensar, uso de las herramientas de consulta filosófica y amplitud de perspectivas exploradas.
-        Es un insumo para el diálogo docente-estudiante, no una calificación.
+        ⚠ Esto <strong>no es una nota y no mide si las decisiones fueron "correctas"</strong> — ninguna lo es.
+        Cuenta, con números concretos, <strong>cómo se jugó</strong>: cuánto se detuvo a pensar, si leyó al
+        Ateneo y cuántas corrientes recorrió. Es un insumo para conversar con el docente.
       </div>
 
       <div className="philo-report" id="engagement-report">
-        <div className="philo-report-title">Índice de Compromiso Reflexivo</div>
-        <div className="engagement-header">
-          <span className="engagement-index" id="engagement-index">{engagement.index}/100</span>
-          <span className="engagement-label" id="engagement-label">{engagement.label}</span>
+        <div className="philo-report-title">Cómo se jugó este Juicio</div>
+        <div className="engagement-grupo" id="engagement-dedicacion">
+          <div className="engagement-grupo-titulo">Dedicación</div>
+          <ul>{engagement.dedicacion.map((f, i) => <li key={i}>{f}</li>)}</ul>
         </div>
-        <div className="philo-bars">
-          <div className="philo-bar-row">
-            <div className="philo-bar-head">
-              <span className="philo-bar-name chip">Tiempo de reflexión</span>
-              <span className="philo-bar-pct">{engagement.timeScore}%</span>
-            </div>
-            <div className="philo-bar-track"><div className="philo-bar-fill chip" style={{ width: `${engagement.timeScore}%` }} /></div>
-          </div>
-          <div className="philo-bar-row">
-            <div className="philo-bar-head">
-              <span className="philo-bar-name chip">Diversidad filosófica</span>
-              <span className="philo-bar-pct">{engagement.diversityScore}%</span>
-            </div>
-            <div className="philo-bar-track"><div className="philo-bar-fill chip" style={{ width: `${engagement.diversityScore}%` }} /></div>
-          </div>
-          <div className="philo-bar-row">
-            <div className="philo-bar-head">
-              <span className="philo-bar-name chip">Amplitud del Ateneo elegido</span>
-              <span className="philo-bar-pct">{engagement.selectionScore}%</span>
-            </div>
-            <div className="philo-bar-track"><div className="philo-bar-fill chip" style={{ width: `${engagement.selectionScore}%` }} /></div>
-          </div>
-          <div className="philo-bar-row">
-            <div className="philo-bar-head">
-              <span className="philo-bar-name chip">Consultas al Ateneo</span>
-              <span className="philo-bar-pct">{engagement.ateneoScore}%</span>
-            </div>
-            <div className="philo-bar-track"><div className="philo-bar-fill chip" style={{ width: `${engagement.ateneoScore}%` }} /></div>
-          </div>
+        <div className="engagement-grupo" id="engagement-exploracion">
+          <div className="engagement-grupo-titulo">Exploración</div>
+          <ul>{engagement.exploracion.map((f, i) => <li key={i}>{f}</li>)}</ul>
         </div>
 
         {engagement.topDeliberated.length > 0 && (

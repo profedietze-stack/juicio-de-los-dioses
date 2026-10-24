@@ -1,74 +1,93 @@
-import type { Dilemma, DilemmaOption, DeliberatedEntry } from '../types';
+import type { Dilemma, DilemmaOption, DeliberatedEntry, PhilosophyKey } from '../types';
+import { ateneoComments } from '../data/ateneoComments';
+import { philosophers } from '../data/philosophers';
+import { PHILO_LABELS } from './philosophyDisplay';
 
-// This is deliberately NOT a correctness score — no dilemma has a "right"
-// option. It measures how reflectively the session was played: time spent
-// per decision, how many philosophers were chosen for the Ateneo, how often
-// it was actually consulted, and how many distinct philosophical currents
-// were explored rather than defaulting to one. See ResultScreen's disclaimer
-// copy, which must ship alongside any UI that shows this number.
+// This is deliberately NOT a correctness score and NOT a grade: no dilemma has
+// a "right" option, and a single number invites playing for the number. It
+// describes, in plain words and with the counts behind them, how the session
+// was played — so the teacher has something to talk about, not something to
+// mark. Two separate readings, never added together:
+//   Dedicación  — time spent (only while the tab was visible), and whether the
+//                 Ateneo was actually read, including a philosopher who thinks
+//                 differently from the option finally chosen.
+//   Exploración — how many of the ten currents were actually chosen.
+// What is NOT measured on purpose: how many philosophers were picked for the
+// Ateneo (one click, nothing read) and which options were chosen.
+// See ResultScreen's disclaimer copy, which must ship alongside any UI that
+// shows this.
 
 export const ATENEO_MIN_SELECTION = 3;
 export const ATENEO_MAX_SELECTION = 6;
 
+// Abrir el Ateneo y cerrarlo enseguida no es consultarlo: la consulta cuenta solo si
+// el modal estuvo abierto al menos este tiempo.
+export const ATENEO_LECTURA_MIN_MS = 5000;
+
+const APURADO_MAX_S = 4;
+const DETENIDO_MIN_S = 20;
+const TOTAL_CORRIENTES = 10;
+
 export interface EngagementResult {
-  index: number; // 0..100
-  label: 'Bajo' | 'Medio' | 'Alto';
-  timeScore: number; // 0..100
-  selectionScore: number; // 0..100 — breadth of philosophers chosen (3..6)
-  ateneoScore: number; // 0..100 — how often the Ateneo was actually consulted
-  diversityScore: number; // 0..100
+  total: number; // dilemas decididos
+  detenidos: number; // dilemas con 20 s o más de tiempo activo
+  apurados: number; // dilemas resueltos en menos de 4 s
+  ateneoLeido: number; // dilemas donde se leyó el Ateneo
+  contraste: number; // ...y se leyó a alguien de una corriente distinta de la elegida
+  corrientes: number; // corrientes distintas elegidas (de 10)
+  dominante: { key: PhilosophyKey; pct: number } | null;
+  dedicacion: string[]; // frases listas para mostrar
+  exploracion: string[];
   topDeliberated: DeliberatedEntry[];
 }
 
-// Abrir el Ateneo y cerrarlo enseguida no es consultarlo: la consulta cuenta solo si
-// el modal estuvo abierto al menos este tiempo. Sin esto, dos clicks por dilema
-// daban el puntaje completo de «Consultas al Ateneo» sin leer nada.
-export const ATENEO_LECTURA_MIN_MS = 5000;
-
-const IMPULSIVE_THRESHOLD_S = 4;
-// A ceiling avoids over-rewarding: sitting on one dilemma for ten minutes
-// isn't "more reflective" than ninety seconds — both already read as
-// thoughtful, so score them the same instead of chasing an unbounded number.
-const REFLECTIVE_CEILING_S = 90;
-
-function timeScoreFor(seconds: number): number {
-  if (seconds < IMPULSIVE_THRESHOLD_S) return 0;
-  if (seconds >= REFLECTIVE_CEILING_S) return 100;
-  return Math.round(((seconds - IMPULSIVE_THRESHOLD_S) / (REFLECTIVE_CEILING_S - IMPULSIVE_THRESHOLD_S)) * 100);
-}
-
-// Average consults per dilemma at/above this counts as full credit — beyond
-// this, more clicking isn't more reflection, so it doesn't score higher.
-const CONSULTS_PER_DILEMMA_FOR_FULL_CREDIT = 2;
+const plural = (n: number, uno: string, varios: string) => (n === 1 ? uno : varios);
 
 export function computeEngagement(
   events: Dilemma[],
   decisions: DilemmaOption[],
   decisionTimesMs: number[],
   ateneoConsultCounts: number[],
-  ateneoSelectionCount: number,
-  diversity: number,
+  ateneoSelection: string[],
 ): EngagementResult {
-  const n = decisions.length || 1;
+  const total = decisions.length;
   const seconds = decisions.map((_, i) => Math.max(0, decisionTimesMs[i] ?? 0) / 1000);
 
-  const timeScore = seconds.length
-    ? Math.round(seconds.reduce((sum, s) => sum + timeScoreFor(s), 0) / seconds.length)
-    : 0;
+  const detenidos = seconds.filter(s => s >= DETENIDO_MIN_S).length;
+  const apurados = seconds.filter(s => s < APURADO_MAX_S).length;
 
-  const selectionSpan = ATENEO_MAX_SELECTION - ATENEO_MIN_SELECTION;
-  const selectionScore = selectionSpan > 0
-    ? Math.round(Math.max(0, Math.min(1, (ateneoSelectionCount - ATENEO_MIN_SELECTION) / selectionSpan)) * 100)
-    : 100;
+  const leyo = decisions.map((_, i) => (ateneoConsultCounts[i] ?? 0) > 0);
+  const ateneoLeido = leyo.filter(Boolean).length;
 
-  const totalConsults = ateneoConsultCounts.reduce((a, b) => a + b, 0);
-  const avgConsultsPerDilemma = totalConsults / n;
-  const ateneoScore = Math.round(Math.min(1, avgConsultsPerDilemma / CONSULTS_PER_DILEMMA_FOR_FULL_CREDIT) * 100);
+  // Lo que el modal mostró en cada dilema: los filósofos elegidos que tienen comentario.
+  const contraste = decisions.filter((d, i) => {
+    if (!leyo[i]) return false;
+    const comentarios = ateneoComments[events[i]?.id] ?? {};
+    return philosophers.some(p => ateneoSelection.includes(p.id) && comentarios[p.id] && p.philosophy !== d.philosophy);
+  }).length;
 
-  const diversityScore = Math.round((diversity / 10) * 100);
+  const cuenta = new Map<PhilosophyKey, number>();
+  for (const d of decisions) cuenta.set(d.philosophy, (cuenta.get(d.philosophy) ?? 0) + 1);
+  const corrientes = cuenta.size;
+  const masElegida = [...cuenta.entries()].sort((a, b) => b[1] - a[1])[0];
+  const dominante = masElegida ? { key: masElegida[0], pct: Math.round((masElegida[1] / total) * 100) } : null;
 
-  const index = Math.round((timeScore + selectionScore + ateneoScore + diversityScore) / 4);
-  const label: EngagementResult['label'] = index < 40 ? 'Bajo' : index < 70 ? 'Medio' : 'Alto';
+  const dedicacion: string[] = [];
+  const exploracion: string[] = [];
+  if (total > 0) {
+    dedicacion.push(`Se detuvo 20 s o más en ${detenidos} de ${total} ${plural(total, 'dilema', 'dilemas')}.`);
+    if (apurados > 0) dedicacion.push(`Resolvió en menos de 4 s ${apurados} de ${total} ${plural(total, 'dilema', 'dilemas')}.`);
+    dedicacion.push(
+      ateneoLeido > 0
+        ? `Leyó el Ateneo en ${ateneoLeido} de ${total} ${plural(total, 'dilema', 'dilemas')}.`
+        : 'No leyó el Ateneo en ningún dilema.',
+    );
+    if (ateneoLeido > 0) {
+      dedicacion.push(`En ${contraste} de ellos leyó a alguien de una corriente distinta de la que después eligió.`);
+    }
+    exploracion.push(`Eligió opciones de ${corrientes} de ${TOTAL_CORRIENTES} corrientes.`);
+    if (dominante) exploracion.push(`La que más eligió: ${PHILO_LABELS[dominante.key] ?? dominante.key} (${dominante.pct} %).`);
+  }
 
   // "Most deliberated" = longest time, with a bonus per Ateneo consult, so a
   // well-considered-but-quick decision can still surface.
@@ -83,5 +102,5 @@ export function computeEngagement(
     .sort((a, b) => (b.seconds + b.ateneoCount * 30) - (a.seconds + a.ateneoCount * 30))
     .slice(0, 3);
 
-  return { index, label, timeScore, selectionScore, ateneoScore, diversityScore, topDeliberated };
+  return { total, detenidos, apurados, ateneoLeido, contraste, corrientes, dominante, dedicacion, exploracion, topDeliberated };
 }

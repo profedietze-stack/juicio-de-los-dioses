@@ -20,6 +20,8 @@ type Action =
   | { type: 'CHOOSE'; option: DilemmaOption }
   | { type: 'CHOOSE_TIMEOUT'; option: DilemmaOption }
   | { type: 'ATENEO_VIEWED' }
+  | { type: 'PAUSE_DILEMMA'; at: number }
+  | { type: 'RESUME_DILEMMA'; at: number }
   | { type: 'ADVANCE_FROM_FEEDBACK' }
   | { type: 'TICK_TIMER' }
   | { type: 'EXIT_TO_MENU' }
@@ -43,10 +45,18 @@ const initialState: GameState = {
   strictJudge: false,
   ateneoSelection: [],
   dilemmaStartTime: null,
+  dilemmaPausedAt: null,
   decisionTimes: [],
   ateneoViewsCurrent: 0,
   ateneoConsultCounts: [],
 };
+
+// Tiempo que el alumno tuvo el dilema delante: descuenta el que pasó con la pestaña
+// oculta (si está oculta ahora, corta en el momento en que se ocultó).
+function tiempoActivo(state: GameState): number {
+  if (!state.dilemmaStartTime) return 0;
+  return Math.max(0, (state.dilemmaPausedAt ?? Date.now()) - state.dilemmaStartTime);
+}
 
 function reducer(state: GameState, action: Action): GameState {
   switch (action.type) {
@@ -140,7 +150,7 @@ function reducer(state: GameState, action: Action): GameState {
       // dilemma's title/quote/description while the feedback panel still
       // describes the previous choice.
       const tribunal = aplicarEfectos(state.tribunal, action.option.effects);
-      const elapsed = state.dilemmaStartTime ? Date.now() - state.dilemmaStartTime : 0;
+      const elapsed = tiempoActivo(state);
       return {
         ...state,
         tribunal,
@@ -155,7 +165,7 @@ function reducer(state: GameState, action: Action): GameState {
       // Same as CHOOSE, plus a cost in Indiferencia for letting the clock run
       // out under Juez Estricto mode.
       const tribunal = aplicarEfectos(aplicarEfectos(state.tribunal, action.option.effects), CASTIGO_POR_TIEMPO);
-      const elapsed = state.dilemmaStartTime ? Date.now() - state.dilemmaStartTime : 0;
+      const elapsed = tiempoActivo(state);
       return {
         ...state,
         tribunal,
@@ -166,6 +176,15 @@ function reducer(state: GameState, action: Action): GameState {
       };
     }
 
+    case 'PAUSE_DILEMMA':
+      return state.dilemmaPausedAt === null ? { ...state, dilemmaPausedAt: action.at } : state;
+
+    case 'RESUME_DILEMMA': {
+      if (state.dilemmaPausedAt === null) return state;
+      const oculto = action.at - state.dilemmaPausedAt;
+      return { ...state, dilemmaPausedAt: null, dilemmaStartTime: state.dilemmaStartTime ? state.dilemmaStartTime + oculto : null };
+    }
+
     case 'ATENEO_VIEWED':
       return { ...state, ateneoViewsCurrent: state.ateneoViewsCurrent + 1 };
 
@@ -174,7 +193,7 @@ function reducer(state: GameState, action: Action): GameState {
       if (nextCurrent >= state.sessionEvents.length) {
         return { ...state, current: nextCurrent, screen: 'result', feedback: null };
       }
-      return { ...state, current: nextCurrent, feedback: null, dilemmaStartTime: Date.now(), ateneoViewsCurrent: 0 };
+      return { ...state, current: nextCurrent, feedback: null, dilemmaStartTime: Date.now(), dilemmaPausedAt: null, ateneoViewsCurrent: 0 };
     }
 
     case 'TICK_TIMER':
@@ -218,6 +237,15 @@ export function GameProvider({ children }: { children: ReactNode }) {
     if (state.screen !== 'event') return;
     const id = setInterval(() => dispatch({ type: 'TICK_TIMER' }), 1000);
     return () => clearInterval(id);
+  }, [state.screen]);
+
+  // Con la pestaña oculta el tiempo no cuenta como reflexión: dejar el juego abierto
+  // y salir a hacer otra cosa no puede dar el puntaje de «se detuvo a pensar».
+  useEffect(() => {
+    if (state.screen !== 'event') return;
+    const alCambiar = () => dispatch({ type: document.visibilityState === 'hidden' ? 'PAUSE_DILEMMA' : 'RESUME_DILEMMA', at: Date.now() });
+    document.addEventListener('visibilitychange', alCambiar);
+    return () => document.removeEventListener('visibilitychange', alCambiar);
   }, [state.screen]);
 
   // One continuous session playlist, independent of which screen is showing
@@ -268,7 +296,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
 
     const engagement = computeEngagement(
       state.sessionEvents, state.decisions, state.decisionTimes,
-      state.ateneoConsultCounts, state.ateneoSelection.length, r.diversity,
+      state.ateneoConsultCounts, state.ateneoSelection,
     );
 
     const date = new Date().toLocaleDateString('es-AR', { day: '2-digit', month: 'short', year: 'numeric' });
@@ -276,7 +304,6 @@ export function GameProvider({ children }: { children: ReactNode }) {
       score: r.score, time: totalTime, ending: r.ending.title, endingKey: r.endingKey,
       dominant: r.dom, pcts: r.pcts, counts: r.counts, diversity: r.diversity,
       date, dateISO: new Date().toISOString(),
-      engagementIndex: engagement.index,
     });
     saveSnapshot({
       id: 'snap_' + Date.now(), date, score: r.score, time: totalTime,
@@ -286,7 +313,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       thr: r.thr, thrLabel: PHILO_DATA[r.thr]?.label || r.thr,
       pcts: r.pcts, ranked: r.ranked, diversity: r.diversity,
       narrative: r.ending.narrative, decisions: state.decisions.length,
-      engagementIndex: engagement.index, engagementLabel: engagement.label,
+      engagementEvidence: [...engagement.dedicacion, ...engagement.exploracion],
       topDeliberated: engagement.topDeliberated,
     });
     recordSeenDilemas(state.sessionEvents);

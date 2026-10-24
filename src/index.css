@@ -351,9 +351,9 @@ body::before{
 /* ENGAGEMENT (índice de compromiso reflexivo) */
 .engagement-disclaimer{max-width:700px;width:100%;border:1px solid rgba(212,175,55,.28);background:rgba(212,175,55,.06);padding:.9rem 1.2rem;text-align:left;font-size:.78rem;line-height:1.6;color:var(--text);}
 .engagement-disclaimer strong{color:var(--gold);}
-.engagement-header{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:1rem;}
-.engagement-index{font-family:'Cinzel',serif;font-size:1.8rem;color:var(--gold);}
-.engagement-label{font-family:'Cinzel',serif;font-size:.72rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);}
+.engagement-grupo{margin-bottom:1rem;}
+.engagement-grupo-titulo{font-family:'Cinzel',serif;font-size:.72rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin-bottom:.4rem;}
+.engagement-grupo ul{margin:0;padding-left:1.1rem;font-size:.84rem;line-height:1.6;color:var(--text);}
 .engagement-deliberated{display:flex;flex-direction:column;gap:.7rem;margin-top:1rem;padding-top:1rem;border-top:1px solid rgba(212,175,55,.18);}
 .engagement-deliberated-title{font-family:'Cinzel',serif;font-size:.66rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:.2rem;}
 .engagement-deliberated-item{border-left:2px solid rgba(212,175,55,.4);padding-left:.8rem;}

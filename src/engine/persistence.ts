@@ -142,6 +142,7 @@ export function isValidSnapshot(v: unknown): v is ResultSnapshot {
     // Optional: absent on snapshots saved before the engagement index existed.
     && (s.engagementIndex === undefined || typeof s.engagementIndex === 'number')
     && (s.engagementLabel === undefined || typeof s.engagementLabel === 'string')
+    && (s.engagementEvidence === undefined || (Array.isArray(s.engagementEvidence) && s.engagementEvidence.every(f => typeof f === 'string')))
     && (s.topDeliberated === undefined || (Array.isArray(s.topDeliberated) && s.topDeliberated.every(isValidDeliberatedEntry)));
 }
 

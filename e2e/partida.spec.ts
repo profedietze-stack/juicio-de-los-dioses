@@ -64,5 +64,8 @@ test('una partida corta completa llega al final con el Tribunal y sin errores de
   await expect(page.locator('#tribunal-final .tr-card')).toHaveCount(4);
   await expect(page.locator('.tr-lectura p')).toHaveCount(2);
   await expect(page.locator('#r-score')).toHaveText(/^\d+\/26$/);
+  await expect(page.locator('#engagement-dedicacion li').first()).toContainText('de 15 dilemas');
+  await expect(page.locator('#engagement-exploracion')).toContainText('de 10 corrientes');
+  await expect(page.locator('#engagement-index')).toHaveCount(0);
   expect(errores).toEqual([]);
 });

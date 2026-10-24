@@ -1,81 +1,95 @@
 import { describe, it, expect } from 'vitest';
 import { computeEngagement, ATENEO_MIN_SELECTION, ATENEO_MAX_SELECTION } from './engagement';
-import type { Dilemma, DilemmaOption } from '../types';
+import type { Dilemma, DilemmaOption, PhilosophyKey } from '../types';
 
-function opt(philosophy: DilemmaOption['philosophy'], text = 'x'): DilemmaOption {
+function opt(philosophy: PhilosophyKey, text = 'x'): DilemmaOption {
   return { text, impact: 0, philosophy };
 }
 
+// Los ids 1..n existen en el banco del Ateneo, con comentario de los diez filosofos.
 function events(n: number): Dilemma[] {
   return Array.from({ length: n }, (_, i) => ({
     id: i + 1, title: `Dilema ${i + 1}`, quote: '', description: '', options: [],
   }));
 }
 
-describe('computeEngagement', () => {
-  it('scores impulsive answers (<4s) at 0 time-score', () => {
-    const decisions = [opt('utilitarismo')];
-    const r = computeEngagement(events(1), decisions, [1000], [0], 3, 1);
-    expect(r.timeScore).toBe(0);
+const SEIS = ['kant', 'mill', 'nietzsche', 'buda', 'seneca', 'locke'];
+const SOLO_KANT = ['kant'];
+
+describe('computeEngagement: evidencia, no nota', () => {
+  it('no devuelve un indice unico ni un puntaje por componente', () => {
+    const r = computeEngagement(events(1), [opt('utilitarismo')], [30000], [0], SEIS);
+    expect(r).not.toHaveProperty('index');
+    expect(r).not.toHaveProperty('label');
+    expect(r).not.toHaveProperty('selectionScore');
   });
 
-  it('scores answers at/above the reflective ceiling at 100 time-score', () => {
-    const decisions = [opt('utilitarismo')];
-    const r = computeEngagement(events(1), decisions, [120000], [0], 3, 1);
-    expect(r.timeScore).toBe(100);
+  it('elegir seis filosofos en vez de tres no cambia nada de lo que se mide', () => {
+    const d = [opt('utilitarismo'), opt('deontologia')];
+    const a = computeEngagement(events(2), d, [30000, 30000], [0, 0], SEIS.slice(0, ATENEO_MIN_SELECTION));
+    const b = computeEngagement(events(2), d, [30000, 30000], [0, 0], SEIS.slice(0, ATENEO_MAX_SELECTION));
+    expect(a).toEqual(b);
   });
 
-  it('selectionScore is 0 at the minimum and 100 at the maximum selection count', () => {
-    const decisions = [opt('utilitarismo')];
-    const atMin = computeEngagement(events(1), decisions, [30000], [0], ATENEO_MIN_SELECTION, 1);
-    const atMax = computeEngagement(events(1), decisions, [30000], [0], ATENEO_MAX_SELECTION, 1);
-    expect(atMin.selectionScore).toBe(0);
-    expect(atMax.selectionScore).toBe(100);
+  it('cuenta los dilemas en que se detuvo 20 s o mas y los resueltos en menos de 4 s', () => {
+    const d = [opt('utilitarismo'), opt('deontologia'), opt('nihilismo'), opt('estoicismo')];
+    const r = computeEngagement(events(4), d, [1000, 3999, 20000, 90000], [0, 0, 0, 0], SEIS);
+    expect(r.apurados).toBe(2);
+    expect(r.detenidos).toBe(2);
   });
 
-  it('ateneoScore reaches 100 at an average of 2 consults per dilemma, and is capped beyond that', () => {
-    const decisions = [opt('utilitarismo'), opt('deontologia')];
-    const full = computeEngagement(events(2), decisions, [30000, 30000], [2, 2], 4, 2);
-    const excess = computeEngagement(events(2), decisions, [30000, 30000], [5, 5], 4, 2);
-    expect(full.ateneoScore).toBe(100);
-    expect(excess.ateneoScore).toBe(100);
+  it('el Ateneo cuenta solo en los dilemas donde se consulto', () => {
+    const d = [opt('utilitarismo'), opt('deontologia'), opt('nihilismo')];
+    const r = computeEngagement(events(3), d, [30000, 30000, 30000], [1, 0, 3], SEIS);
+    expect(r.ateneoLeido).toBe(2);
   });
 
-  it('ateneoScore is 0 when the Ateneo was never actually consulted, even though selection is mandatory', () => {
-    const decisions = [opt('utilitarismo'), opt('deontologia')];
-    const r = computeEngagement(events(2), decisions, [30000, 30000], [0, 0], 4, 2);
-    expect(r.ateneoScore).toBe(0);
+  it('el contraste exige haber leido a un filosofo de una corriente distinta de la elegida', () => {
+    // Consulto el Ateneo en ambos dilemas, pero en el 1 su Ateneo es solo Kant y eligio deontologia:
+    // no leyo a nadie que piense distinto. En el 2 tiene seis filosofos.
+    const eventos = events(2);
+    const d = [opt('deontologia'), opt('deontologia')];
+    const soloMisma = computeEngagement(eventos, d, [30000, 30000], [1, 1], SOLO_KANT);
+    expect(soloMisma.contraste).toBe(0);
+    const variado = computeEngagement(eventos, d, [30000, 30000], [1, 1], SEIS);
+    expect(variado.contraste).toBe(2);
   });
 
-  it('diversityScore scales diversity/10 to a 0..100 range', () => {
-    const decisions = [opt('utilitarismo')];
-    const r = computeEngagement(events(1), decisions, [30000], [0], 3, 5);
-    expect(r.diversityScore).toBe(50);
+  it('sin consultar el Ateneo no hay contraste', () => {
+    const r = computeEngagement(events(2), [opt('utilitarismo'), opt('nihilismo')], [30000, 30000], [0, 0], SEIS);
+    expect(r.contraste).toBe(0);
   });
 
-  it('index is the average of all 4 component scores, and label follows thresholds', () => {
-    const decisions = [opt('utilitarismo')];
-    const r = computeEngagement(events(1), decisions, [120000], [2], ATENEO_MAX_SELECTION, 10);
-    // timeScore=100, selectionScore=100, ateneoScore=100, diversityScore=100 -> index=100
-    expect(r.index).toBe(100);
-    expect(r.label).toBe('Alto');
+  it('exploracion: cuenta las corrientes distintas y nombra la que mas eligio', () => {
+    const d = [opt('utilitarismo'), opt('utilitarismo'), opt('utilitarismo'), opt('nihilismo')];
+    const r = computeEngagement(events(4), d, [30000, 30000, 30000, 30000], [0, 0, 0, 0], SEIS);
+    expect(r.corrientes).toBe(2);
+    expect(r.dominante).toEqual({ key: 'utilitarismo', pct: 75 });
   });
 
-  it('never lets a correctness-adjacent signal leak in: identical time/ateneo/diversity always yields the same index regardless of which philosophy or option text was chosen', () => {
-    const a = computeEngagement(events(1), [opt('utilitarismo', 'A')], [30000], [0], 3, 3);
-    const b = computeEngagement(events(1), [opt('nihilismo', 'B')], [30000], [0], 3, 3);
-    expect(a.index).toBe(b.index);
+  it('las frases dicen numeros concretos de la partida', () => {
+    const d = [opt('utilitarismo'), opt('deontologia')];
+    const r = computeEngagement(events(2), d, [30000, 2000], [1, 0], SEIS);
+    const todo = [...r.dedicacion, ...r.exploracion].join(' | ');
+    expect(todo).toContain('1 de 2 dilemas');
+    expect(todo).toContain('2 de 10 corrientes');
   });
 
-  it('topDeliberated returns at most 3 entries, ranked by time with an Ateneo consult bonus', () => {
-    const decisions = [opt('utilitarismo', 'A'), opt('deontologia', 'B'), opt('nihilismo', 'C'), opt('estoicismo', 'D')];
-    const r = computeEngagement(events(4), decisions, [5000, 60000, 10000, 10000], [0, 0, 1, 0], 3, 4);
+  it('nunca mira qué opción se eligió para evaluar: mismos tiempos y lecturas, mismas frases de dedicación', () => {
+    const a = computeEngagement(events(1), [opt('utilitarismo', 'A')], [30000], [0], SEIS);
+    const b = computeEngagement(events(1), [opt('nihilismo', 'B')], [30000], [0], SEIS);
+    expect(a.dedicacion).toEqual(b.dedicacion);
+  });
+
+  it('topDeliberated devuelve hasta 3 dilemas, por tiempo con bonus por Ateneo', () => {
+    const d = [opt('utilitarismo', 'A'), opt('deontologia', 'B'), opt('nihilismo', 'C'), opt('estoicismo', 'D')];
+    const r = computeEngagement(events(4), d, [5000, 60000, 10000, 10000], [0, 0, 1, 0], SEIS);
     expect(r.topDeliberated).toHaveLength(3);
-    expect(r.topDeliberated[0].optionText).toBe('B'); // 60s, no ateneo bonus needed
-    expect(r.topDeliberated.some(e => e.optionText === 'C')).toBe(true); // 10s + ateneo bonus outranks D
+    expect(r.topDeliberated[0].optionText).toBe('B');
+    expect(r.topDeliberated.some(e => e.optionText === 'C')).toBe(true);
   });
 
-  it('handles an empty session without throwing', () => {
-    expect(() => computeEngagement([], [], [], [], 0, 0)).not.toThrow();
+  it('una partida vacía no tira', () => {
+    expect(() => computeEngagement([], [], [], [], [])).not.toThrow();
   });
 });
