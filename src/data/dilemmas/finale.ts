@@ -1,14 +1,14 @@
 import type { Dilemma } from '../../types';
 
 export const finale: Dilemma = {id:60,title:"El Veredicto Final: ¿Merece Existir la Humanidad?",quote:"El poder revela al hombre. —Bías de Priene, citado por Aristóteles en la Ética a Nicómaco",description:"Los dioses guardan silencio por última vez. Durante treinta y nueve dilemas has juzgado lo que la humanidad hace con su libertad, su inteligencia y su capacidad de dañar y de amar. Ahora conocés su historia completa: las guerras y las sinfonías, la esclavitud y la abolición, los campos de exterminio y los hospitales, la bomba atómica y la vacuna contra la polio, el genocidio y el abrazo, la crueldad sistemática y la compasión sin testigos.\n\nLa humanidad es la única especie que puede concebir la justicia y violarla simultáneamente. Que puede imaginar la belleza y destruirla. Que sabe lo que hace cuando hace el mal. Que escribe sobre el amor mientras ejecuta a sus propios hijos. Que construye catedrales y cámaras de gas con las mismas manos.\n\nLos dioses te preguntan lo que ningún sistema ético se atreve a preguntar en voz alta:\n\n¿Merece la humanidad seguir existiendo?",options:[
-  {text:"No. El sufrimiento acumulado —el de las personas y el de los animales— supera al bienestar que la humanidad produce. Si lo único que cuenta es reducir el dolor, su desaparición lo reduce.",impact:-4,philosophy:"utilitarismo"},
-  {text:"Sí. Tiene el deber de existir porque es la única especie capaz de reconocer su propia maldad y corregirla.",impact:6,philosophy:"deontologia"},
-  {text:"Sí. Cada ser humano elige quién ser. La especie no merece condena ni salvación colectiva: solo individuos responsables.",impact:4,philosophy:"existencialismo"},
-  {text:"No todavía. Merecer existir se gana con carácter, y la humanidad aún no lo ha ganado: se le concede el tiempo para lograrlo, pero no el título.",impact:0,philosophy:"virtuosismo"},
-  {text:"Sí. Pero debe aceptar lo que no puede cambiar, transformar lo que sí puede, y distinguir con sabiduría entre ambos.",impact:3,philosophy:"estoicismo"},
-  {text:"Sí. Sus errores son lecciones no aprendidas aún. Lo que funciona debe preservarse; lo que daña, reformarse sin dogma.",impact:4,philosophy:"pragmatismo"},
-  {text:"Sí. Merece existir si se organiza bajo contratos justos que todos los afectados podrían razonablemente aceptar.",impact:3,philosophy:"contractualismo"},
-  {text:"Sí, pero no como es. Una humanidad que se sostiene sobre el descuido de quienes no tienen poder no merece continuar así: merece existir si aprende a cuidar.",impact:3,philosophy:"feminismo"},
-  {text:"Sí. Todo ser que sufre merece compasión, incluida la humanidad misma. La extinción no alivia el sufrimiento: lo multiplica.",impact:6,philosophy:"budismo"},
-  {text:"No. El merecimiento es una invención humana que el universo no reconoce. Que la humanidad desaparezca no sería una injusticia, solo un hecho más.",impact:-3,philosophy:"nihilismo"}
+  {text:"No. El sufrimiento acumulado —el de las personas y el de los animales— supera al bienestar que la humanidad produce. Si lo único que cuenta es reducir el dolor, su desaparición lo reduce.",philosophy:"utilitarismo"},
+  {text:"Sí. Tiene el deber de existir porque es la única especie capaz de reconocer su propia maldad y corregirla.",philosophy:"deontologia"},
+  {text:"Sí. Cada ser humano elige quién ser. La especie no merece condena ni salvación colectiva: solo individuos responsables.",philosophy:"existencialismo"},
+  {text:"No todavía. Merecer existir se gana con carácter, y la humanidad aún no lo ha ganado: se le concede el tiempo para lograrlo, pero no el título.",philosophy:"virtuosismo"},
+  {text:"Sí. Pero debe aceptar lo que no puede cambiar, transformar lo que sí puede, y distinguir con sabiduría entre ambos.",philosophy:"estoicismo"},
+  {text:"Sí. Sus errores son lecciones no aprendidas aún. Lo que funciona debe preservarse; lo que daña, reformarse sin dogma.",philosophy:"pragmatismo"},
+  {text:"Sí. Merece existir si se organiza bajo contratos justos que todos los afectados podrían razonablemente aceptar.",philosophy:"contractualismo"},
+  {text:"Sí, pero no como es. Una humanidad que se sostiene sobre el descuido de quienes no tienen poder no merece continuar así: merece existir si aprende a cuidar.",philosophy:"feminismo"},
+  {text:"Sí. Todo ser que sufre merece compasión, incluida la humanidad misma. La extinción no alivia el sufrimiento: lo multiplica.",philosophy:"budismo"},
+  {text:"No. El merecimiento es una invención humana que el universo no reconoce. Que la humanidad desaparezca no sería una injusticia, solo un hecho más.",philosophy:"nihilismo"}
 ]};

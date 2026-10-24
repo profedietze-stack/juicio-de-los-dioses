@@ -61,7 +61,7 @@ function isPhilosophyKey(v: unknown): v is PhilosophyKey {
 function isValidDilemmaOption(v: unknown): v is DilemmaOption {
   if (!v || typeof v !== 'object') return false;
   const o = v as Record<string, unknown>;
-  return typeof o.text === 'string' && typeof o.impact === 'number' && isPhilosophyKey(o.philosophy);
+  return typeof o.text === 'string' && (o.impact === undefined || typeof o.impact === 'number') && isPhilosophyKey(o.philosophy);
 }
 
 function isRecordOfNumbers(v: unknown, keys: readonly string[]): boolean {

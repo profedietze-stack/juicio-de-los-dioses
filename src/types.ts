@@ -25,7 +25,9 @@ export interface TribunalState {
 
 export interface DilemmaOption {
   text: string;
-  impact: number;
+  // Puntaje viejo, ya sin uso desde el Tribunal: los datos nuevos no lo traen. Se acepta solo
+  // para no invalidar partidas guardadas ni snapshots anteriores.
+  impact?: number;
   philosophy: PhilosophyKey;
   // Efectos en el Tribunal; los agrega src/data/tribunal/aplicar.ts.
   effects?: OptionEffects;

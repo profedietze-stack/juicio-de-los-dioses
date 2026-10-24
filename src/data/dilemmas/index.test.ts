@@ -13,7 +13,7 @@ describe('eventPool', () => {
     expect(Math.max(...ids)).toBe(85);
   });
 
-  it('every dilemma has a title, quote, description, and options with philosophy+impact', () => {
+  it('every dilemma has a title, quote, description, and options with a philosophy', () => {
     for (const d of eventPool) {
       expect(d.title.length).toBeGreaterThan(0);
       expect(d.quote.length).toBeGreaterThan(0);
@@ -21,7 +21,8 @@ describe('eventPool', () => {
       expect(d.options.length).toBeGreaterThanOrEqual(4);
       for (const opt of d.options) {
         expect(opt.text.length).toBeGreaterThan(0);
-        expect(typeof opt.impact).toBe('number');
+        // El campo `impact` (puntaje viejo, sin uso desde el Tribunal) ya no viaja en los datos.
+        expect('impact' in opt).toBe(false);
         expect(opt.philosophy.length).toBeGreaterThan(0);
       }
     }

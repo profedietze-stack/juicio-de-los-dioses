@@ -54,6 +54,14 @@ describe('seen map', () => {
 });
 
 describe('autosave', () => {
+  it('las opciones ya no traen `impact`: un guardado sin el campo se retoma, y uno viejo con el campo tambien', () => {
+    autosave(autosaveData({ decisions: [{ text: 'x', philosophy: 'utilitarismo' }] }));
+    expect(loadSavedGame()?.decisions).toHaveLength(1);
+    localStorage.clear();
+    autosave(autosaveData({ decisions: [{ text: 'x', impact: 3, philosophy: 'utilitarismo' }] }));
+    expect(loadSavedGame()?.decisions).toHaveLength(1);
+  });
+
   it('guarda los pensadores leidos y descarta un guardado con ese campo mal formado', () => {
     autosave(autosaveData({ ateneoLeidos: [['kant'], []] }));
     expect(loadSavedGame()?.ateneoLeidos).toEqual([['kant'], []]);
