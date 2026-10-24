@@ -16,8 +16,8 @@ Jugado en el navegador (1024×768 y 375×812, sonido silenciado) y medido sobre 
 
 - 850 comentarios (85 dilemas × 10 filósofos), cobertura completa.
 - Largo: 31 palabras de promedio (19–47). Seis filósofos = ~190 palabras ≈ 1 min de lectura.
-- 46 de 850 usan voseo («podés», «tenés»); el resto no marca. El juego mezcla voseo y tuteo en otros textos.
-- ~40 de 850 nombran una corriente por su nombre. En «Filosofía oculta» eso revela la etiqueta que el modo esconde.
+- 46 de 850 usan voseo («podés», «tenés»). **Corrección tras revisar mejor:** el voseo está concentrado en los dilemas 61–84, que están narrados en voseo («ordenás», «tenés»), y la interfaz del juego también va en voseo; era consistente, no un defecto. Se conserva. Lo que sí se verificó es que ningún comentario tutee.
+- 10 de 850 nombraban una corriente por su etiqueta exacta («pragmatismo», «estoicismo»…; el conteo inicial de ~40 mezclaba adjetivos como «virtuoso» o «existencial»). En «Filosofía oculta» eso revela la etiqueta que el modo esconde.
 - 51 comentarios empiezan igual con «La libertad…»: repetición perceptible leyendo varios seguidos.
 - Solo 2 de 850 terminan en pregunta: son afirmaciones, no invitan a pensar.
 
@@ -30,3 +30,18 @@ Jugado en el navegador (1024×768 y 375×812, sonido silenciado) y medido sobre 
 5. **Es texto solo.** 150–190 palabras en un modal que, con 6 filósofos, ya necesita scroll interno (810 px de contenido en 674 de panel).
 6. **En móvil** la barra inferior (Menú / Opciones) tapa el aviso cuando el dilema está en el límite de la pantalla; hay que seguir bajando.
 7. **El Tribunal ocupa la primera pantalla** (345 px de balanzas + 320 px de imagen antes del título en 1024×768). El dilema empieza a 796 px y el alumno tiene que bajar para leerlo.
+
+## Tanda 2 — mejoras aplicadas (24-oct, tarde)
+
+| Idea | Qué se hizo |
+|---|---|
+| 1. Cerrar el ciclo | Tras elegir, el panel dice «Así opinó tu Ateneo»: quién piensa como la opción elegida y quién mira distinto (cada pensador representa una corriente). |
+| 2. Memoria | La pantalla final suma «Tu Ateneo y vos»: con quién coincidió más y menos, con barras y «coincidió en X de N dilemas». |
+| 3. Roster móvil | Si 3 de las últimas 4 decisiones son de la misma corriente, el Ateneo suma a un **invitado** de una corriente que casi no se eligió (máx. 3 por partida, separados por 4 decisiones). Se anuncia en el dilema y se guarda en el autosave. |
+| 4. Preguntas | Al menos 2 comentarios por dilema terminan en pregunta (173 en total, antes 1). Un test lo exige sobre todo el banco. |
+| 5. Pulir el banco | 228 comentarios reescritos: sin etiquetas exactas de corriente, y en un mismo dilema ningún par de pensadores abre con las mismas dos palabras (había 54 casos). Tests sobre todo el banco. Se mantiene el voseo de los dilemas 61–84. |
+| 6. Lectura liviana | Con más de 3 pensadores en el Ateneo (por ejemplo, con invitados), el modal muestra la primera frase de cada uno y «Leer más». Con 3 o menos se lee completo. |
+| 7. Pantalla de juego | El Tribunal se ve entero en el primer dilema y desde el segundo queda una barra compacta (3 balanzas + Sombra) con botón para abrirlo; la imagen del dilema baja de 42 vh a 30 vh. En 1024×768 el título del dilema sube de 796 px a ~480 px. |
+
+Pendiente: evaluar el contraste del índice (ver «Observaciones de diseño»).
+
