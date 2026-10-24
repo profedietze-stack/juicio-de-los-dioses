@@ -7,6 +7,7 @@ import { tribunalVacio, aplicarEfectos } from '../../engine/tribunal';
 describe('HudTribunal', () => {
   it('muestra las tres balanzas con sus seis platillos y los cuatro vicios', () => {
     render(<HudTribunal current={6} total={40} tribunal={tribunalVacio()} onExit={() => {}} />);
+    fireEvent.click(screen.getByRole('button', { name: /Ver el Tribunal/ }));
     for (const n of ['Felicidad', 'Justicia', 'Libertad', 'Bien común', 'Corazón', 'Razón', 'Soberbia', 'Corrupción', 'Crueldad', 'Indiferencia']) {
       expect(screen.getAllByText(new RegExp(n)).length).toBeGreaterThan(0);
     }
@@ -37,6 +38,43 @@ describe('HudTribunal', () => {
     render(<HudTribunal current={0} total={40} tribunal={tribunalVacio()} onExit={() => { salio = true; }} />);
     fireEvent.click(screen.getByText(/Salir/));
     expect(salio).toBe(true);
+  });
+});
+
+describe('HudTribunal plegable', () => {
+  it('en el primer dilema el Tribunal se ve entero, para que el alumno lo conozca', () => {
+    const { container } = render(<HudTribunal current={0} total={15} tribunal={tribunalVacio()} onExit={() => {}} />);
+    expect(container.querySelectorAll('.tr-card')).toHaveLength(4);
+    expect(screen.getByRole('button', { name: /Ocultar el Tribunal/ }).getAttribute('aria-expanded')).toBe('true');
+  });
+
+  it('desde el segundo dilema queda una barra compacta: tres balanzas y la Sombra', () => {
+    const t = aplicarEfectos(tribunalVacio(), { pans: { Jus: 3 }, vices: { Cru: 2 } });
+    const { container } = render(<HudTribunal current={1} total={15} tribunal={t} onExit={() => {}} />);
+    expect(container.querySelectorAll('.tr-card')).toHaveLength(0);
+    expect(container.querySelectorAll('.tr-mini')).toHaveLength(3);
+    expect(container.querySelector('.tr-mini-sombra')?.textContent).toContain('Sombra 2/');
+    expect(screen.getByRole('img', { name: /Felicidad y Justicia: pesa más Justicia/ })).toBeInTheDocument();
+  });
+
+  it('se pliega solo al pasar del primer al segundo dilema, y despues respeta lo que el alumno elija', () => {
+    const props = { total: 15, tribunal: tribunalVacio(), onExit: () => {} };
+    const { container, rerender } = render(<HudTribunal current={0} {...props} />);
+    expect(container.querySelectorAll('.tr-card')).toHaveLength(4);
+    rerender(<HudTribunal current={1} {...props} />);
+    expect(container.querySelectorAll('.tr-card')).toHaveLength(0);
+    fireEvent.click(screen.getByRole('button', { name: /Ver el Tribunal/ }));
+    rerender(<HudTribunal current={2} {...props} />);
+    expect(container.querySelectorAll('.tr-card')).toHaveLength(4);
+  });
+
+  it('la barra compacta sigue en pantalla al abrir el Tribunal, y se vuelve a plegar', () => {
+    const { container } = render(<HudTribunal current={1} total={15} tribunal={tribunalVacio()} onExit={() => {}} />);
+    fireEvent.click(screen.getByRole('button', { name: /Ver el Tribunal/ }));
+    expect(container.querySelectorAll('.tr-card')).toHaveLength(4);
+    expect(container.querySelectorAll('.tr-mini')).toHaveLength(3);
+    fireEvent.click(screen.getByRole('button', { name: /Ocultar el Tribunal/ }));
+    expect(container.querySelectorAll('.tr-card')).toHaveLength(0);
   });
 });
 

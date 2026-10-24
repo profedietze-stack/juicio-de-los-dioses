@@ -162,15 +162,62 @@ export function Tribunal({ tribunal, total }: { tribunal: TribunalState; total: 
   );
 }
 
+function sentidoDe(b: EstadoBalanza): string {
+  return b.inclinacion === 'equilibrio' ? 'en equilibrio' : `pesa más ${PANES[b.inclinacion === 'izq' ? b.izq : b.der].nombre}`;
+}
+
+// Version de bolsillo de una balanza: solo el brazo inclinado, para ver de un vistazo hacia donde pesa.
+function MiniBalanza({ b }: { b: EstadoBalanza }) {
+  const tilt = Math.max(-1, Math.min(1, b.dif / DIF_MAXIMA));
+  return (
+    <span className="tr-mini" data-par={`${b.izq}-${b.der}`} title={`${PANES[b.izq].nombre} y ${PANES[b.der].nombre}: ${sentidoDe(b)}`}>
+      <svg viewBox="0 0 44 24" role="img" aria-label={`${PANES[b.izq].nombre} y ${PANES[b.der].nombre}: ${sentidoDe(b)}`}>
+        <line x1="22" y1="8" x2="22" y2="21" className="tr-mini-poste" />
+        <line x1="6" y1="8" x2="38" y2="8" className="tr-mini-brazo" style={{ transform: `rotate(${tilt * 22}deg)`, transformOrigin: '22px 8px' }} />
+        <circle cx="22" cy="8" r="2.5" className="tr-mini-eje" />
+      </svg>
+      <small>{PANES[b.izq].nombre.split(' ')[0]}·{PANES[b.der].nombre.split(' ')[0]}</small>
+    </span>
+  );
+}
+
 export function HudTribunal({ current, total, tribunal, onExit }: HudTribunalProps) {
+  // Entero en el primer dilema, para conocerlo; despues, una barra que no le quita la pantalla al dilema.
+  const [abierto, setAbierto] = useState(current === 0);
+  const yaPlegado = useRef(current > 0);
+  useEffect(() => {
+    if (current > 0 && !yaPlegado.current) { yaPlegado.current = true; setAbierto(false); }
+  }, [current]);
+  const umbral = umbralCondena(total);
+  const sombra = sombraTotal(tribunal);
+  const llenado = Math.min(100, (sombra / umbral) * 100);
   return (
     <>
-      <div className="hud-top hud-top-sticky">
-        <span className="hud-prog">Evento <span id="hud-count">{current + 1}</span> / {total}</span>
-        <button className="hud-exit" onClick={onExit}>☰ Salir</button>
-        <span className="hud-titulo">⚖ Tribunal</span>
+      <div className="hud-top-sticky hud-stack">
+        <div className="hud-fila">
+          <span className="hud-prog">Evento <span id="hud-count">{current + 1}</span> / {total}</span>
+          <button className="hud-exit" onClick={onExit}>☰ Salir</button>
+          <span className="hud-titulo">⚖ Tribunal</span>
+        </div>
+        <div className="tr-compact">
+          {balanzas(tribunal).map(b => <MiniBalanza key={b.izq} b={b} />)}
+          <span className="tr-mini-sombra" data-cerca={sombra / umbral >= 0.85}>
+            <span className="tr-mini-barra" role="meter" aria-label="La Sombra" aria-valuemin={0} aria-valuemax={umbral} aria-valuenow={Math.min(sombra, umbral)}>
+              <span className="tr-mini-relleno" style={{ width: `${llenado}%` }} />
+            </span>
+            <small>Sombra {sombra}/{umbral}</small>
+          </span>
+          <button
+            type="button" className="tr-toggle" aria-expanded={abierto} aria-controls="tribunal"
+            aria-label={abierto ? 'Ocultar el Tribunal' : 'Ver el Tribunal'}
+            onClick={() => setAbierto(a => !a)}
+          >
+            <span className="tr-toggle-largo">{abierto ? 'Ocultar el Tribunal ▴' : 'Ver el Tribunal ▾'}</span>
+            <span className="tr-toggle-corto" aria-hidden="true">⚖ {abierto ? '▴' : '▾'}</span>
+          </button>
+        </div>
       </div>
-      <Tribunal tribunal={tribunal} total={total} />
+      {abierto && <Tribunal tribunal={tribunal} total={total} />}
     </>
   );
 }
