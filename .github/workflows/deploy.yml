@@ -31,8 +31,23 @@ jobs:
         with:
           path: dist
 
+  # Lo que vitest no puede probar: jugar una partida entera en un navegador real y que el
+  # juego abra sin internet (service worker, sobre el build de produccion).
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+      - run: npm run test:offline
+
   deploy:
-    needs: build
+    needs: [build, e2e]
     runs-on: ubuntu-latest
     environment:
       name: github-pages
