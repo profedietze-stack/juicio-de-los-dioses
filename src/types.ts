@@ -140,6 +140,7 @@ export interface AutosaveData {
   // "consulted at all" flag once consult *frequency* started counting
   // toward the engagement index, not just whether it happened once.
   ateneoConsultCounts?: number[];
+  ateneoLeidos?: string[][];
 }
 
 export interface GameState {
@@ -160,6 +161,8 @@ export interface GameState {
   decisionTimes: number[];
   ateneoViewsCurrent: number;
   ateneoConsultCounts: number[];
+  ateneoLeidosCurrent: string[]; // pensadores leídos en el dilema actual
+  ateneoLeidos: string[][]; // por dilema ya decidido: ids de los pensadores que leyó
   hiddenPhilosophy: boolean; // hide the philosophy chip on option cards before choosing
   strictJudge: boolean; // enable the per-dilemma countdown timer
   ateneoSelection: string[]; // philosopher ids chosen for this playthrough (3..6, mandatory) + invitados

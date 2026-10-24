@@ -62,4 +62,28 @@ describe('AteneoModal', () => {
       expect(screen.getAllByText('Leer menos').length).toBe(1);
     });
   });
+
+  describe('que pensadores leyo el alumno', () => {
+    const tres = ['kant', 'mill', 'buda'];
+    const seis = [...tres, 'nietzsche', 'locke', 'seneca'];
+
+    it('con 3 o menos, todos estan a la vista: cerrar informa a todos como leidos', () => {
+      const onClose = vi.fn();
+      render(<AteneoModal dilemmaId={1} selection={tres} onClose={onClose} />);
+      fireEvent.click(screen.getByText('Cerrar'));
+      expect(onClose).toHaveBeenCalledWith(expect.arrayContaining(tres));
+      expect(onClose.mock.calls[0][0]).toHaveLength(3);
+    });
+
+    it('con mas de 3, solo cuentan los que abrio con «Leer más»', () => {
+      const onClose = vi.fn();
+      render(<AteneoModal dilemmaId={1} selection={seis} onClose={onClose} />);
+      fireEvent.click(screen.getByText('Cerrar'));
+      expect(onClose).toHaveBeenLastCalledWith([]);
+
+      fireEvent.click(screen.getAllByText('Leer más')[0]);
+      fireEvent.click(screen.getByText('Cerrar'));
+      expect(onClose.mock.calls[1][0]).toHaveLength(1);
+    });
+  });
 });

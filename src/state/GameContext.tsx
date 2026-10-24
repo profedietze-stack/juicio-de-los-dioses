@@ -20,7 +20,7 @@ type Action =
   | { type: 'CONTINUE_GAME' }
   | { type: 'CHOOSE'; option: DilemmaOption }
   | { type: 'CHOOSE_TIMEOUT'; option: DilemmaOption }
-  | { type: 'ATENEO_VIEWED' }
+  | { type: 'ATENEO_VIEWED'; leidos: string[] }
   | { type: 'PAUSE_DILEMMA'; at: number }
   | { type: 'RESUME_DILEMMA'; at: number }
   | { type: 'ADVANCE_FROM_FEEDBACK' }
@@ -51,6 +51,8 @@ const initialState: GameState = {
   decisionTimes: [],
   ateneoViewsCurrent: 0,
   ateneoConsultCounts: [],
+  ateneoLeidosCurrent: [],
+  ateneoLeidos: [],
 };
 
 // Tiempo que el alumno tuvo el dilema delante: descuenta el que pasó con la pestaña
@@ -140,6 +142,7 @@ function reducer(state: GameState, action: Action): GameState {
         // `decisions` rather than shifting the engagement calc out of sync.
         decisionTimes: saved.decisionTimes ?? saved.decisions.map(() => 0),
         ateneoConsultCounts: saved.ateneoConsultCounts ?? saved.decisions.map(() => 0),
+        ateneoLeidos: saved.ateneoLeidos ?? saved.decisions.map(() => []),
         dilemmaStartTime: Date.now(),
       };
     }
@@ -160,6 +163,7 @@ function reducer(state: GameState, action: Action): GameState {
         decisions: [...state.decisions, action.option],
         decisionTimes: [...state.decisionTimes, elapsed],
         ateneoConsultCounts: [...state.ateneoConsultCounts, state.ateneoViewsCurrent],
+        ateneoLeidos: [...state.ateneoLeidos, state.ateneoLeidosCurrent],
         feedback: action.option,
       };
     }
@@ -175,6 +179,7 @@ function reducer(state: GameState, action: Action): GameState {
         decisions: [...state.decisions, action.option],
         decisionTimes: [...state.decisionTimes, elapsed],
         ateneoConsultCounts: [...state.ateneoConsultCounts, state.ateneoViewsCurrent],
+        ateneoLeidos: [...state.ateneoLeidos, state.ateneoLeidosCurrent],
         feedback: action.option,
       };
     }
@@ -189,7 +194,11 @@ function reducer(state: GameState, action: Action): GameState {
     }
 
     case 'ATENEO_VIEWED':
-      return { ...state, ateneoViewsCurrent: state.ateneoViewsCurrent + 1 };
+      return {
+        ...state,
+        ateneoViewsCurrent: state.ateneoViewsCurrent + 1,
+        ateneoLeidosCurrent: [...new Set([...state.ateneoLeidosCurrent, ...action.leidos])],
+      };
 
     case 'ADVANCE_FROM_FEEDBACK': {
       const nextCurrent = state.current + 1;
@@ -205,6 +214,7 @@ function reducer(state: GameState, action: Action): GameState {
         dilemmaStartTime: Date.now(),
         dilemmaPausedAt: null,
         ateneoViewsCurrent: 0,
+        ateneoLeidosCurrent: [],
         ateneoSelection: invitado ? [...state.ateneoSelection, invitado.id] : state.ateneoSelection,
         ateneoInvitados: invitado ? [...state.ateneoInvitados, { id: invitado.id, en: state.decisions.length }] : state.ateneoInvitados,
       };
@@ -289,6 +299,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       eventIds: state.sessionEvents.map(e => e.id),
       decisionTimes: state.decisionTimes,
       ateneoConsultCounts: state.ateneoConsultCounts,
+      ateneoLeidos: state.ateneoLeidos,
     });
     showToast('Partida guardada', 2400);
   }, [state.screen, state.current]);
@@ -311,7 +322,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
 
     const engagement = computeEngagement(
       state.sessionEvents, state.decisions, state.decisionTimes,
-      state.ateneoConsultCounts, state.ateneoSelection,
+      state.ateneoConsultCounts, state.ateneoLeidos,
     );
 
     const date = new Date().toLocaleDateString('es-AR', { day: '2-digit', month: 'short', year: 'numeric' });

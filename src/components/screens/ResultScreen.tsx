@@ -20,7 +20,7 @@ export function ResultScreen() {
   const r = computeResults(state.decisions, state.tribunal, state.timerSeconds);
   const engagement = computeEngagement(
     state.sessionEvents, state.decisions, state.decisionTimes,
-    state.ateneoConsultCounts, state.ateneoSelection,
+    state.ateneoConsultCounts, state.ateneoLeidos,
   );
 
   const desde = Object.fromEntries(state.ateneoInvitados.map(i => [i.id, i.en]));

@@ -373,3 +373,41 @@ describe('Ateneo: invitados cuando el alumno repite siempre la misma corriente',
     expect(screen.getByTestId('invitados').textContent).toBe(antes);
   });
 });
+
+describe('Ateneo: que pensadores leyo el alumno en cada dilema', () => {
+  function Partida() {
+    const { state, dispatch } = useGame();
+    const o = { text: 'x', impact: 0, philosophy: 'utilitarismo' as const };
+    return (
+      <>
+        <button onClick={() => { dispatch({ type: 'GO_TO_INTRO', length: 15 }); dispatch({ type: 'SET_ATENEO_SELECTION', ids: ['mill', 'kant', 'buda'] }); dispatch({ type: 'BEGIN_GAME' }); }}>empezar</button>
+        <button onClick={() => dispatch({ type: 'ATENEO_VIEWED', leidos: ['kant'] })}>leer kant</button>
+        <button onClick={() => dispatch({ type: 'ATENEO_VIEWED', leidos: ['kant', 'buda'] })}>leer kant y buda</button>
+        <button onClick={() => { dispatch({ type: 'CHOOSE', option: o }); dispatch({ type: 'ADVANCE_FROM_FEEDBACK' }); }}>elegir</button>
+        <button onClick={() => dispatch({ type: 'CONTINUE_GAME' })}>retomar</button>
+        <div data-testid="leidos">{state.ateneoLeidos.map(l => l.join('+') || '-').join('|')}</div>
+      </>
+    );
+  }
+  beforeEach(() => localStorage.clear());
+
+  it('guarda por dilema los pensadores leidos, sin repetir, y vuelve a vacio en el siguiente', () => {
+    render(<GameProvider><Partida /></GameProvider>);
+    fireEvent.click(screen.getByText('empezar'));
+    fireEvent.click(screen.getByText('leer kant'));
+    fireEvent.click(screen.getByText('leer kant y buda'));
+    fireEvent.click(screen.getByText('elegir'));
+    fireEvent.click(screen.getByText('elegir'));
+    expect(screen.getByTestId('leidos').textContent).toBe('kant+buda|-');
+  });
+
+  it('sobrevive a guardar y retomar', () => {
+    render(<GameProvider><Partida /></GameProvider>);
+    fireEvent.click(screen.getByText('empezar'));
+    fireEvent.click(screen.getByText('leer kant'));
+    fireEvent.click(screen.getByText('elegir'));
+    fireEvent.click(screen.getByText('elegir'));
+    fireEvent.click(screen.getByText('retomar'));
+    expect(screen.getByTestId('leidos').textContent).toBe('kant|-');
+  });
+});

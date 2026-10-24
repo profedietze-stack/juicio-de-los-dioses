@@ -1,5 +1,4 @@
 import type { Dilemma, DilemmaOption, DeliberatedEntry, PhilosophyKey } from '../types';
-import { ateneoComments } from '../data/ateneoComments';
 import { philosophers } from '../data/philosophers';
 import { PHILO_LABELS } from './philosophyDisplay';
 
@@ -48,7 +47,7 @@ export function computeEngagement(
   decisions: DilemmaOption[],
   decisionTimesMs: number[],
   ateneoConsultCounts: number[],
-  ateneoSelection: string[],
+  ateneoLeidos: string[][] = [],
 ): EngagementResult {
   const total = decisions.length;
   const seconds = decisions.map((_, i) => Math.max(0, decisionTimesMs[i] ?? 0) / 1000);
@@ -59,12 +58,13 @@ export function computeEngagement(
   const leyo = decisions.map((_, i) => (ateneoConsultCounts[i] ?? 0) > 0);
   const ateneoLeido = leyo.filter(Boolean).length;
 
-  // Lo que el modal mostró en cada dilema: los filósofos elegidos que tienen comentario.
-  const contraste = decisions.filter((d, i) => {
-    if (!leyo[i]) return false;
-    const comentarios = ateneoComments[events[i]?.id] ?? {};
-    return philosophers.some(p => ateneoSelection.includes(p.id) && comentarios[p.id] && p.philosophy !== d.philosophy);
-  }).length;
+  // Contraste: leyó, en ese dilema, a un pensador de una corriente distinta de la que después eligió.
+  const contraste = decisions.filter((d, i) =>
+    (ateneoLeidos[i] ?? []).some(id => {
+      const p = philosophers.find(x => x.id === id);
+      return !!p && p.philosophy !== d.philosophy;
+    }),
+  ).length;
 
   const cuenta = new Map<PhilosophyKey, number>();
   for (const d of decisions) cuenta.set(d.philosophy, (cuenta.get(d.philosophy) ?? 0) + 1);

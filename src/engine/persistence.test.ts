@@ -54,6 +54,14 @@ describe('seen map', () => {
 });
 
 describe('autosave', () => {
+  it('guarda los pensadores leidos y descarta un guardado con ese campo mal formado', () => {
+    autosave(autosaveData({ ateneoLeidos: [['kant'], []] }));
+    expect(loadSavedGame()?.ateneoLeidos).toEqual([['kant'], []]);
+    localStorage.clear();
+    autosave(autosaveData({ ateneoLeidos: [[7]] as unknown as string[][] }));
+    expect(loadSavedGame()).toBeNull();
+  });
+
   it('guarda y devuelve los invitados del Ateneo, y descarta un guardado con invitados mal formados', () => {
     autosave(autosaveData({ ateneoInvitados: [{ id: 'locke', en: 4 }] }));
     expect(loadSavedGame()?.ateneoInvitados).toEqual([{ id: 'locke', en: 4 }]);

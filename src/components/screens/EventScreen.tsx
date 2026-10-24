@@ -23,8 +23,8 @@ export function EventScreen() {
   const [imgLoaded, setImgLoaded] = useState(false);
   const [showAteneo, setShowAteneo] = useState(false);
   const ateneoAbiertoEn = useRef(0);
-  const cerrarAteneo = () => {
-    if (Date.now() - ateneoAbiertoEn.current >= ATENEO_LECTURA_MIN_MS) dispatch({ type: 'ATENEO_VIEWED' });
+  const cerrarAteneo = (leidos: string[]) => {
+    if (Date.now() - ateneoAbiertoEn.current >= ATENEO_LECTURA_MIN_MS) dispatch({ type: 'ATENEO_VIEWED', leidos });
     setShowAteneo(false);
   };
 
