@@ -1,7 +1,13 @@
+import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { philosophers } from '../../data/philosophers';
 import { ateneoComments } from '../../data/ateneoComments';
 import { useModal } from './useModal';
+import { primeraFrase } from '../../engine/ateneo';
+
+// Con mas de tres pensadores el modal pasa de un minuto de lectura: cada uno muestra su primera
+// frase y el resto se abre a pedido. Con tres o menos se lee todo de corrido.
+const MAX_EN_LECTURA_COMPLETA = 3;
 
 interface AteneoModalProps {
   dilemmaId: number;
@@ -13,6 +19,9 @@ export function AteneoModal({ dilemmaId, selection, onClose }: AteneoModalProps)
   const modalRef = useModal<HTMLDivElement>(onClose);
   const comments = ateneoComments[dilemmaId] ?? {};
   const shown = philosophers.filter(p => selection.includes(p.id) && comments[p.id]);
+  const resumido = shown.length > MAX_EN_LECTURA_COMPLETA;
+  const [abiertos, setAbiertos] = useState<string[]>([]);
+  const alternar = (id: string) => setAbiertos(a => (a.includes(id) ? a.filter(x => x !== id) : [...a, id]));
 
   // En <body>: dentro de una pantalla con transform, `fixed` se corre con el scroll.
   return createPortal(
@@ -33,7 +42,22 @@ export function AteneoModal({ dilemmaId, selection, onClose }: AteneoModalProps)
               <img src={p.portrait} alt={p.name} className="ateneo-modal-portrait" />
               <div>
                 <div className="ateneo-modal-name">{p.name}</div>
-                <div className="ateneo-modal-comment">{comments[p.id]}</div>
+                {(() => {
+                  const completo = comments[p.id];
+                  const corto = primeraFrase(completo);
+                  const abierto = abiertos.includes(p.id);
+                  const hayMas = resumido && corto.length < completo.length;
+                  return (
+                    <>
+                      <div className="ateneo-modal-comment">{hayMas && !abierto ? corto : completo}</div>
+                      {hayMas && (
+                        <button type="button" className="ateneo-leer-mas" aria-expanded={abierto} onClick={() => alternar(p.id)}>
+                          {abierto ? 'Leer menos' : 'Leer más'}
+                        </button>
+                      )}
+                    </>
+                  );
+                })()}
               </div>
             </div>
           ))}

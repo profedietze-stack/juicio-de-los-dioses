@@ -11,6 +11,7 @@ import { downloadShareCard } from '../../engine/shareCard';
 import { topPhilosophies } from '../../engine/historyStats';
 import { useState } from 'react';
 import { Tribunal } from '../ui/HudTribunal';
+import { afinidadDelAteneo, nombreCorto } from '../../engine/ateneo';
 import { MARCA_DEL_VICIO, SIN_VICIO, TONO_DE_LA_BALANZA, BALANZAS_PAREJAS } from '../../data/tribunalTextos';
 
 export function ResultScreen() {
@@ -21,6 +22,10 @@ export function ResultScreen() {
     state.sessionEvents, state.decisions, state.decisionTimes,
     state.ateneoConsultCounts, state.ateneoSelection,
   );
+
+  const desde = Object.fromEntries(state.ateneoInvitados.map(i => [i.id, i.en]));
+  const afinidad = afinidadDelAteneo(state.sessionEvents, state.decisions, state.ateneoSelection, desde).filter(a => a.total > 0);
+  const masAfin = afinidad[0], menosAfin = afinidad[afinidad.length - 1];
 
   const rankLabels = ['Corriente Dominante', 'Segunda Corriente', 'Tercera Corriente'];
   const barsSorted = [...ALL_PHILO_KEYS].sort((a, b) => (r.pcts[b] || 0) - (r.pcts[a] || 0)).filter(k => r.pcts[k] > 0);
@@ -71,6 +76,34 @@ export function ResultScreen() {
           ))}
         </div>
       </div>
+
+      {afinidad.length > 0 && (
+        <div className="philo-report" id="ateneo-afinidad">
+          <div className="philo-report-title">Tu Ateneo y vos</div>
+          {afinidad.length > 1 && (
+            <p className="afin-resumen">
+              Coincidiste más con <b>{nombreCorto(masAfin.filosofo.name)}</b>
+              {menosAfin.coincidencias < masAfin.coincidencias && <> y menos con <b>{nombreCorto(menosAfin.filosofo.name)}</b></>}.
+            </p>
+          )}
+          <div className="philo-bars">
+            {afinidad.map(a => {
+              const pct = Math.round((a.coincidencias / a.total) * 100);
+              return (
+                <div className="philo-bar-row" key={a.filosofo.id}>
+                  <div className="philo-bar-head">
+                    <span className="philo-bar-name">
+                      {nombreCorto(a.filosofo.name)}{state.ateneoInvitados.some(i => i.id === a.filosofo.id) ? ' (invitado)' : ''}
+                    </span>
+                    <span className="philo-bar-pct">coincidió en {a.coincidencias} de {a.total} {a.total === 1 ? 'dilema' : 'dilemas'}</span>
+                  </div>
+                  <div className="philo-bar-track"><div className="philo-bar-fill chip" style={{ width: `${pct}%` }} /></div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       <div className="philo-triad">
         <div className="philo-triad-header">Análisis Filosófico Profundo</div>

@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import { GameProvider, useGame } from '../../state/GameContext';
 import { EventScreen } from './EventScreen';
+import { philosophers } from '../../data/philosophers';
 
 function Harness() {
   const { state, dispatch } = useGame();
@@ -293,5 +294,63 @@ describe('EventScreen Ateneo button', () => {
     renderHarness();
     fireEvent.keyDown(document.querySelectorAll<HTMLElement>('.option-card')[1], { key: ' ' });
     expect(document.querySelector('.feedback-panel')).not.toBeNull();
+  });
+});
+
+describe('EventScreen: el Ateneo despues de elegir', () => {
+  function Juego({ seleccion }: { seleccion: string[] }) {
+    const { state, dispatch } = useGame();
+    if (state.screen !== 'event') {
+      return (
+        <button onClick={() => {
+          dispatch({ type: 'GO_TO_INTRO', length: 15 });
+          dispatch({ type: 'SET_ATENEO_SELECTION', ids: seleccion });
+          dispatch({ type: 'BEGIN_GAME' });
+        }}>go</button>
+      );
+    }
+    return (
+      <>
+        <button onClick={() => { dispatch({ type: 'CHOOSE', option: { text: 'x', impact: 0, philosophy: 'utilitarismo' } }); dispatch({ type: 'ADVANCE_FROM_FEEDBACK' }); }}>repetir</button>
+        <EventScreen />
+      </>
+    );
+  }
+  beforeEach(() => localStorage.clear());
+
+  it('el panel de feedback dice quien piensa como la opcion elegida y quien mira distinto', () => {
+    const seleccion = ['kant', 'mill', 'buda'];
+    render(<GameProvider><Juego seleccion={seleccion} /></GameProvider>);
+    fireEvent.click(screen.getByText('go'));
+    const carta = document.querySelector('.option-card') as HTMLElement;
+    const corriente = carta.getAttribute('data-p');
+    fireEvent.click(carta);
+
+    const panel = document.querySelector('.fb-ateneo') as HTMLElement;
+    expect(panel).not.toBeNull();
+    const coinciden = philosophers.filter(p => seleccion.includes(p.id) && p.philosophy === corriente);
+    const difieren = philosophers.filter(p => seleccion.includes(p.id) && p.philosophy !== corriente);
+    for (const p of coinciden) expect(panel.querySelector('.fb-ateneo-coinciden')?.textContent).toContain(p.name.split(' (')[0].split(' ').pop()!);
+    for (const p of difieren) expect(panel.querySelector('.fb-ateneo-difieren')?.textContent).toContain(p.name.split(' (')[0].split(' ').pop()!);
+  });
+
+  it('sin Ateneo elegido no se muestra el bloque', () => {
+    render(<GameProvider><Juego seleccion={[]} /></GameProvider>);
+    fireEvent.click(screen.getByText('go'));
+    fireEvent.click(document.querySelector('.option-card') as HTMLElement);
+    expect(document.querySelector('.fb-ateneo')).toBeNull();
+  });
+
+  it('cuando el Ateneo suma a un invitado, el dilema lo anuncia y el aviso es suyo', () => {
+    render(<GameProvider><Juego seleccion={['mill', 'kant', 'buda']} /></GameProvider>);
+    fireEvent.click(screen.getByText('go'));
+    expect(document.querySelector('.ateneo-invitado')).toBeNull();
+    for (let i = 0; i < 4; i++) fireEvent.click(screen.getByText('repetir'));
+    const cartel = document.querySelector('.ateneo-invitado') as HTMLElement;
+    expect(cartel).not.toBeNull();
+    expect(cartel.textContent).toContain('se suma al Ateneo');
+    const aviso = document.querySelector('.ateneo-open-btn') as HTMLElement;
+    const nombreInvitado = cartel.querySelector('b')!.textContent!;
+    expect(aviso.textContent).toContain(nombreInvitado);
   });
 });

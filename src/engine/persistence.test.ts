@@ -54,6 +54,14 @@ describe('seen map', () => {
 });
 
 describe('autosave', () => {
+  it('guarda y devuelve los invitados del Ateneo, y descarta un guardado con invitados mal formados', () => {
+    autosave(autosaveData({ ateneoInvitados: [{ id: 'locke', en: 4 }] }));
+    expect(loadSavedGame()?.ateneoInvitados).toEqual([{ id: 'locke', en: 4 }]);
+    localStorage.clear();
+    autosave(autosaveData({ ateneoInvitados: [{ id: 7, en: 'x' }] as unknown as { id: string; en: number }[] }));
+    expect(loadSavedGame()).toBeNull();
+  });
+
   it('autosave + hasSavedGame + clearSavedGame', () => {
     expect(hasSavedGame()).toBe(false);
     autosave(autosaveData());

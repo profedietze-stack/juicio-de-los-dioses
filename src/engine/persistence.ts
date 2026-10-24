@@ -91,6 +91,7 @@ export function isValidAutosaveData(v: unknown): v is AutosaveData {
     && Array.isArray(d.eventIds) && d.eventIds.every(id => typeof id === 'number')
     // Optional: absent on saves written before engagement tracking existed.
     && (d.decisionTimes === undefined || (Array.isArray(d.decisionTimes) && d.decisionTimes.every(t => typeof t === 'number')))
+    && (d.ateneoInvitados === undefined || (Array.isArray(d.ateneoInvitados) && d.ateneoInvitados.every(i => !!i && typeof (i as Record<string, unknown>).id === 'string' && typeof (i as Record<string, unknown>).en === 'number')))
     && (d.ateneoConsultCounts === undefined || (Array.isArray(d.ateneoConsultCounts) && d.ateneoConsultCounts.every(c => typeof c === 'number')));
 }
 

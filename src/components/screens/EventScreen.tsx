@@ -9,7 +9,8 @@ import { PHILO_DATA } from '../../data/philosophies';
 import { ROMAN_NUMERALS } from '../../engine/romanNumerals';
 import { snd } from '../../engine/audio';
 import { ATENEO_LECTURA_MIN_MS } from '../../engine/engagement';
-import { filosofoDestacado, nombreCorto } from '../../engine/ateneo';
+import { filosofoDestacado, nombreCorto, opinionesDelAteneo } from '../../engine/ateneo';
+import { philosophers } from '../../data/philosophers';
 import { AteneoModal } from '../modals/AteneoModal';
 import type { DilemmaOption } from '../../types';
 
@@ -60,7 +61,9 @@ export function EventScreen() {
   if (!ev) return null;
 
   const isFinale = ev.id === 60;
-  const destacado = filosofoDestacado(state.ateneoSelection, ev.id, state.current);
+  const invitacion = state.ateneoInvitados.find(i => i.en === state.current);
+  const invitado = invitacion ? philosophers.find(p => p.id === invitacion.id) : undefined;
+  const destacado = filosofoDestacado(state.ateneoSelection, ev.id, state.current, invitacion?.id);
   const yaLeyo = state.ateneoViewsCurrent > 0;
   const elegir = (opt: DilemmaOption) => { snd('choose'); dispatch({ type: 'CHOOSE', option: opt }); };
 
@@ -95,6 +98,11 @@ export function EventScreen() {
 
         {!state.feedback ? (
           <>
+            {invitado && (
+              <div className="ateneo-invitado" role="status">
+                🏛 <b>{nombreCorto(invitado.name)}</b> se suma al Ateneo: trae una mirada distinta de las que venías eligiendo.
+              </div>
+            )}
             {destacado && (
               <button
                 type="button"
@@ -141,6 +149,8 @@ export function EventScreen() {
         ) : (
           <FeedbackPanel
             option={state.feedback}
+            seleccion={state.ateneoSelection}
+            dilemaId={ev.id}
             isLast={state.current + 1 >= state.sessionEvents.length}
             onAdvance={() => { snd('nav'); dispatch({ type: 'ADVANCE_FROM_FEEDBACK' }); }}
           />
@@ -157,7 +167,8 @@ export function EventScreen() {
   );
 }
 
-function FeedbackPanel({ option, isLast, onAdvance }: { option: DilemmaOption; isLast: boolean; onAdvance: () => void }) {
+function FeedbackPanel({ option, seleccion, dilemaId, isLast, onAdvance }: { option: DilemmaOption; seleccion: string[]; dilemaId: number; isLast: boolean; onAdvance: () => void }) {
+  const ateneo = opinionesDelAteneo(seleccion, dilemaId, option);
   const pdata = PHILO_DATA[option.philosophy];
   const cls = PHILO_CLS[option.philosophy];
   const fpCls = `fp-${cls}`;
@@ -199,6 +210,18 @@ function FeedbackPanel({ option, isLast, onAdvance }: { option: DilemmaOption; i
         <div className="fb-section-label">Así lo juzgan los dioses</div>
         <ChipsEfectos option={option} />
       </div>
+
+      {(ateneo.coinciden.length > 0 || ateneo.difieren.length > 0) && (
+        <div className="fb-ateneo">
+          <div className="fb-section-label">Así opinó tu Ateneo</div>
+          {ateneo.coinciden.length > 0 && (
+            <div className="fb-ateneo-coinciden"><span>Piensa como vos:</span> {ateneo.coinciden.map(p => nombreCorto(p.name)).join(', ')}</div>
+          )}
+          {ateneo.difieren.length > 0 && (
+            <div className="fb-ateneo-difieren"><span>Mira distinto:</span> {ateneo.difieren.map(p => nombreCorto(p.name)).join(', ')}</div>
+          )}
+        </div>
+      )}
 
       <div className="fb-continue-row">
         <button ref={seguirRef} className={`fb-continue ${fpCls}`} onClick={onAdvance}>{btnLabel}</button>

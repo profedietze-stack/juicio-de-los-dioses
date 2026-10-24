@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import { GameProvider, useGame } from '../../state/GameContext';
 import { EventScreen } from './EventScreen';
 import { ResultScreen } from './ResultScreen';
@@ -69,5 +69,44 @@ describe('ResultScreen', () => {
     fireEvent.click(screen.getByText('Compartir Resultado'));
     expect(clickSpy).toHaveBeenCalledTimes(1);
     clickSpy.mockRestore();
+  });
+});
+
+describe('ResultScreen: Tu Ateneo y vos', () => {
+  function HarnessAteneo() {
+    const { state, dispatch } = useGame();
+    if (state.screen === 'menu') {
+      return <button onClick={() => {
+        dispatch({ type: 'GO_TO_INTRO', length: 15 });
+        dispatch({ type: 'SET_ATENEO_SELECTION', ids: ['kant', 'mill', 'buda'] });
+        dispatch({ type: 'BEGIN_GAME' });
+      }}>start</button>;
+    }
+    if (state.screen === 'event') return <EventScreen />;
+    if (state.screen === 'result') return <ResultScreen />;
+    return null;
+  }
+  beforeEach(() => localStorage.clear());
+  afterEach(cleanup);
+
+  it('muestra con quien coincidio el alumno, con cuantos dilemas', () => {
+    render(<GameProvider><HarnessAteneo /></GameProvider>);
+    fireEvent.click(screen.getByText('start'));
+    // 15 dilemas + el final
+    for (let i = 0; i < 16; i++) {
+      fireEvent.click(document.querySelectorAll('.option-card')[0]);
+      fireEvent.click(document.querySelector('.fb-continue') as HTMLButtonElement);
+    }
+    expect(document.getElementById('screen-result')).not.toBeNull();
+    const bloque = document.getElementById('ateneo-afinidad') as HTMLElement;
+    expect(bloque).not.toBeNull();
+    expect(bloque.textContent).toContain('Tu Ateneo y vos');
+    ['Kant', 'Mill', 'Buda'].forEach(n => expect(bloque.textContent).toContain(n));
+    expect(bloque.textContent).toMatch(/coincidió en \d+ de \d+ dilemas/);
+  });
+
+  it('sin Ateneo elegido el bloque no aparece', () => {
+    playThroughToResult();
+    expect(document.getElementById('ateneo-afinidad')).toBeNull();
   });
 });

@@ -328,3 +328,48 @@ describe('tiempo de reflexion: solo cuenta con la pestaña visible', () => {
     expect(screen.getByTestId('tiempos').textContent).toBe('15000');
   });
 });
+
+describe('Ateneo: invitados cuando el alumno repite siempre la misma corriente', () => {
+  function Partida() {
+    const { state, dispatch } = useGame();
+    const igual = { text: 'x', impact: 0, philosophy: 'utilitarismo' as const };
+    return (
+      <>
+        <button onClick={() => {
+          dispatch({ type: 'GO_TO_INTRO', length: 15 });
+          dispatch({ type: 'SET_ATENEO_SELECTION', ids: ['mill', 'kant', 'buda'] });
+          dispatch({ type: 'BEGIN_GAME' });
+        }}>empezar</button>
+        <button onClick={() => { dispatch({ type: 'CHOOSE', option: igual }); dispatch({ type: 'ADVANCE_FROM_FEEDBACK' }); }}>repetir</button>
+        <button onClick={() => dispatch({ type: 'CONTINUE_GAME' })}>retomar</button>
+        <div data-testid="seleccion">{state.ateneoSelection.join(',')}</div>
+        <div data-testid="invitados">{state.ateneoInvitados.map(i => `${i.id}@${i.en}`).join(',')}</div>
+      </>
+    );
+  }
+
+  beforeEach(() => localStorage.clear());
+
+  it('a la cuarta decision igual suma un invitado de otra corriente', () => {
+    render(<GameProvider><Partida /></GameProvider>);
+    fireEvent.click(screen.getByText('empezar'));
+    for (let i = 0; i < 3; i++) fireEvent.click(screen.getByText('repetir'));
+    expect(screen.getByTestId('invitados').textContent).toBe('');
+    fireEvent.click(screen.getByText('repetir'));
+    const inv = screen.getByTestId('invitados').textContent!;
+    expect(inv).toMatch(/@4$/);
+    const id = inv.split('@')[0];
+    expect(['mill', 'kant', 'buda']).not.toContain(id);
+    expect(screen.getByTestId('seleccion').textContent!.split(',')).toContain(id);
+  });
+
+  it('los invitados sobreviven a guardar y retomar', () => {
+    render(<GameProvider><Partida /></GameProvider>);
+    fireEvent.click(screen.getByText('empezar'));
+    for (let i = 0; i < 5; i++) fireEvent.click(screen.getByText('repetir'));
+    const antes = screen.getByTestId('invitados').textContent;
+    expect(antes).not.toBe('');
+    fireEvent.click(screen.getByText('retomar'));
+    expect(screen.getByTestId('invitados').textContent).toBe(antes);
+  });
+});

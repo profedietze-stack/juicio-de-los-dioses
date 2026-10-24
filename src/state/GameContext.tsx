@@ -8,6 +8,7 @@ import { startMusic } from '../engine/music';
 import { computeResults } from '../engine/results';
 import { tribunalVacio, aplicarEfectos } from '../engine/tribunal';
 import { computeEngagement } from '../engine/engagement';
+import { proximoInvitado } from '../engine/ateneo';
 import { PHILO_DATA } from '../data/philosophies';
 
 type Action =
@@ -44,6 +45,7 @@ const initialState: GameState = {
   hiddenPhilosophy: false,
   strictJudge: false,
   ateneoSelection: [],
+  ateneoInvitados: [],
   dilemmaStartTime: null,
   dilemmaPausedAt: null,
   decisionTimes: [],
@@ -129,6 +131,7 @@ function reducer(state: GameState, action: Action): GameState {
         hiddenPhilosophy: saved.hiddenPhilosophy,
         strictJudge: saved.strictJudge,
         ateneoSelection: saved.ateneoSelection,
+        ateneoInvitados: saved.ateneoInvitados ?? [],
         decisions: saved.decisions,
         unlocked: saved.unlocked,
         startTime: Date.now() - saved.elapsed * 1000,
@@ -193,7 +196,18 @@ function reducer(state: GameState, action: Action): GameState {
       if (nextCurrent >= state.sessionEvents.length) {
         return { ...state, current: nextCurrent, screen: 'result', feedback: null };
       }
-      return { ...state, current: nextCurrent, feedback: null, dilemmaStartTime: Date.now(), dilemmaPausedAt: null, ateneoViewsCurrent: 0 };
+      // Si viene repitiendo siempre la misma corriente, el Ateneo suma a alguien que piensa distinto.
+      const invitado = proximoInvitado(state.ateneoSelection, state.decisions, state.ateneoInvitados);
+      return {
+        ...state,
+        current: nextCurrent,
+        feedback: null,
+        dilemmaStartTime: Date.now(),
+        dilemmaPausedAt: null,
+        ateneoViewsCurrent: 0,
+        ateneoSelection: invitado ? [...state.ateneoSelection, invitado.id] : state.ateneoSelection,
+        ateneoInvitados: invitado ? [...state.ateneoInvitados, { id: invitado.id, en: state.decisions.length }] : state.ateneoInvitados,
+      };
     }
 
     case 'TICK_TIMER':
@@ -267,6 +281,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       hiddenPhilosophy: state.hiddenPhilosophy,
       strictJudge: state.strictJudge,
       ateneoSelection: state.ateneoSelection,
+      ateneoInvitados: state.ateneoInvitados,
       startTime: state.startTime,
       elapsed: Math.floor((Date.now() - state.startTime) / 1000),
       decisions: state.decisions,

@@ -40,4 +40,26 @@ describe('AteneoModal', () => {
     fireEvent.click(document.getElementById('ateneo-modal')!);
     expect(onClose).toHaveBeenCalledTimes(1);
   });
+
+  describe('lectura liviana cuando el Ateneo es grande', () => {
+    const tres = ['kant', 'mill', 'buda'];
+    const seis = [...tres, 'nietzsche', 'locke', 'seneca'];
+
+    it('con 3 pensadores o menos se muestra cada comentario completo, sin «Leer más»', () => {
+      render(<AteneoModal dilemmaId={1} selection={tres} onClose={() => {}} />);
+      expect(screen.queryByText('Leer más')).not.toBeInTheDocument();
+    });
+
+    it('con mas de 3 se muestra la primera frase, y «Leer más» abre el comentario entero', () => {
+      render(<AteneoModal dilemmaId={1} selection={seis} onClose={() => {}} />);
+      const botones = screen.getAllByText('Leer más');
+      expect(botones.length).toBeGreaterThan(0);
+      const entrada = botones[0].closest('.ateneo-modal-entry') as HTMLElement;
+      const antes = entrada.querySelector('.ateneo-modal-comment')!.textContent!.length;
+      fireEvent.click(botones[0]);
+      const despues = entrada.querySelector('.ateneo-modal-comment')!.textContent!.length;
+      expect(despues).toBeGreaterThan(antes);
+      expect(screen.getAllByText('Leer menos').length).toBe(1);
+    });
+  });
 });

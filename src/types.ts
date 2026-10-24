@@ -125,6 +125,7 @@ export interface AutosaveData {
   hiddenPhilosophy: boolean;
   strictJudge: boolean;
   ateneoSelection: string[];
+  ateneoInvitados?: { id: string; en: number }[];
   startTime: number;
   elapsed: number;
   decisions: DilemmaOption[];
@@ -161,5 +162,6 @@ export interface GameState {
   ateneoConsultCounts: number[];
   hiddenPhilosophy: boolean; // hide the philosophy chip on option cards before choosing
   strictJudge: boolean; // enable the per-dilemma countdown timer
-  ateneoSelection: string[]; // philosopher ids chosen for this playthrough (3..6, mandatory)
+  ateneoSelection: string[]; // philosopher ids chosen for this playthrough (3..6, mandatory) + invitados
+  ateneoInvitados: { id: string; en: number }[]; // pensadores que el Ateneo sumó solo; en = decisiones al llegar
 }
