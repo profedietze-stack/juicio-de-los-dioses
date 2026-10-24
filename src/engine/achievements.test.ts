@@ -40,9 +40,18 @@ describe('checkAchievements', () => {
     expect(checkAchievements({ score: 50, time: 1000, decisions: mixed })).toContain('cambio');
   });
 
-  it('unlocks ascendido at score 100 and extincion at score 0', () => {
-    expect(checkAchievements({ score: 100, time: 1000, decisions: decisions('utilitarismo') })).toContain('ascendido');
-    expect(checkAchievements({ score: 0, time: 1000, decisions: decisions('utilitarismo') })).toContain('extincion');
+  it('ascendido y extincion siguen al final que dieron los dioses, no a un numero de puntaje', () => {
+    const d = decisions('utilitarismo');
+    expect(checkAchievements({ score: 80, time: 1000, decisions: d, endingKey: 'deification' })).toContain('ascendido');
+    expect(checkAchievements({ score: 100, time: 1000, decisions: d, endingKey: 'enlightenment' })).not.toContain('ascendido');
+    expect(checkAchievements({ score: 0, time: 1000, decisions: d, endingKey: 'extinction' })).toContain('extincion');
+    expect(checkAchievements({ score: 0, time: 1000, decisions: d, endingKey: 'purgatory' })).not.toContain('extincion');
+  });
+
+  it('el Tirano Sabio es quedar cerca de la condena sin cruzarla: condenar a la humanidad es otro logro', () => {
+    const d = decisions('utilitarismo');
+    expect(checkAchievements({ score: 10, time: 1000, decisions: d, endingKey: 'purgatory' })).toContain('tirano');
+    expect(checkAchievements({ score: 0, time: 1000, decisions: d, endingKey: 'extinction' })).not.toContain('tirano');
   });
 
   describe('block4-themed achievements', () => {

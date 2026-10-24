@@ -314,7 +314,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     const totalTime = state.startTime ? Math.floor((Date.now() - state.startTime) / 1000) : 0;
     const r = computeResults(state.decisions, state.tribunal, totalTime);
     const unlocked = checkAchievements({
-      score: r.score, time: totalTime, decisions: state.decisions,
+      score: r.score, endingKey: r.endingKey, time: totalTime, decisions: state.decisions,
       eventIds: state.sessionEvents.map(e => e.id),
     });
     dispatch({ type: 'SET_UNLOCKED', unlocked });

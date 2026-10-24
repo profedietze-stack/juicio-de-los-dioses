@@ -1,7 +1,9 @@
 import type { DilemmaOption } from '../types';
+import type { FinalKey } from './tribunal';
 
 export interface AchievementContext {
-  score: number;
+  score: number; // 100 − (Sombra / umbral de condena), ver engine/tribunal.ts
+  endingKey?: FinalKey; // el final que dieron los dioses
   time: number;
   decisions: DilemmaOption[];
   // Dilemma id for each entry in `decisions`, same length and order —
@@ -11,7 +13,7 @@ export interface AchievementContext {
 
 // Mirrors checkAchievements(score, time) from the original: evaluates all 12
 // conditions and returns the ids that are currently true for this playthrough.
-export function checkAchievements({ score, time, decisions, eventIds = [] }: AchievementContext): string[] {
+export function checkAchievements({ score, endingKey, time, decisions, eventIds = [] }: AchievementContext): string[] {
   const ph = new Set(decisions.map(x => x.philosophy));
   const byId = new Map(eventIds.map((id, i) => [id, decisions[i]]));
 
@@ -22,7 +24,8 @@ export function checkAchievements({ score, time, decisions, eventIds = [] }: Ach
 
   const c: Record<string, boolean> = {
     defensor: score > 75,
-    tirano: score < 25,
+    // Cerca de la condena sin cruzarla; cruzarla es «Profeta del Fin».
+    tirano: score > 0 && score < 25,
     equilibrio: score >= 45 && score <= 55,
     rapido: time < 900,
     reflexivo: time > 3600,
@@ -31,8 +34,8 @@ export function checkAchievements({ score, time, decisions, eventIds = [] }: Ach
     rebelde: decisions.every(x => x.philosophy === 'nihilismo'),
     consistente: ph.size <= 1,
     cambio: ph.size >= 7,
-    ascendido: score === 100,
-    extincion: score === 0,
+    ascendido: endingKey === 'deification',
+    extincion: endingKey === 'extinction',
     'guardian-digital': !!opt81 && !!opt82 && opt81.philosophy !== 'utilitarismo' && opt82.philosophy !== 'utilitarismo',
     'voz-del-rio': opt84?.philosophy === 'feminismo',
     'mano-que-toca': opt85?.philosophy === 'feminismo',
