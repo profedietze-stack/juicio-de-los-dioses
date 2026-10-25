@@ -43,5 +43,15 @@ Jugado en el navegador (1024×768 y 375×812, sonido silenciado) y medido sobre 
 | 6. Lectura liviana | Con más de 3 pensadores en el Ateneo (por ejemplo, con invitados), el modal muestra la primera frase de cada uno y «Leer más». Con 3 o menos se lee completo. |
 | 7. Pantalla de juego | El Tribunal se ve entero en el primer dilema y desde el segundo queda una barra compacta (3 balanzas + Sombra) con botón para abrirlo; la imagen del dilema baja de 42 vh a 30 vh. En 1024×768 el título del dilema sube de 796 px a ~480 px. |
 
-Pendiente: evaluar el contraste del índice (ver «Observaciones de diseño»).
+## Tanda 3 — contraste y pendientes del audit
+
+| Tema | Qué se hizo |
+|---|---|
+| Contraste del índice | El modal informa qué pensadores leyó el alumno: todos si están a la vista (3 o menos) o solo los que abrió con «Leer más». El estado los guarda por dilema (también en el autosave) y «leyó a alguien de otra corriente» cuenta solo si alguno de esos es de una corriente distinta de la elegida. Antes se deducía de abrir el modal, y casi siempre había alguien distinto. |
+| Logros | «Deificación Humana» y «Profeta del Fin» siguen el final real de los dioses (no el puntaje); «El Tirano Sabio» excluye la condena; los textos describen la Sombra. |
+| Campo `impact` | Quitado de las 346 opciones; opcional en el tipo y en la validación, así que los guardados viejos siguen cargando. |
+| e2e en CI | Nuevo job `e2e` (partida completa + offline) del que depende el deploy. No se pudo correr en GitHub desde acá: se corrieron los mismos comandos en local. |
+| Bundle | **No se partió.** 653 kB / 208 kB gzip; el Ateneo pesa 55 kB gzip (26 %). Partirlo obliga a cargar el bloque con retraso y a que el service worker lo precachee sin nombre con hash, o el Ateneo falla sin internet la primera vez. El costo supera el beneficio en un juego que queda en caché tras la primera visita. |
+
+Sin pendientes técnicos abiertos en este informe. Queda a decisión pedagógica: Arendt↔Feminismo y Korn↔Pragmatismo.
 
