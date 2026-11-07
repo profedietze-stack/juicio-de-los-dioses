@@ -3,6 +3,9 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [master]
+  # Las ramas y los PR pasan por lint, tests, build y e2e antes de llegar a master (no se despliegan).
+  pull_request:
+    branches: [master]
   workflow_dispatch:
 
 permissions:
@@ -45,6 +48,17 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
       - run: npm run test:offline
+
+  # Vulnerabilidades conocidas en las dependencias. Va aparte y no frena el deploy: un aviso nuevo
+  # en una herramienta de desarrollo no tiene que impedir publicar, pero tiene que verse en rojo.
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - run: npm audit --audit-level=moderate
 
   deploy:
     if: github.ref == 'refs/heads/master'
