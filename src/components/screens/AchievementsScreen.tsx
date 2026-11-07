@@ -1,5 +1,5 @@
 import { useRef, useState, type ChangeEvent } from 'react';
-import { useGame } from '../../state/GameContext';
+import { useGame } from '../../state/useGame';
 import { Button } from '../ui/Button';
 import { ConfirmDialog } from '../modals/ConfirmDialog';
 import { SnapshotDetailModal } from '../modals/SnapshotDetailModal';

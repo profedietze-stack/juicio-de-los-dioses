@@ -1,4 +1,4 @@
-import { useGame } from '../../state/GameContext';
+import { useGame } from '../../state/useGame';
 import { Button } from '../ui/Button';
 import { ChipsEfectos } from '../ui/ChipsEfectos';
 import { PHILO_DATA } from '../../data/philosophies';

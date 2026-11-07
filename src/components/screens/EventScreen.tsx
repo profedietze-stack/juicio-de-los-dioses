@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useGame } from '../../state/GameContext';
+import { useGame } from '../../state/useGame';
 import { wrapTerms } from '../../engine/wrapTerms';
 import { getEventImg, getEventThemeLabel } from '../../engine/canvasRenderer';
 import { HudTribunal } from '../ui/HudTribunal';

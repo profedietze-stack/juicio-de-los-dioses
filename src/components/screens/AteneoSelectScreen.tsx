@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useGame } from '../../state/GameContext';
+import { useGame } from '../../state/useGame';
 import { Button } from '../ui/Button';
 import { philosophers } from '../../data/philosophers';
 import { PHILO_CLS } from '../../engine/philosophyDisplay';

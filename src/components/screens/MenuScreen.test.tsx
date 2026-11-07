@@ -1,7 +1,8 @@
 import { tribunalVacio } from '../../engine/tribunal';
 import { describe, it, expect, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { GameProvider, useGame } from '../../state/GameContext';
+import { GameProvider } from '../../state/GameContext';
+import { useGame } from '../../state/useGame';
 import { MenuScreen } from './MenuScreen';
 import { autosave } from '../../engine/persistence';
 

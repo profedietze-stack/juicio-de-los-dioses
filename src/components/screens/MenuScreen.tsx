@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { useGame, hasSavedGame } from '../../state/GameContext';
+import { useGame } from '../../state/useGame';
+import { hasSavedGame, clearSavedGame } from '../../engine/persistence';
 import { Button } from '../ui/Button';
 import { ConfirmDialog } from '../modals/ConfirmDialog';
-import { clearSavedGame } from '../../engine/persistence';
 import { FULL_SESSION_LENGTH, SHORT_SESSION_LENGTH } from '../../engine/poolBuilder';
 import { snd } from '../../engine/audio';
 

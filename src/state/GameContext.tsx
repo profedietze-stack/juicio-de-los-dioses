@@ -1,8 +1,8 @@
-import { createContext, useContext, useEffect, useReducer, useRef, useState, type Dispatch, type ReactNode } from 'react';
+import { useEffect, useReducer, useRef, useState, type ReactNode } from 'react';
 import type { GameState, Dilemma, DilemmaOption } from '../types';
 import { eventPool } from '../data/dilemmas';
 import { buildNewSession, recordSeenDilemas, sortearOpciones, FULL_SESSION_LENGTH } from '../engine/poolBuilder';
-import { autosave, clearSavedGame, loadSavedGame, hasSavedGame, saveHistory, saveSnapshot, saveUnlockedAchievements, isStorageAvailable } from '../engine/persistence';
+import { autosave, clearSavedGame, loadSavedGame, saveHistory, saveSnapshot, saveUnlockedAchievements, isStorageAvailable } from '../engine/persistence';
 import { checkAchievements } from '../engine/achievements';
 import { startMusic } from '../engine/music';
 import { computeResults } from '../engine/results';
@@ -10,8 +10,9 @@ import { tribunalVacio, aplicarEfectos } from '../engine/tribunal';
 import { computeEngagement } from '../engine/engagement';
 import { proximoInvitado } from '../engine/ateneo';
 import { PHILO_DATA } from '../data/philosophies';
+import { GameContext } from './useGame';
 
-type Action =
+export type Action =
   | { type: 'GO_TO_SCREEN'; screen: GameState['screen'] }
   | { type: 'GO_TO_INTRO'; length: number; hiddenPhilosophy?: boolean; strictJudge?: boolean }
   | { type: 'SET_GAME_MODE'; hiddenPhilosophy?: boolean; strictJudge?: boolean }
@@ -234,11 +235,15 @@ function reducer(state: GameState, action: Action): GameState {
   }
 }
 
-const GameContext = createContext<{ state: GameState; dispatch: Dispatch<Action>; toast: { visible: boolean; text: string } } | null>(null);
-
 export function GameProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(reducer, initialState);
   const finishedRef = useRef(false);
+  // Los efectos de abajo corren a proposito solo al cambiar de pantalla o de dilema; leen el
+  // resto del estado de este ref para no volver a dispararse con cada cambio.
+  const latest = useRef(state);
+  latest.current = state;
+  // (el lint confunde `state.current` con un ref: por eso estos dos nombres sueltos)
+  const { screen, current: dilemaActual } = state;
   const [toast, setToast] = useState<{ visible: boolean; text: string }>({ visible: false, text: 'Partida guardada' });
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -284,45 +289,47 @@ export function GameProvider({ children }: { children: ReactNode }) {
   // Autosave at the beginning of each dilema, skipping the very first
   // (nothing to resume yet) — matches the original's `if (S.current > 0)`.
   useEffect(() => {
-    if (state.screen !== 'event' || state.current === 0 || !state.startTime) return;
+    const st = latest.current;
+    if (st.screen !== 'event' || st.current === 0 || !st.startTime) return;
     autosave({
-      current: state.current,
-      tribunal: state.tribunal,
-      hiddenPhilosophy: state.hiddenPhilosophy,
-      strictJudge: state.strictJudge,
-      ateneoSelection: state.ateneoSelection,
-      ateneoInvitados: state.ateneoInvitados,
-      startTime: state.startTime,
-      elapsed: Math.floor((Date.now() - state.startTime) / 1000),
-      decisions: state.decisions,
-      unlocked: state.unlocked,
-      eventIds: state.sessionEvents.map(e => e.id),
-      decisionTimes: state.decisionTimes,
-      ateneoConsultCounts: state.ateneoConsultCounts,
-      ateneoLeidos: state.ateneoLeidos,
+      current: st.current,
+      tribunal: st.tribunal,
+      hiddenPhilosophy: st.hiddenPhilosophy,
+      strictJudge: st.strictJudge,
+      ateneoSelection: st.ateneoSelection,
+      ateneoInvitados: st.ateneoInvitados,
+      startTime: st.startTime,
+      elapsed: Math.floor((Date.now() - st.startTime) / 1000),
+      decisions: st.decisions,
+      unlocked: st.unlocked,
+      eventIds: st.sessionEvents.map(e => e.id),
+      decisionTimes: st.decisionTimes,
+      ateneoConsultCounts: st.ateneoConsultCounts,
+      ateneoLeidos: st.ateneoLeidos,
     });
     showToast('Partida guardada', 2400);
-  }, [state.screen, state.current]);
+  }, [screen, dilemaActual]);
 
   // On reaching the result screen: compute the ending, persist history +
   // snapshot + achievements + seen-dilemma stamps, exactly once per game.
   useEffect(() => {
-    if (state.screen !== 'result' || finishedRef.current) return;
+    const st = latest.current;
+    if (st.screen !== 'result' || finishedRef.current) return;
     finishedRef.current = true;
     clearSavedGame();
 
-    const totalTime = state.startTime ? Math.floor((Date.now() - state.startTime) / 1000) : 0;
-    const r = computeResults(state.decisions, state.tribunal, totalTime);
+    const totalTime = st.startTime ? Math.floor((Date.now() - st.startTime) / 1000) : 0;
+    const r = computeResults(st.decisions, st.tribunal, totalTime);
     const unlocked = checkAchievements({
-      score: r.score, endingKey: r.endingKey, time: totalTime, decisions: state.decisions,
-      eventIds: state.sessionEvents.map(e => e.id),
+      score: r.score, endingKey: r.endingKey, time: totalTime, decisions: st.decisions,
+      eventIds: st.sessionEvents.map(e => e.id),
     });
     dispatch({ type: 'SET_UNLOCKED', unlocked });
     saveUnlockedAchievements(unlocked);
 
     const engagement = computeEngagement(
-      state.sessionEvents, state.decisions, state.decisionTimes,
-      state.ateneoConsultCounts, state.ateneoLeidos,
+      st.sessionEvents, st.decisions, st.decisionTimes,
+      st.ateneoConsultCounts, st.ateneoLeidos,
     );
 
     const date = new Date().toLocaleDateString('es-AR', { day: '2-digit', month: 'short', year: 'numeric' });
@@ -338,25 +345,17 @@ export function GameProvider({ children }: { children: ReactNode }) {
       sec: r.sec, secLabel: PHILO_DATA[r.sec]?.label || r.sec,
       thr: r.thr, thrLabel: PHILO_DATA[r.thr]?.label || r.thr,
       pcts: r.pcts, ranked: r.ranked, diversity: r.diversity,
-      narrative: r.ending.narrative, decisions: state.decisions.length,
+      narrative: r.ending.narrative, decisions: st.decisions.length,
       engagementEvidence: [...engagement.dedicacion, ...engagement.exploracion],
       topDeliberated: engagement.topDeliberated,
     });
-    recordSeenDilemas(state.sessionEvents);
+    recordSeenDilemas(st.sessionEvents);
   }, [state.screen]);
 
   // Reset the "finished" guard whenever a new game starts.
   useEffect(() => {
-    if (state.screen === 'event' && state.current === 0) finishedRef.current = false;
-  }, [state.screen, state.current, state.sessionEvents]);
+    if (screen === 'event' && dilemaActual === 0) finishedRef.current = false;
+  }, [screen, dilemaActual]);
 
   return <GameContext.Provider value={{ state, dispatch, toast }}>{children}</GameContext.Provider>;
 }
-
-export function useGame() {
-  const ctx = useContext(GameContext);
-  if (!ctx) throw new Error('useGame must be used within a GameProvider');
-  return ctx;
-}
-
-export { hasSavedGame };

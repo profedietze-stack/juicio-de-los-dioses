@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, fireEvent, cleanup } from '@testing-library/react';
-import { GameProvider, useGame } from '../../state/GameContext';
+import { GameProvider } from '../../state/GameContext';
+import { useGame } from '../../state/useGame';
 import { EventScreen } from './EventScreen';
 import { ResultScreen } from './ResultScreen';
 import { ReviewScreen } from './ReviewScreen';

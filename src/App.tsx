@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { GameProvider, useGame } from './state/GameContext';
+import { GameProvider } from './state/GameContext';
+import { useGame } from './state/useGame';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { SplashScreen } from './components/SplashScreen';
 import { MenuScreen } from './components/screens/MenuScreen';

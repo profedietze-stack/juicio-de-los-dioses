@@ -1,4 +1,4 @@
-import { useGame } from '../../state/GameContext';
+import { useGame } from '../../state/useGame';
 import { Button } from '../ui/Button';
 import { computeResults, ALL_PHILO_KEYS } from '../../engine/results';
 import { computeEngagement } from '../../engine/engagement';

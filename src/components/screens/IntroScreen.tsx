@@ -1,4 +1,4 @@
-import { useGame } from '../../state/GameContext';
+import { useGame } from '../../state/useGame';
 import { Button } from '../ui/Button';
 
 export function IntroScreen() {
