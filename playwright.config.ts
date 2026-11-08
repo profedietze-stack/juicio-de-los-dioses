@@ -8,7 +8,9 @@ export default defineConfig({
   reporter: 'list',
   use: {
     baseURL: 'http://localhost:5181',
-    trace: 'on-first-retry',
+    // Si un test falla en CI (donde no se puede mirar), que quede la evidencia: traza y captura.
+    trace: 'retain-on-failure',
+    screenshot: 'only-on-failure',
   },
   webServer: {
     command: 'npm run dev -- --port 5181 --strictPort',
