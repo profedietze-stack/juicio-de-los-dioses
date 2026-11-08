@@ -28,7 +28,8 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - run: npm ci
+      # `canvas` (solo lo usan los tests) baja un binario precompilado; si esa descarga falla, reintenta.
+      - run: npm ci || (sleep 15 && npm ci)
       - run: npm run lint
       - run: npm test
       - run: npm run build
@@ -46,7 +47,8 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - run: npm ci
+      # Sin scripts de instalacion: el e2e no usa `canvas`, y asi no depende de la descarga de su binario.
+      - run: npm ci --ignore-scripts
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
       - run: npm run test:offline
