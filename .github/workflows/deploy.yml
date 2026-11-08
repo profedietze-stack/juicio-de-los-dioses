@@ -17,9 +17,11 @@ concurrency:
   group: pages
   cancel-in-progress: true
 
+# Runner fijo: con ubuntu-latest (migrando a Ubuntu 26) `canvas` no encuentra su binario precompilado
+# y `npm ci` intenta compilarlo y falla. Se sube de version a conciencia, no por sorpresa.
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -37,7 +39,7 @@ jobs:
   # Lo que vitest no puede probar: jugar una partida entera en un navegador real y que el
   # juego abra sin internet (service worker, sobre el build de produccion).
   e2e:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -52,7 +54,7 @@ jobs:
   # Vulnerabilidades conocidas en las dependencias. Va aparte y no frena el deploy: un aviso nuevo
   # en una herramienta de desarrollo no tiene que impedir publicar, pero tiene que verse en rojo.
   audit:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -63,7 +65,7 @@ jobs:
   deploy:
     if: github.ref == 'refs/heads/master'
     needs: [build, e2e]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
